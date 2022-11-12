@@ -34,10 +34,10 @@ MaxEmptyLinesToKeep: '1'
 NamespaceIndentation: All
 PointerAlignment: Right
 ReflowComments: 'true'
-SortIncludes: 'true'
+SortIncludes: 'false'
 SortUsingDeclarations: 'true'
 SpaceAfterCStyleCast: 'true'
-SpaceAfterLogicalNot: 'true'
+SpaceAfterLogicalNot: 'false'
 SpaceAfterTemplateKeyword: 'false'
 SpaceBeforeAssignmentOperators: 'true'
 SpaceBeforeCpp11BracedList: 'true'
@@ -47,9 +47,13 @@ SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: 'true'
 SpacesBeforeTrailingComments: '1'
 SpacesInCStyleCastParentheses: 'false'
-SpacesInSquareBrackets: 'true'
+SpacesInSquareBrackets: 'false'
 Standard: Auto
 TabWidth: '4'
 UseTab: Always
+IndentAccessModifiers: 'false'
+AccessModifierOffset: -4
+EmptyLineBeforeAccessModifier: LogicalBlock
+EmptyLineAfterAccessModifier: Never
 
 ...
