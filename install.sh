@@ -5,6 +5,14 @@ sudo apt install compton i3blocks
 
 git submodule update --init --recursive --remote
 
+# zsh config
+git clone git@github.com:softmoth/zsh-vim-mode.git ~/.oh-my-zsh/custom/plugins/
+git clone git@github.com:zsh-users/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/
+git clone git@github.com:zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/
+git clone git@github.com:zsh-users/zsh-completions.git ~/.oh-my-zsh/custom/plugins/
+
+source ~/.zshrc
+
 ./update.sh
 
 # betterlockscreen
