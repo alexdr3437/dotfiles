@@ -40,12 +40,12 @@ color=#a8a8a8
 min_width=A 100.00%
 command=~/.config/i3blocks/mem_display/mem_display.sh
 separator=true
-interval=30
+interval=5
 
 [disk]
 label= 
 color=#a8a8a8
-interval=30
+interval=60
 
 [bandwidth]
 command=~/.config/i3blocks/bandwidth/bandwidth
