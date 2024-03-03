@@ -1,2 +1,17 @@
 window:
-    opacity: 0.90
+  opacity: 0.90
+
+font:
+  size: 12
+  normal:
+    family: CaskaydiaCove NFM
+    style: Regular
+  bold:
+    family: CaskaydiaCove NFM
+    style: Bold
+  italic:
+    family: CaskaydiaCove NFM
+    style: Italic
+  bold_italic:
+    family: CaskaydiaCove NFM
+    style: Bold Italic
