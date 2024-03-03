@@ -48,6 +48,7 @@ color=#a8a8a8
 interval=30
 
 [bandwidth]
+command=~/.config/i3blocks/bandwidth/bandwidth
 color=#4f5d75
 interval=5
 
