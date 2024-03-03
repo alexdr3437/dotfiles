@@ -11,6 +11,8 @@ git clone git@github.com:zsh-users/zsh-autosuggestions.git ~/.oh-my-zsh/custom/p
 git clone git@github.com:zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 git clone git@github.com:zsh-users/zsh-completions.git ~/.oh-my-zsh/custom/plugins/zsh-completions
 
+cp .zshrc ~/.zshrc
+
 source ~/.zshrc
 
 ./update.sh
