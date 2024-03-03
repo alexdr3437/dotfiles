@@ -1,4 +1,0 @@
-profile {
-	output "Dell Inc. DELL S2721DS CBMNQ43" mode 2560x1440@59.951Hz position 0,0 transform normal scale 1
-	output "Unknown 0x160F 0x00000000" disable
-}
