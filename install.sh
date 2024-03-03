@@ -5,10 +5,10 @@ sudo apt install compton i3blocks
 
 git submodule update --init --recursive --remote
 
-cp -r nvim ~/.config/nvim
-cp -r tmux ~/.config/tmux
-cp -r i3 ~/.config/i3
-cp -r i3blocks ~/.config/i3blocks
+cp -r nvim ~/.config/
+cp -r tmux ~/.config/
+cp -r i3 ~/.config/
+cp -r i3blocks ~/.config/
 
 # betterlockscreen
 wget https://raw.githubusercontent.com/betterlockscreen/betterlockscreen/main/install.sh -O - -q | bash -s user
