@@ -128,5 +128,9 @@ export PATH=$HOME/.config/tmux/plugins/t-smart-tmux-session-manager/bin:$PATH
 
 export PATH=$HOME/go/bin:$PATH
 
+# ctrl-y
+bindkey '^Y' autosuggest-accept
 
 eval "$(zoxide init zsh)"
+
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
