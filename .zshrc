@@ -107,6 +107,13 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+alias ls='ls --color=auto -alFh'
+
+alias gs='git status'
+alias ga='git add'
+
+alias nvim='nvim .'
+
 # add .local/bin to path
 export PATH="$HOME/.local/bin:$PATH"
 
