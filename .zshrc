@@ -114,6 +114,10 @@ alias ga='git add'
 
 alias nvim='nvim .'
 
+alias htop='bpytop'
+
+alias lz='lazygit'
+
 # add .local/bin to path
 export PATH="$HOME/.local/bin:$PATH"
 

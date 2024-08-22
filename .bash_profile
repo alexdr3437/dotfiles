@@ -30,3 +30,4 @@ unset __conda_setup
 # <<< conda initialize <<<
 
 export PS1='@ %3~ %# '
+. "$HOME/.cargo/env"

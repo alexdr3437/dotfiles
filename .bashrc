@@ -2,3 +2,4 @@
 
 echo "export FZF_DEFAULT_COMMAND='fd'" >> ~/.bashrc
 
+. "$HOME/.cargo/env"
