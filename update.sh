@@ -1,6 +1,9 @@
 #!/bin/zsh
 # copies the config files to the correct location
 
+cp .zshrc ~/.zshrc
+source ~/.zshrc
+
 cp -r nvim ~/.config/
 cp -r tmux ~/.config/
 cp -r alacritty ~/.config/
