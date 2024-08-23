@@ -28,14 +28,11 @@ exec --no-startup-id dex --autostart --environment i3
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
-exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
+exec --no-startup-id xss-lock --transfer-sleep-lock -- betterlockscreen --lock dimblur
 
 # NetworkManager is the most popular way to manage wireless networks on Linux,
 # and nm-applet is a desktop environment-independent system tray GUI for it.
 exec --no-startup-id nm-applet
-
-# set desktop background with custom effect
-exec --no-startup-id betterlockscreen -w dim
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
@@ -194,9 +191,9 @@ bar {
         status_command i3blocks
 }
 
-bindsym $mod+shift+x exec betterlockscreen -l 
+bindsym $mod+shift+x exec betterlockscreen --lock dimblur
 
 
 exec_always --no-startup-id "setxkbmap -option ctrl:nocaps"
 exec_always --no-startup-id compton
-exec_always --no-startup-id "feh --randomize --bg-scale /home/alex/Pictures/backgrounds/*"
+exec_always --no-startup-id "betterlockscreen -u /home/alex/Pictures/backgrounds --fx dimblur && betterlockscreen -w"
