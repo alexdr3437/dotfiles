@@ -1,7 +1,10 @@
 #!/bin/zsh
 # this script copies all the files to where they belong and installs any necessary dependencies
 
-sudo apt install compton i3blocks
+sudo apt install compton i3blocks nvim stow tmux zsh
+
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
 
 git submodule update --init --recursive --remote
 
