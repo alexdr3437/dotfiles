@@ -42,9 +42,8 @@ vim.opt.signcolumn = "yes"
 -- Decrease update time
 vim.opt.updatetime = 250
 
--- Decrease mapped sequence wait time
--- Displays which-key popup sooner
-vim.opt.timeoutlen = 300
+-- Decrease mapped seqence wait time
+vim.opt.timeoutlen = 1000
 
 -- Configure how new splits should be opened
 vim.opt.splitright = true
@@ -204,21 +203,27 @@ require("lazy").setup({
 			)
 		end,
 	},
-
 	{
 		"CopilotC-Nvim/CopilotChat.nvim",
-		branch = "canary",
-		dependencies = {
-			{ "zbirenbaum/copilot.lua" }, -- or github/copilot.vim
-			{ "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
-		},
 		opts = {
-			debug = true, -- Enable debugging
-			-- See Configuration section for rest
+			show_help = "yes", -- Show help text for CopilotChatInPlace, default: yes
+			debug = false, -- Enable or disable debug mode, the log file will be in ~/.local/state/nvim/CopilotChat.nvim.log
+			disable_extra_info = "no", -- Disable extra information (e.g: system prompt) in the response.
+			language = "English", -- Copilot answer language settings when using default prompts. Default language is English.
+			-- proxy = "socks5://127.0.0.1:3000", -- Proxies requests via https or socks.
+			-- temperature = 0.1,
 		},
-		-- See Commands section for default commands if you want to lazy load on them
+		build = function()
+			vim.notify("Please update the remote plugins by running ':UpdateRemotePlugins', then restart Neovim.")
+		end,
+		event = "VeryLazy",
+		dependencies = {
+			{ "nvim-lua/plenary.nvim" },
+		},
+		keys = {
+			{ "<leader>cco", ":CopilotChatOpen<CR>", desc = "CopilotChat - Chat with current buffer" },
+		},
 	},
-
 	{
 		"ThePrimeagen/harpoon",
 		branch = "harpoon2",
@@ -317,29 +322,6 @@ require("lazy").setup({
 	-- Then, because we use the `config` key, the configuration only runs
 	-- after the plugin has been loaded:
 	--  config = function() ... end
-
-	{ -- Useful plugin to show you pending keybinds.
-		"folke/which-key.nvim",
-		event = "VimEnter", -- Sets the loading event to 'VimEnter'
-		config = function() -- This is the function that runs, AFTER loading
-			require("which-key").setup()
-
-			-- Document existing key chains
-			require("which-key").register({
-				["<leader>c"] = { name = "[C]ode", _ = "which_key_ignore" },
-				["<leader>d"] = { name = "[D]ocument", _ = "which_key_ignore" },
-				["<leader>r"] = { name = "[R]ename", _ = "which_key_ignore" },
-				["<leader>s"] = { name = "[S]earch", _ = "which_key_ignore" },
-				["<leader>w"] = { name = "[W]orkspace", _ = "which_key_ignore" },
-				["<leader>t"] = { name = "[T]oggle", _ = "which_key_ignore" },
-				["<leader>h"] = { name = "Git [H]unk", _ = "which_key_ignore" },
-			})
-			-- visual mode
-			require("which-key").register({
-				["<leader>h"] = { "Git [H]unk" },
-			}, { mode = "v" })
-		end,
-	},
 
 	-- NOTE: Plugins can specify dependencies.
 	--

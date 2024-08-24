@@ -72,12 +72,15 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
+# ctrl-y
+bindkey '^Y' autosuggest-accept
+
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-vim-mode)
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-vi-mode)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -127,7 +130,6 @@ source $HOME/.venv/bin/activate
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-
 # ~/.tmux/plugins
 export PATH=$HOME/.tmux/plugins/t-smart-tmux-session-manager/bin:$PATH
 # ~/.config/tmux/plugins
@@ -135,9 +137,6 @@ export PATH=$HOME/.config/tmux/plugins/t-smart-tmux-session-manager/bin:$PATH
 
 # go
 export PATH=$HOME/go/bin:$PATH
-
-# ctrl-y
-bindkey '^Y' autosuggest-accept
 
 eval "$(zoxide init zsh)"
 

@@ -17,10 +17,10 @@ cd $pwd
 chsh -s $(which zsh)
 
 # zsh config
-git clone git@github.com:softmoth/zsh-vim-mode.git ~/.oh-my-zsh/custom/plugins/zsh-vim-mode
-git clone git@github.com:zsh-users/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
-git clone git@github.com:zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-git clone git@github.com:zsh-users/zsh-completions.git ~/.oh-my-zsh/custom/plugins/zsh-completions
+git clone https://github.com/jeffreytse/zsh-vi-mode $ZSH_CUSTOM/plugins/zsh-vi-mode
+git clone git@github.com:zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions
+git clone git@github.com:zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/custom/plugins/zsh-syntax-highlighting
+git clone git@github.com:zsh-users/zsh-completions.git $ZSH_CUSTOM/plugins/zsh-completions
 
 # install fzf
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
