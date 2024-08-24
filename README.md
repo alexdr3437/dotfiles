@@ -6,3 +6,4 @@ From the root of the repository, use `stow` to create symlinks to the configurat
 ```bash
 stow .
 ```
+

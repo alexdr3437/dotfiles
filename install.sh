@@ -1,12 +1,10 @@
-#!/bin/zsh
+#!/bin/sh
 # this script copies all the files to where they belong and installs any necessary dependencies
 
-sudo apt install compton i3blocks nvim stow tmux zsh
+sudo apt install compton i3blocks stow tmux zsh
 
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
-
-git submodule update --init --recursive --remote
+# set zsh as default shell
+chsh -s $(which zsh)
 
 # zsh config
 git clone git@github.com:softmoth/zsh-vim-mode.git ~/.oh-my-zsh/custom/plugins/zsh-vim-mode
@@ -14,7 +12,12 @@ git clone git@github.com:zsh-users/zsh-autosuggestions.git ~/.oh-my-zsh/custom/p
 git clone git@github.com:zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 git clone git@github.com:zsh-users/zsh-completions.git ~/.oh-my-zsh/custom/plugins/zsh-completions
 
-./update.sh
+# install fzf
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+
+# install dotfiles
+stow .
 
 # betterlockscreen
 wget https://raw.githubusercontent.com/betterlockscreen/betterlockscreen/main/install.sh -O - -q | bash -s user
@@ -22,7 +25,12 @@ wget https://raw.githubusercontent.com/betterlockscreen/betterlockscreen/main/in
 # i3lock-color
 sudo apt install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util0-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
 
+pwd=$(pwd)
+
 cd ..
 git clone https://github.com/Raymo111/i3lock-color.git
 cd i3lock-color
 ./install-i3lock-color.sh
+
+cd $pwd
+

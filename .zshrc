@@ -112,8 +112,6 @@ alias ls='ls --color=auto -alFh'
 alias gs='git status'
 alias ga='git add'
 
-alias nvim='nvim .'
-
 alias htop='bpytop'
 
 alias lz='lazygit'
@@ -136,7 +134,6 @@ export PATH=$HOME/.tmux/plugins/t-smart-tmux-session-manager/bin:$PATH
 export PATH=$HOME/.config/tmux/plugins/t-smart-tmux-session-manager/bin:$PATH
 
 # go
-
 export PATH=$HOME/go/bin:$PATH
 
 # ctrl-y
@@ -145,3 +142,6 @@ bindkey '^Y' autosuggest-accept
 eval "$(zoxide init zsh)"
 
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+# rust
+. "$HOME/.cargo/env"
