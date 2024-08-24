@@ -3,7 +3,7 @@
 
 pwd=$(pwd)
 
-sudo apt install git compton i3blocks stow tmux zsh cmake
+sudo apt install git compton i3blocks stow tmux zsh cmake gettext
 
 cd 
 git clone https://github.com/neovim/neovim.git
