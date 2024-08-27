@@ -144,3 +144,6 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # rust
 . "$HOME/.cargo/env"
+
+# fuck
+eval $(thefuck --alias)
