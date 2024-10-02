@@ -1,17 +1,17 @@
 window:
-  opacity: 0.8
+  opacity: 0.90
 
 font:
   size: 8
   normal:
-    family: CaskaydiaCove NFM
+    family: Agave Nerd Font
     style: Regular
   bold:
-    family: CaskaydiaCove NFM
+    family: Agave Nerd Font
     style: Bold
   italic:
-    family: CaskaydiaCove NFM
+    family: Agave Nerd Font
     style: Italic
   bold_italic:
-    family: CaskaydiaCove NFM
+    family: Agave Nerd Font
     style: Bold Italic
