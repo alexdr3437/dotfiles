@@ -147,3 +147,5 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # fuck
 eval $(thefuck --alias)
+
+source ~/.ai_api_keys
