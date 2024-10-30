@@ -213,7 +213,14 @@ require("lazy").setup({
 		version = false, -- set this if you want to always pull the latest change
 		opts = {
 			-- add any opts here
-			provider = "copilot",
+			provider = "claude",
+			auto_suggestions_provider = "claude", -- Since auto-suggestions are a high-frequency operation and therefore expensive, it is recommended to specify an inexpensive provider or even a free provider: copilot
+			claude = {
+				endpoint = "https://api.anthropic.com",
+				model = "claude-3-5-sonnet-20240620",
+				temperature = 0,
+				max_tokens = 4096,
+			},
 		},
 		-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
 		build = "make",
@@ -455,7 +462,7 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>pd", builtin.diagnostics, { desc = "[P]earch [D]iagnostics" })
 			vim.keymap.set("n", "<leader>pr", builtin.resume, { desc = "[P]earch [R]esume" })
 			vim.keymap.set("n", "<leader>p.", builtin.oldfiles, { desc = '[P]earch Recent Files ("." for repeat)' })
-			vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
+			vim.keymap.set("n", "<leader>pb", builtin.buffers, { desc = "[ ] Find existing buffers" })
 
 			-- Slightly advanced example of overriding default behavior and theme
 			vim.keymap.set("n", "<leader>/", function()
@@ -468,7 +475,7 @@ require("lazy").setup({
 
 			-- It's also possible to pass additional configuration options.
 			--  See `:help telescope.builtin.live_grep()` for information about particular keys
-			vim.keymap.set("n", "<leader>s/", function()
+			vim.keymap.set("n", "<leader>po", function()
 				builtin.live_grep({
 					grep_open_files = true,
 					prompt_title = "Live Grep in Open Files",
@@ -476,7 +483,7 @@ require("lazy").setup({
 			end, { desc = "[S]earch [/] in Open Files" })
 
 			-- Shortcut for searching your Neovim configuration files
-			vim.keymap.set("n", "<leader>sn", function()
+			vim.keymap.set("n", "<leader>pn", function()
 				builtin.find_files({ cwd = vim.fn.stdpath("config") })
 			end, { desc = "[S]earch [N]eovim files" })
 		end,
@@ -737,7 +744,7 @@ require("lazy").setup({
 			formatters_by_ft = {
 				lua = { "stylua" },
 				-- Conform can also run multiple formatters sequentially
-				python = { "isort", "black" },
+				python = { "yapf" },
 				--
 				-- You can use a sub-list to tell conform to run *until* a formatter
 				-- is found.
@@ -870,20 +877,20 @@ require("lazy").setup({
 	},
 
 	-- {
-	-- 	"scottmckendry/cyberdream.nvim",
-	-- 	lazy = false,
-	-- 	priority = 1000,
-	-- 	config = function()
-	-- 		require("cyberdream").setup({
-	-- 			-- Recommended - see "Configuring" below for more config options
-	-- 			transparent = true,
-	-- 			italic_comments = true,
-	-- 			hide_fillchars = true,
-	-- 			borderless_telescope = false,
-	-- 			terminal_colors = true,
-	-- 		})
-	-- 		vim.cmd("colorscheme cyberdream") -- set the colorscheme
-	-- 	end,
+	--  "scottmckendry/cyberdream.nvim",
+	--  lazy = false,
+	--  priority = 1000,
+	--  config = function()
+	--    require("cyberdream").setup({
+	--      -- Recommended - see "Configuring" below for more config options
+	--      transparent = true,
+	--      italic_comments = true,
+	--      hide_fillchars = true,
+	--      borderless_telescope = false,
+	--      terminal_colors = true,
+	--    })
+	--    vim.cmd("colorscheme cyberdream") -- set the colorscheme
+	--  end,
 	-- },
 	--
 	{ -- You can easily change to a different colorscheme.
