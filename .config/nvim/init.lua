@@ -174,6 +174,29 @@ end
 -- NOTE: Here is where you install your plugins.
 require("lazy").setup({
 
+	{
+		dir = "/home/alex/test-vim-plugin/",
+		event = "VimEnter", -- e.g., load on VimEnter
+		requires = { "nvim-lua/plenary.nvim" },
+		config = function()
+			require("testvimplugin").setup({
+				-- Plugin configuration options
+			})
+		end,
+	},
+	{
+		"leath-dub/snipe.nvim",
+		keys = {
+			{
+				"<leader>s",
+				function()
+					require("snipe").open_buffer_menu()
+				end,
+				desc = "Open Snipe buffer menu",
+			},
+		},
+		opts = {},
+	},
 	"xiyaowong/transparent.nvim",
 	{
 		"stevearc/oil.nvim",
@@ -213,7 +236,7 @@ require("lazy").setup({
 		version = false, -- set this if you want to always pull the latest change
 		opts = {
 			-- add any opts here
-			provider = "claude",
+			provider = "copilot",
 			auto_suggestions_provider = "claude", -- Since auto-suggestions are a high-frequency operation and therefore expensive, it is recommended to specify an inexpensive provider or even a free provider: copilot
 			claude = {
 				endpoint = "https://api.anthropic.com",
@@ -309,6 +332,27 @@ require("lazy").setup({
 		config = function()
 			vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<CR>", { desc = "Toggle [U]ndo tree" })
 		end,
+	},
+
+	{
+		"kdheepak/lazygit.nvim",
+		lazy = true,
+		cmd = {
+			"LazyGit",
+			"LazyGitConfig",
+			"LazyGitCurrentFile",
+			"LazyGitFilter",
+			"LazyGitFilterCurrentFile",
+		},
+		-- optional for floating window border decoration
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+		},
+		-- setting the keybinding for LazyGit with 'keys' is recommended in
+		-- order to load the plugin when the command is run for the first time
+		keys = {
+			{ "<leader>lg", "<cmd>LazyGit<cr>", desc = "LazyGit" },
+		},
 	},
 
 	-- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
