@@ -149,3 +149,5 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 eval $(thefuck --alias)
 
 source ~/.ai_api_keys
+
+export DISPLAY=:1
