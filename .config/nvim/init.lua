@@ -240,7 +240,7 @@ require("lazy").setup({
 			auto_suggestions_provider = "claude", -- Since auto-suggestions are a high-frequency operation and therefore expensive, it is recommended to specify an inexpensive provider or even a free provider: copilot
 			claude = {
 				endpoint = "https://api.anthropic.com",
-				model = "claude-3-5-sonnet-20241022",
+				model = "claude-3-7-sonnet-latest",
 				temperature = 0,
 				max_tokens = 4096,
 			},
@@ -779,7 +779,7 @@ require("lazy").setup({
 				-- Disable "format_on_save lsp_fallback" for languages that don't
 				-- have a well standardized coding style. You can add additional
 				-- languages here or re-enable it for the disabled ones.
-				local disable_filetypes = { c = true, cpp = true, json = true }
+				local disable_filetypes = { c = true, cpp = true, json = true, tsx = true, js = true }
 				return {
 					timeout_ms = 500,
 					lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
@@ -789,12 +789,6 @@ require("lazy").setup({
 				lua = { "stylua" },
 				-- Conform can also run multiple formatters sequentially
 				python = { "yapf" },
-				--
-				-- You can use a sub-list to tell conform to run *until* a formatter
-				-- is found.
-				javascript = { { "prettierd", "prettier" } },
-				javascriptreact = { { "prettierd", "prettier" } },
-				typescriptreact = { { "prettierd", "prettier" } },
 			},
 		},
 	},
