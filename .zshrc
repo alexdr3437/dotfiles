@@ -148,6 +148,12 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 # fuck
 eval $(thefuck --alias)
 
+function flash() {
+	parallel 'openocd -c "adapter serial \"{}\"" -f config/mmpb.cfg -c "nrf52_recover; program $1 verify reset exit"' ::: `ftdi_urls.py | grep -oP 'ftdi://ftdi:4232:\K[^/]+' | sort | uniq`     
+}
+
 source ~/.ai_api_keys
 
 export DISPLAY=:1
+
+source ~/.mqtt_credentials
