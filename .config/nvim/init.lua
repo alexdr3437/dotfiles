@@ -175,16 +175,6 @@ end
 require("lazy").setup({
 
 	{
-		dir = "/home/alex/test-vim-plugin/",
-		event = "VimEnter", -- e.g., load on VimEnter
-		requires = { "nvim-lua/plenary.nvim" },
-		config = function()
-			require("testvimplugin").setup({
-				-- Plugin configuration options
-			})
-		end,
-	},
-	{
 		"leath-dub/snipe.nvim",
 		keys = {
 			{
