@@ -487,7 +487,7 @@ require("lazy").setup({
 				if dir then
 					builtin.find_files({ cwd = get_parent_dir(dir) })
 				else
-					builtin.find_files()
+					builtin.find_files({ cwd = vim.loop.cwd() })
 				end
 			end, { desc = "[P]earch [P]roject" })
 
