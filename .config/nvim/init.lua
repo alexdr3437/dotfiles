@@ -205,34 +205,15 @@ require("lazy").setup({
 		end,
 	},
 	{
-		"zbirenbaum/copilot.lua",
-		cmd = "Copilot",
-		event = "InsertEnter",
-		config = function()
-			require("copilot").setup({
-				suggestion = {
-					auto_trigger = true,
-					keymap = {
-						accept = "<C-y>",
-					},
-				},
-			})
-		end,
-	},
-	{
 		"yetone/avante.nvim",
 		event = "VeryLazy",
 		lazy = false,
 		version = false, -- set this if you want to always pull the latest change
 		opts = {
-			-- add any opts here
 			provider = "claude",
-			auto_suggestions_provider = "claude", -- Since auto-suggestions are a high-frequency operation and therefore expensive, it is recommended to specify an inexpensive provider or even a free provider: copilot
-			claude = {
-				endpoint = "https://api.anthropic.com",
-				model = "claude-3-7-sonnet-latest",
-				temperature = 0,
-				max_tokens = 4096,
+			providers = {
+				claude = {},
+				copilot = {},
 			},
 		},
 		-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
