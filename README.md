@@ -1,39 +1,20 @@
-Backup some common configuration files
 
-## Usage
+## Install
 
-If you're on a fresh install, install git first:
-```bash
-sudo apt update
-sudo apt upgrade
-sudo apt install git
+```zsh
+git clone https://github.com/alexdr3437/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
 ```
 
-Clone this repository:
-```bash
-git clone https://github.com/alexdr3437/dotfiles.git
-cd dotfiles
+If you're on a fresh NixOS build:
+
+```zsh
+sudo nixos-rebuild switch --flake .
 ```
 
-From the root of this repository, run the `./install.sh` script:
-```bash
-./install.sh
+
+To copy the dotfiles to their correct place:
+```zsh
+stow .
 ```
 
-If on a desktop environment, you can also run the `./desktop-install.sh.sh` script:
-```bash
-./desktop-install.sh
-```
-
----
-
-For convenience:
-```bash
-sudo apt update
-sudo apt upgrade
-sudo apt install git
-git clone https://github.com/alexdr3437/dotfiles.git
-cd dotfiles
-./install.sh
-./desktop-install.sh
-```
