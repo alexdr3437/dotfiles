@@ -134,8 +134,9 @@ keybinds clear-defaults=true {
         }
         bind "w" {
             LaunchOrFocusPlugin "session-manager" {
-                floating true
+                floating true 
                 move_to_focused_tab true
+				close_on_exit true
             }
             SwitchToMode "locked"
         }
@@ -158,6 +159,12 @@ keybinds clear-defaults=true {
         bind "Super l" { MoveFocusOrTab "right"; }
         bind "Super n" { NewPane; }
         bind "Super o" { MoveTab "right"; }
+        bind "Super i" { TogglePanePinned; }
+        bind "Super 1" { GoToTab 1; SwitchToMode "locked"; }
+        bind "Super 2" { GoToTab 2; SwitchToMode "locked"; }
+        bind "Super 3" { GoToTab 3; SwitchToMode "locked"; }
+        bind "Super 4" { GoToTab 4; SwitchToMode "locked"; }
+        bind "Super 5" { GoToTab 5; SwitchToMode "locked"; }
     }
     shared_except "locked" "renametab" "renamepane" {
         bind "Ctrl g" { SwitchToMode "locked"; }
@@ -326,7 +333,7 @@ default_mode "locked"
 // Valid values: positive integers
 // Default value: 10000
 // 
-// scroll_buffer_size 10000
+scroll_buffer_size 100000
  
 // Provide a command to execute when copying text. The text will be piped to
 // the stdin of the program to perform the copy. This can be used with
