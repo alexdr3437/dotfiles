@@ -6,20 +6,21 @@
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
+      # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "nixos"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
 
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
@@ -50,6 +51,9 @@
     displayManager.gdm.enable = true;
   };
 
+
+  # --- shell
+  programs.zsh.enable = true;
 
 
   # --- enable hyprland
@@ -103,16 +107,17 @@
     pulse.enable = true;
     jack.enable = true;
   };
-  
+
 
 
   # --- Define a user account. 
   users.users.alex = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ]; 
+    extraGroups = [ "wheel" ];
     packages = with pkgs; [
       tree
     ];
+    shell = pkgs.zsh;
   };
 
 
@@ -148,6 +153,17 @@
     stow
     gnumake
     gcc
+    btop
+    cargo
+    rustc
+    rustfmt
+    rust-analyzer
+    rustPackages.clippy
+    pre-commit
+    unzip
+    fzf
+    nodejs
+    zoxide
   ];
 
 
