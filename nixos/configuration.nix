@@ -164,6 +164,8 @@
     fzf
     nodejs
     zoxide
+    lazygit
+    hyprpaper
   ];
 
 
