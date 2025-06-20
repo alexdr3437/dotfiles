@@ -2,7 +2,7 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   imports =
@@ -71,12 +71,19 @@
     SDL_VIDEODRIVER = "wayland";
     CLUTTER_BACKEND = "wayland";
     WLR_NO_HARDWARE_CURSORS = "1";
+    MOZ_ENABLE_WAYLAND = "1";
   };
 
   hardware = {
     graphics.enable = true;
-    nvidia.modesetting.enable = true;
+	nvidia = {
+	  modesetting.enable = true;
+	  package = config.boot.kernelPackages.nvidiaPackages.stable;
+	};
   };
+
+  services.xserver.videoDrivers = [ "nvidia" ];
+  hardware.nvidia.open = true; # Enable open source nvidia driver
 
 
 
@@ -122,6 +129,21 @@
 
 
 
+  # --- run nixos-rebuild with no password
+  security.sudo.extraRules = [
+    {
+      users = [ "alex" ];
+      commands = [
+        {
+          command = "/run/current-system/sw/bin/nixos-rebuild";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
+
+
+
   # --- packages !
   programs.firefox.enable = true;
 
@@ -131,24 +153,24 @@
   services.gvfs.enable = true;
   services.tumbler.enable = true;
 
+  # games
+  programs.steam.enable = true;
 
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
-    neovim
+    inputs.neovim-nightly-overlay.packages.${pkgs.system}.default
     kitty
     wget
     walker
     zellij
     pulseaudio
     pavucontrol
-    waybar
     mako
     libnotify
     networkmanagerapplet
     dunst
     slack
     discord
-    steam
     git
     stow
     gnumake
@@ -162,11 +184,34 @@
     pre-commit
     unzip
     fzf
+    ripgrep
     nodejs
     zoxide
     lazygit
     hyprpaper
+    waybar
+    hyprpicker
+    hyprlock
+    pywal
+    blueman
+    bluez
+    yay
+    obsidian
+    neofetch
+    ydiff
+    xclip
+    parallel
+    fftw
+    wireshark
+    gjs
+    inputs.astal.packages.${pkgs.system}.default
+	clang-tools
+    arandr 
+     
+     
   ];
+     
+  fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono ];
 
 
 
