@@ -49,6 +49,7 @@
   services.xserver = {
     enable = true;
     displayManager.gdm.enable = true;
+    xkbOptions = "ctrl:swapcaps"; 
   };
 
 
@@ -207,6 +208,7 @@
     inputs.astal.packages.${pkgs.system}.default
 	clang-tools
     arandr 
+	bitwarden-desktop      
      
      
   ];
