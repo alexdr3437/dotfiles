@@ -49,8 +49,9 @@
   services.xserver = {
     enable = true;
     displayManager.gdm.enable = true;
-    xkbOptions = "ctrl:swapcaps"; 
   };
+
+
 
 
   # --- shell
@@ -209,8 +210,6 @@
 	clang-tools
     arandr 
 	bitwarden-desktop      
-     
-     
   ];
      
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono ];
