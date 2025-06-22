@@ -754,12 +754,30 @@ require("lazy").setup({
 			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
       local lspconfig = require("lspconfig")
+
       lspconfig.clangd.setup {
         capabilities = capabilities,
         cmd = { "clangd", "--background-index", "--clang-tidy", "--tweaks=-ferror-limit=0", "--tweaks=-ftemplate-backtrace-limit=0" },
         filetypes = { "c", "cpp", "objc", "objcpp" },
         root_dir = lspconfig.util.root_pattern("compile_commands.json", "compile_flags.txt", ".git"),
       }
+
+      lspconfig.ts_ls.setup({
+        on_attach = function(client, bufnr)
+          -- disable tsserver formatting in favor of prettier or eslint
+          client.server_capabilities.documentFormattingProvider = false
+
+          -- keymaps
+          local buf_map = function(mode, lhs, rhs)
+            vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, { noremap=true, silent=true })
+          end
+          buf_map('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
+          buf_map('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>')
+          buf_map('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>')
+        end,
+        filetypes = { "typescript", "typescriptreact", "typescript.tsx" },
+        cmd = { "typescript-language-server", "--stdio" },
+      })
 
 		end,
 	},

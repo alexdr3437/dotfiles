@@ -201,6 +201,7 @@
     obsidian
     neofetch
     ydiff
+	wl-clipboard
     xclip
     parallel
     fftw
@@ -210,6 +211,8 @@
 	clang-tools
     arandr 
 	bitwarden-desktop      
+	socat
+     
   ];
      
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono ];
