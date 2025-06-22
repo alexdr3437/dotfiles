@@ -771,13 +771,30 @@ require("lazy").setup({
           local buf_map = function(mode, lhs, rhs)
             vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, { noremap=true, silent=true })
           end
-          buf_map('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
-          buf_map('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>')
-          buf_map('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>')
         end,
         filetypes = { "typescript", "typescriptreact", "typescript.tsx" },
         cmd = { "typescript-language-server", "--stdio" },
       })
+
+      lspconfig.rust_analyzer.setup {
+        on_attach = function(client, bufnr)
+          -- optional: keymaps, autocmds, etc
+          local buf_map = vim.api.nvim_buf_set_keymap
+          local opts = { noremap=true, silent=true }
+          -- ...your other mappings...
+        end,
+        settings = {
+          ["rust-analyzer"] = {
+            cargo = { allFeatures = true },
+            check = { command = "clippy" },
+            checkOnSave = true,
+            procMacro = { enable = true },
+          },
+        },
+        flags = {
+          debounce_text_changes = 150,
+        },
+      }
 
 		end,
 	},
