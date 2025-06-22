@@ -179,11 +179,6 @@
     gcc
     btop
     cargo
-    rustc
-    rustfmt
-    rust-analyzer
-    rustPackages.clippy
-    pre-commit
     unzip
     fzf
     ripgrep
@@ -212,7 +207,7 @@
     arandr 
 	bitwarden-desktop      
 	socat
-     
+    jq 
   ];
      
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono ];
