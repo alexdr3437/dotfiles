@@ -1,0 +1,70 @@
+(deflisten workspaces0 :initial "[]"
+	`/home/alex/.config/eww/target/release/workspaces icons 0`)
+
+(deflisten workspaces1 :initial "[]"
+	`/home/alex/.config/eww/target/release/workspaces icons 1`)
+
+(defvar foo "[]")
+
+(defwidget bar [monitor]
+	(box :class "bar"
+		 :halign "center"
+		 :hexpand true
+		 :vexpand false
+		 :orientation "horizontal"
+		 :spacing 10
+		 :width 0
+		 :height 20
+		 :spacing 0
+		 :space-evenly false
+		(for workspace in {monitor == 1 ?  workspaces1 : workspaces0} 
+		   (box  :class "workspace"
+				 :hexpand false
+				 :halign "center" 
+				 :width 0
+				 :active true
+				 :spacing 0
+				 :space-evenly false
+				(box :class "number" {workspace["workspace"]})
+				(for win in {workspace["icons"]} 
+					(image :class "icon"
+						   :path {win["path"]}
+						   :image-width 32
+						   :image-height 32)
+				)
+			)
+
+		)
+	)
+)
+
+(defwindow bar0
+           :monitor 0
+           :geometry (geometry :x "0%"
+                               :y "10px"
+                               :width "90%"
+                               :height "20px"
+                               :anchor "top center")
+           :stacking "fg"
+           :exclusive true
+           :focusable "none"
+           :wm-ignore false
+	(bar :monitor 0))
+
+(defwindow bar1
+           :monitor 1 
+           :geometry (geometry :x "0%"
+                               :y "10px"
+                               :width "90%"
+                               :height "20px"
+                               :anchor "top center")
+           :stacking "fg"
+           :exclusive true
+           :focusable "none"
+           :wm-ignore false
+	(bar :monitor 1))
+		
+
+
+
+
