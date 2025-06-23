@@ -44,9 +44,14 @@ struct Icon {
 struct Icons {
     id: i32,
     workspace: String,
+    active: bool,
     icons: Vec<Icon>,
 }
 
+#[derive(Debug, Deserialize)]
+struct ActiveWorkspace {
+    id: i32,
+}
 
 fn get_icon_path(app: &str) -> anyhow::Result<Option<String>> {
     let icon = match DesktopAppInfo::new(&format!("{}.desktop", app.to_lowercase()))
@@ -71,6 +76,20 @@ fn get_icon_path(app: &str) -> anyhow::Result<Option<String>> {
     Ok(None)
 }
 
+fn get_active_workspace() -> anyhow::Result<i32> {
+    let output = Command::new("hyprctl")
+        .arg("activeworkspace")
+        .arg("-j")
+        .output().context("Failed to execute hyprctl activeworkspace command")?;
+
+    let output = String::from_utf8_lossy(&output.stdout);
+
+    let workspace: ActiveWorkspace = serde_json::from_str(&output)
+        .context("Invalid JSON input for active workspace")?;
+
+    Ok(workspace.id)
+}
+
 fn get_icons(monitor: u32) -> anyhow::Result<Vec<Icons>> {
     let output = Command::new("hyprctl")
         .arg("clients")
@@ -83,6 +102,8 @@ fn get_icons(monitor: u32) -> anyhow::Result<Vec<Icons>> {
         .context("Invalid JSON input")?;
 
     let mut icons: Vec<Icons> = Vec::new();
+
+    let active_workspace_id = get_active_workspace().ok();
 
     for mut window in windows.into_iter().filter(|w| w.monitor == monitor) {
         window.icon = match &window.class {
@@ -112,6 +133,7 @@ fn get_icons(monitor: u32) -> anyhow::Result<Vec<Icons>> {
             // create a new workspace entry
             let workspace = Icons {
                 id: workspace_id,
+                active: active_workspace_id.map_or(false, |id| id == workspace_id), 
                 workspace: if workspace_id >= 0 {
                     workspace_id.to_string()
                 } else {
@@ -133,6 +155,7 @@ fn get_icons(monitor: u32) -> anyhow::Result<Vec<Icons>> {
 
     Ok(icons)
 }
+
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

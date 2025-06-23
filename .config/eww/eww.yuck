@@ -15,7 +15,7 @@
 (defpoll time :interval "1s"
 	`date +"%-I:%M %p — %b %d, %Y" | tr '[AM|PM]' '[am|pm]'`)
 
-(defpoll weather_now :interval "5m"
+(defpoll weather_now :interval "5m" :initial "{\"main\": {\"temp\": 0}, \"weather\": [{\"icon\": \"02d\"}]}"
 	`/home/alex/.config/eww/scripts/weather-current.sh`)
 
 (defpoll weather_forecast :interval "5m"
@@ -34,8 +34,8 @@
 				:text {round(jq(weather_now, '.main.temp', "r"), 0) + "°C"})
 		 (image :class "weather-icon" 
 				:path {replace("/home/alex/.config/eww/icons/AA@2x.png", "AA", jq(weather_now, '.weather[0].icon', "r"))}
-			    :image-width 48
-				:image-height 48
+			    :image-width 32
+				:image-height 32
 			)
 	)
 )
@@ -47,8 +47,11 @@
 		 :space-evenly false
 		(weather)
 		(box :class "pill"
-			(label :class "system"
-				   :text {'hi there'})
+			 :style 'margin-right: 5px;'
+			(image :path "/home/alex/.config/eww/icons/settings-5666.png"
+				   :image-width 24
+				   :image-height 24
+			)
 		)
 	)
 )
@@ -56,32 +59,40 @@
 (defwidget workspace [monitor]
 	(box :class "pill"
 		 :halign "start"
-		 :hexpand true
-		 :vexpand false
 		 :orientation "horizontal"
-		 :spacing 10
-		 :width 0
-		 :height 20
 		 :spacing 0
 		 :space-evenly false
+		 :style 'margin-left: 5px;'
 		(for ws in {monitor == 1 ?  workspaces1 : workspaces0} 
-		   (box  :class "workspace"
-				 :hexpand false
-				 :halign "center" 
-				 :width 0
-				 :active true
+			(box :class "workspace"
+				 :orientation "vertical"
+				 :vexpand false 
+				 :halign "start"
 				 :spacing 0
 				 :space-evenly false
-				(label :class "number"
-					   :justify "center" 
-					   :lines 2 
-					   :limit-width 2 
-					   :text {ws["workspace"]})
-				(for icon in {ws["icons"]} 
-					(image :class "icon"
-						   :path {icon["path"]}
-						   :image-width 24
-						   :image-height 24)
+				 
+			   (box  
+					 :spacing 0
+					 :space-evenly false
+					(label :class "number"
+						   :justify "center" 
+						   :lines 2 
+						   :limit-width 2 
+						   :text {ws["workspace"]})
+					(for icon in {ws["icons"]} 
+						(image :class "icon"
+							   :path {icon["path"]}
+							   :image-width 24
+							   :image-height 24)
+					)
+				)
+				(box :class "active-marker"
+					 :valign "start"
+					 :halign "center"
+					 :vexpand false 
+					 :spacing 0
+					 :space-evenly false
+					(label :text {ws["active"] ? "●" : ""})
 				)
 			)
 
@@ -95,7 +106,7 @@
 		   :geometry (geometry :x "0%"
 							   :y "10px"
 							   :width "100%"
-							   :height "10px"
+							   :height "5px"
 							   :anchor "top center")
 	       :reserve (struts :side "top" :distance "4%")
            :stacking "fg"
@@ -103,3 +114,4 @@
            :focusable "none"
            :wm-ignore false
 	(bar :class "bar" :monitor 1))
+

@@ -3,11 +3,13 @@ $text-color: rgba(#000000, 1);
 $border-color: rgba(#3a3a3a, .5);
 
 * {
-  color: $text-color;
-  font-weight: bold;
+  /* border: 1px solid $border-color; */
 }
 
 window {
+  color: $text-color;
+  font-weight: bold;
+  font-family: "", monospace;
   background-color: transparent;
 }
 
@@ -55,3 +57,8 @@ window {
   background-color: $background-color;
   margin: 0px 5px 0px 0px;
 }
+
+.active-marker {
+  font-size: 5px;
+}
+
