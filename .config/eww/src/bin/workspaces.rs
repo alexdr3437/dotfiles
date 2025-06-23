@@ -1,4 +1,5 @@
 use std::{env, process::Command, time::Instant}; use hyprrust::data::Workspaces;
+use s_macro::s;
 use serde::{Deserialize, Serialize};
 use tokio::{
     net::UnixStream,
@@ -7,7 +8,7 @@ use tokio_stream::StreamExt;
 use tokio_util::codec::{FramedRead, LinesCodec};
 use anyhow::{Context, Result};
 use std::collections::HashMap;
-use gtk::IconTheme;
+use gtk::{gdk::keys::constants::t, IconTheme};
 use gio::{DesktopAppInfo, Icon as _};
 use gtk::IconLookupFlags;
 
@@ -18,7 +19,7 @@ use gtk::prelude::IconThemeExt;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct WorkspaceInfo {
-    id: u32,
+    id: i32,
     name: String,
 }
 
@@ -28,6 +29,8 @@ struct Window {
     title: Option<String>,
     icon: Option<String>,
     monitor: u32,
+    #[serde(rename = "focusHistoryID")]
+    focus_history_id: i32,
     workspace: Option<WorkspaceInfo>,
 }
 
@@ -39,19 +42,21 @@ struct Icon {
 
 #[derive(Debug, Serialize)]
 struct Icons {
-    workspace: u32,
+    id: i32,
+    workspace: String,
     icons: Vec<Icon>,
 }
 
 
 fn get_icon_path(app: &str) -> anyhow::Result<Option<String>> {
-    let desktop_id = format!("{}.desktop", app);
-    // lookup desktop app info
-    let info = DesktopAppInfo::new(&desktop_id);
-
-    // get the associated icon or fallback to a generic icon by app name
-    let icon = info
-        .and_then(|info| info.icon()).context("Failed to get icon for app")?;
+    let icon = match DesktopAppInfo::new(&format!("{}.desktop", app.to_lowercase()))
+        .and_then(|info| info.icon()) {
+        Some(icon) => icon,
+        None => {
+            DesktopAppInfo::new(&format!("{}.desktop", app))
+                .and_then(|info| info.icon()).context("Failed to get icon for application")?
+        }
+    };
 
     // get the default icon theme
     let theme = IconTheme::default().expect("Failed to get default IconTheme");
@@ -89,8 +94,12 @@ fn get_icons(monitor: u32) -> anyhow::Result<Vec<Icons>> {
             .and_then(|ws| Some(ws.id))
             .unwrap_or(0);
 
+        if window.focus_history_id > 0 && workspace_id < 0 {
+            continue;
+        }
 
-        let paths = icons.iter().position(|w| w.workspace == workspace_id);
+
+        let paths = icons.iter().position(|w| w.id == workspace_id);
 
         let icon = Icon {
             active: false,
@@ -102,18 +111,20 @@ fn get_icons(monitor: u32) -> anyhow::Result<Vec<Icons>> {
         } else {
             // create a new workspace entry
             let workspace = Icons {
-                workspace: workspace_id,
+                id: workspace_id,
+                workspace: if workspace_id >= 0 {
+                    workspace_id.to_string()
+                } else {
+                    window.workspace.as_ref().map_or("unknown".to_string(), |ws| ws.name.clone()).trim_start_matches("special:").to_string()
+                },
                 icons: vec![icon],
             };
             icons.push(workspace);
         }
-
-
-
     }
 
     // sort by id
-    icons.sort_by_key(|w| w.workspace);
+    icons.sort_by_key(|w| w.workspace.clone());
 
     // dedup and sort icons for each workspace
     for workspace in icons.iter_mut() {

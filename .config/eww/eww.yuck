@@ -4,10 +4,25 @@
 (deflisten workspaces1 :initial "[]"
 	`/home/alex/.config/eww/target/release/workspaces icons 1`)
 
-(defvar foo "[]")
 
-(defwidget bar [monitor]
-	(box :class "bar"
+(defwidget weather []
+	(box :class "weather"
+		 :halign "end"
+		 :hexpand true
+		 :vexpand false
+		 :orientation "horizontal"
+		 :spacing 10
+		 :width 0
+		 :height 20
+		 :spacing 0
+		 :space-evenly false
+		 (label :class "weather-text" 
+				:text "Weather widget here")
+	)
+)
+
+(defwidget workspace [monitor]
+	(box :class "workspaces"
 		 :halign "center"
 		 :hexpand true
 		 :vexpand false
@@ -17,7 +32,7 @@
 		 :height 20
 		 :spacing 0
 		 :space-evenly false
-		(for workspace in {monitor == 1 ?  workspaces1 : workspaces0} 
+		(for ws in {monitor == 1 ?  workspaces1 : workspaces0} 
 		   (box  :class "workspace"
 				 :hexpand false
 				 :halign "center" 
@@ -25,12 +40,16 @@
 				 :active true
 				 :spacing 0
 				 :space-evenly false
-				(box :class "number" {workspace["workspace"]})
-				(for win in {workspace["icons"]} 
+				(label :class "number"
+					   :justify "center" 
+					   :lines 2 
+					   :limit-width 2 
+					   :text {ws["workspace"]})
+				(for icon in {ws["icons"]} 
 					(image :class "icon"
-						   :path {win["path"]}
-						   :image-width 32
-						   :image-height 32)
+						   :path {icon["path"]}
+						   :image-width 24
+						   :image-height 24)
 				)
 			)
 
@@ -38,33 +57,25 @@
 	)
 )
 
+(defwidget bar [monitor]
+	(centerbox :orientation "h"
+		(box :halign "start" :width 100 (label :class "weather" :text "hi"))
+		(workspace :monitor monitor)
+		(weather)
+	)
+)
+
 (defwindow bar0
            :monitor 0
-           :geometry (geometry :x "0%"
-                               :y "10px"
-                               :width "90%"
-                               :height "20px"
-                               :anchor "top center")
-           :stacking "fg"
-           :exclusive true
-           :focusable "none"
-           :wm-ignore false
-	(bar :monitor 0))
-
-(defwindow bar1
-           :monitor 1 
-           :geometry (geometry :x "0%"
-                               :y "10px"
-                               :width "90%"
-                               :height "20px"
-                               :anchor "top center")
+		  :windowtype "dock"
+		  :geometry (geometry :x "0%"
+					  :y "10px"
+					  :width "100%"
+					  :height "10px"
+					  :anchor "top center")
+	    	:reserve (struts :side "top" :distance "4%")
            :stacking "fg"
            :exclusive true
            :focusable "none"
            :wm-ignore false
 	(bar :monitor 1))
-		
-
-
-
-
