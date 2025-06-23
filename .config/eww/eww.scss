@@ -1,28 +1,28 @@
+$background-color: rgba(#dfdfdf, .7);
+$text-color: rgba(#000000, 1);
+$border-color: rgba(#3a3a3a, .5);
+
+* {
+  color: $text-color;
+  font-weight: bold;
+}
 
 window {
   background-color: transparent;
 }
 
-.workspaces {
-  background-color: rgba(50, 50, 50, 0.8);
-  border-radius: 10px;
-  padding: 0px;
-  margin: 0px;
-}
-
 .workspace {
   /* border: 1px solid rgba(100, 100, 100, 1); */
-  padding: 0px 5px 5px 5px; 
+  padding: 0px 5px 0px 5px; 
   margin: 5px 0px 5px 0px;
   background-color: transparent;
   & + & {
-    border-left: 1px solid rgba(100, 100, 100, 1);
+    border-left: 1px solid $border-color;
   }
 }
 
 .workspace .number {
   /* border: 1px solid rgba(100, 100, 100, 1); */
-  color: #9f9f9f;
   padding: 5px 5px 5px 5px; 
 }
 
@@ -33,10 +33,25 @@ window {
   margin-right: 0px;
 }
 
+.pill{
+  border-radius: 15px;
+  background-color: $background-color;
+  padding: 0px 5px 0px 5px;
+  & + & {
+    margin-left: 5px;
+  }
+}
+
+.weather-icon {
+  border-radius: 15px;
+  padding: 0px
+}
+
+.system {
+    margin-right: 5px;
+}
+
 .weather {
-  background-color: rgba(50, 50, 50, 0.8);
-  border-radius: 10px;
-  color: #9f9f9f;
-  padding: 0px;
-  margin: 0px;
+  background-color: $background-color;
+  margin: 0px 5px 0px 0px;
 }

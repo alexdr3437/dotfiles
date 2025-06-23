@@ -1,29 +1,61 @@
+(defwidget bar [monitor]
+	(centerbox :orientation "h"
+		(workspace :monitor monitor)
+		(time)
+		(rightstuff)
+	)
+)
+
 (deflisten workspaces0 :initial "[]"
 	`/home/alex/.config/eww/target/release/workspaces icons 0`)
 
 (deflisten workspaces1 :initial "[]"
 	`/home/alex/.config/eww/target/release/workspaces icons 1`)
 
+(defpoll time :interval "1s"
+	`date +"%-I:%M %p — %b %d, %Y" | tr '[AM|PM]' '[am|pm]'`)
+
+(defpoll weather_now :interval "5m"
+	`/home/alex/.config/eww/scripts/weather-current.sh`)
+
+(defpoll weather_forecast :interval "5m"
+	`/home/alex/.config/eww/scripts/weather-forecast.sh`)
+
+(defwidget time []
+	(box :class "pill"
+		 (label :class "time-text" 
+				:text time)
+	)
+)
 
 (defwidget weather []
-	(box :class "weather"
+	(box :class "pill"
+		 (label :class "weather-text" 
+				:text {round(jq(weather_now, '.main.temp', "r"), 0) + "°C"})
+		 (image :class "weather-icon" 
+				:path {replace("/home/alex/.config/eww/icons/AA@2x.png", "AA", jq(weather_now, '.weather[0].icon', "r"))}
+			    :image-width 48
+				:image-height 48
+			)
+	)
+)
+
+(defwidget rightstuff []
+	(box :class "rightstuff"
 		 :halign "end"
-		 :hexpand true
-		 :vexpand false
-		 :orientation "horizontal"
-		 :spacing 10
-		 :width 0
-		 :height 20
 		 :spacing 0
 		 :space-evenly false
-		 (label :class "weather-text" 
-				:text "Weather widget here")
+		(weather)
+		(box :class "pill"
+			(label :class "system"
+				   :text {'hi there'})
+		)
 	)
 )
 
 (defwidget workspace [monitor]
-	(box :class "workspaces"
-		 :halign "center"
+	(box :class "pill"
+		 :halign "start"
 		 :hexpand true
 		 :vexpand false
 		 :orientation "horizontal"
@@ -57,25 +89,17 @@
 	)
 )
 
-(defwidget bar [monitor]
-	(centerbox :orientation "h"
-		(box :halign "start" :width 100 (label :class "weather" :text "hi"))
-		(workspace :monitor monitor)
-		(weather)
-	)
-)
-
 (defwindow bar0
            :monitor 0
-		  :windowtype "dock"
-		  :geometry (geometry :x "0%"
-					  :y "10px"
-					  :width "100%"
-					  :height "10px"
-					  :anchor "top center")
-	    	:reserve (struts :side "top" :distance "4%")
+		   :windowtype "dock"
+		   :geometry (geometry :x "0%"
+							   :y "10px"
+							   :width "100%"
+							   :height "10px"
+							   :anchor "top center")
+	       :reserve (struts :side "top" :distance "4%")
            :stacking "fg"
            :exclusive true
            :focusable "none"
            :wm-ignore false
-	(bar :monitor 1))
+	(bar :class "bar" :monitor 1))
