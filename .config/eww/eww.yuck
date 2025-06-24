@@ -21,6 +21,7 @@
 (defpoll weather_forecast :interval "5m"
 	`/home/alex/.config/eww/scripts/weather-forecast.sh`)
 
+
 (defwidget time []
 	(box :class "pill"
 		 (label :class "time-text" 
@@ -47,7 +48,10 @@
 		 :space-evenly false
 		(weather)
 		(box :class "pill"
-			 :style 'margin-right: 5px;'
+			(label :text {round(EWW_RAM.used_mem_perc, 0) + "%  "})
+			(label :text {round(EWW_RAM.used_mem_perc, 0) + "%"})
+		)
+		(box :class "pill"
 			(image :path "/home/alex/.config/eww/icons/bell.png"
 				   :image-width 24
 				   :image-height 24
