@@ -65,3 +65,4 @@ eval "$(zoxide init zsh)"
 
 alias ls='ls --color=auto -alFh'
 alias lz='lazygit'
+alias cd='z'
