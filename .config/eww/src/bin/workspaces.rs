@@ -54,10 +54,12 @@ struct ActiveWorkspace {
 }
 
 fn get_icon_path(app: &str) -> anyhow::Result<Option<String>> {
+    println!("Getting icon for application: {}", app.to_lowercase());
     let icon = match DesktopAppInfo::new(&format!("{}.desktop", app.to_lowercase()))
         .and_then(|info| info.icon()) {
         Some(icon) => icon,
         None => {
+            println!("trying {}", app);
             DesktopAppInfo::new(&format!("{}.desktop", app))
                 .and_then(|info| info.icon()).context("Failed to get icon for application")?
         }

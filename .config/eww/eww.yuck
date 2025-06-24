@@ -48,6 +48,13 @@
 		(weather)
 		(box :class "pill"
 			 :style 'margin-right: 5px;'
+			(image :path "/home/alex/.config/eww/icons/bell.png"
+				   :image-width 24
+				   :image-height 24
+			)
+		)
+		(box :class "pill"
+			 :style 'margin-right: 5px;'
 			(image :path "/home/alex/.config/eww/icons/settings-5666.png"
 				   :image-width 24
 				   :image-height 24
@@ -74,6 +81,7 @@
 			   (box  
 					 :spacing 0
 					 :space-evenly false
+					 :style {ws["active"] ? 'border-bottom: 1px solid rgba(#000000, .3);' : ''}
 					(label :class "number"
 						   :justify "center" 
 						   :lines 2 
@@ -85,14 +93,6 @@
 							   :image-width 24
 							   :image-height 24)
 					)
-				)
-				(box :class "active-marker"
-					 :valign "start"
-					 :halign "center"
-					 :vexpand false 
-					 :spacing 0
-					 :space-evenly false
-					(label :text {ws["active"] ? "●" : ""})
 				)
 			)
 
