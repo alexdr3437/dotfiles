@@ -180,7 +180,6 @@
     stow
     gnumake
     gcc
-    btop
     cargo
     unzip
     fzf
@@ -205,7 +204,6 @@
     fftw
     wireshark
     gjs
-    inputs.astal.packages.${pkgs.system}.default
 	clang-tools
     arandr 
 	bitwarden-desktop      
@@ -226,7 +224,6 @@
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono nerd-fonts.agave nerd-fonts.fira-code ];
 
   services.udev.extraRules = ''
-	# Enable bluetooth devices to be used by non-root users.
 	SUBSYSTEM=="usb", MODE="0666", TAG+="uaccess"
   '';
 
