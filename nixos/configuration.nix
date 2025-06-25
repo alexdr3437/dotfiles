@@ -43,12 +43,8 @@
   # };
 
   # Enable the X11 windowing system.
-  #services.xserver.enable = true;
-
-
   services.xserver = {
     enable = true;
-    displayManager.gdm.enable = true;
   };
 
 
@@ -158,7 +154,15 @@
   # games
   programs.steam.enable = true;
 
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config = {
+	allowUnfree = true;
+
+	segger-jlink = {
+	  acceptLicense = true;
+	};
+	permittedInsecurePackages = [ "segger-jlink-qt4-810" ];
+ };
+
   environment.systemPackages = with pkgs; [
     inputs.neovim-nightly-overlay.packages.${pkgs.system}.default
     kitty
@@ -171,7 +175,6 @@
     libnotify
     networkmanagerapplet
     dunst
-    slack
     discord
     git
     stow
@@ -208,10 +211,44 @@
 	bitwarden-desktop      
 	socat
     jq 
+	udev
+    slack 
+    tldr 
+    gimp 
+	brave
+	nrf-command-line-tools
+	segger-jlink
+    picocom 
+    openocd 
+	powerstat
   ];
      
-  fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono ];
+  fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono nerd-fonts.agave nerd-fonts.fira-code ];
 
+  services.udev.extraRules = ''
+	# Enable bluetooth devices to be used by non-root users.
+	SUBSYSTEM=="usb", MODE="0666", TAG+="uaccess"
+  '';
+
+
+	# this skips the login manager and starts Hyprland directly
+	services.greetd = {
+	  enable = true;
+
+	  # rec makes `initial_session` visible to `default_session`
+	  settings = rec {
+		initial_session = {
+		  user    = "alex";
+		  command = "${pkgs.hyprland}/bin/Hyprland";
+		};
+
+		# now this works
+		default_session = initial_session;
+	  };
+
+	  # avoid auto-restarting or you’ll relogin endlessly
+	  restart = false;
+	};
 
 
   # Some programs need SUID wrappers, can be configured further or are
