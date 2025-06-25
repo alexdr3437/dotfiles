@@ -1,8 +1,10 @@
 (defwidget bar [monitor]
 	(centerbox :orientation "h"
+		       :halign "fill"
+		       :hexpand true
 		(workspace :monitor monitor)
 		(time)
-		(rightstuff)
+		(rightstuff :primary {monitor == 0 ? true : false})
 	)
 )
 
@@ -29,8 +31,8 @@
 	)
 )
 
-(defwidget weather []
-	(box :class "pill"
+(defwidget weather [primary]
+	(box :class "pill" :visible {primary}
 		 (label :class "weather-text" 
 				:text {round(jq(weather_now, '.main.temp', "r"), 0) + "°C"})
 		 (image :class "weather-icon" 
@@ -41,13 +43,13 @@
 	)
 )
 
-(defwidget rightstuff []
+(defwidget rightstuff [primary]
 	(box :class "rightstuff"
 		 :halign "end"
 		 :spacing 0
 		 :space-evenly false
-		(weather)
-		(box :class "pill"
+		(weather :primary {primary})
+		(box :class "pill" :visible {primary}
 			(label :text {round(EWW_RAM.used_mem_perc, 0) + "%  "})
 			(label :text {round(EWW_RAM.used_mem_perc, 0) + "%"})
 		)
@@ -112,10 +114,23 @@
 							   :width "100%"
 							   :height "5px"
 							   :anchor "top center")
-	       :reserve (struts :side "top" :distance "4%")
+	       ;; :reserve (struts :side "top" :distance "4%")
            :stacking "fg"
            :exclusive true
            :focusable "none"
-           :wm-ignore false
-	(bar :class "bar" :monitor 1))
+	(bar :class "bar" :monitor 0))
 
+
+(defwindow bar1
+           :monitor 1
+		   :windowtype "dock"
+		   :geometry (geometry :x "0%"
+							   :y "10px"
+							   :width "100%"
+							   :height "5px"
+							   :anchor "top center")
+	       ;; :reserve (struts :side "top" :distance "%")
+           :stacking "fg"
+           :exclusive true
+           :focusable "none"
+	(bar :class "bar" :monitor 1))
