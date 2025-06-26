@@ -36,7 +36,7 @@
 		 (label :class "weather-text" 
 				:text {round(jq(weather_now, '.main.temp', "r"), 0) + "°C"})
 		 (image :class "weather-icon" 
-				:path {replace("/home/alex/.config/eww/icons/AA@2x.png", "AA", jq(weather_now, '.weather[0].icon', "r"))}
+				:path {replace("/home/alex/.config/eww/icons/XX@2x.png", "XX", jq(weather_now, '.weather[0].icon', "r"))}
 			    :image-width 32
 				:image-height 32
 			)
@@ -48,10 +48,16 @@
 		 :halign "end"
 		 :spacing 0
 		 :space-evenly false
-		(weather :primary {primary})
-		(box :class "pill" :visible {primary}
-			(label :text {round(EWW_RAM.used_mem_perc, 0) + "%  "})
-			(label :text {round(EWW_RAM.used_mem_perc, 0) + "%"})
+		(weather :primary primary)
+		(box :class "pill"
+			(box :class "system"
+				 :spacing 10
+				 :space-evenly false
+				(label :text {round(EWW_RAM.used_mem_perc, 0) + "%"})
+				(label :text {round(EWW_CPU.avg, 0) + "%"})
+				(label :text {round(EWW_NET.wlp0s20f3.NET_UP / 1000000, 2) + "/" + round(EWW_NET.wlp0s20f3.NET_DOWN / 1000000, 2)})
+				(label :text {EWW_BATTERY.BAT0.capacity + "%"})
+			)
 		)
 		(box :class "pill"
 			(image :path "/home/alex/.config/eww/icons/bell.png"
@@ -106,8 +112,8 @@
 	)
 )
 
-(defwindow bar0
-           :monitor 0
+(defwindow bar [monitor]
+           :monitor monitor
 		   :windowtype "dock"
 		   :geometry (geometry :x "0%"
 							   :y "10px"
@@ -118,19 +124,4 @@
            :stacking "fg"
            :exclusive true
            :focusable "none"
-	(bar :class "bar" :monitor 0))
-
-
-(defwindow bar1
-           :monitor 1
-		   :windowtype "dock"
-		   :geometry (geometry :x "0%"
-							   :y "10px"
-							   :width "100%"
-							   :height "5px"
-							   :anchor "top center")
-	       ;; :reserve (struts :side "top" :distance "%")
-           :stacking "fg"
-           :exclusive true
-           :focusable "none"
-	(bar :class "bar" :monitor 1))
+	(bar :class "bar" :monitor monitor))

@@ -17,6 +17,13 @@ use gio::prelude::AppInfoExt;
 use gtk::prelude::IconThemeExt;
 
 
+#[derive(Debug, Deserialize)]
+struct Monitor {
+    id: u32,
+    name: String,
+    description: String,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 struct WorkspaceInfo {
     id: i32,
@@ -54,12 +61,10 @@ struct ActiveWorkspace {
 }
 
 fn get_icon_path(app: &str) -> anyhow::Result<Option<String>> {
-    println!("Getting icon for application: {}", app.to_lowercase());
     let icon = match DesktopAppInfo::new(&format!("{}.desktop", app.to_lowercase()))
         .and_then(|info| info.icon()) {
         Some(icon) => icon,
         None => {
-            println!("trying {}", app);
             DesktopAppInfo::new(&format!("{}.desktop", app))
                 .and_then(|info| info.icon()).context("Failed to get icon for application")?
         }
@@ -158,6 +163,20 @@ fn get_icons(monitor: u32) -> anyhow::Result<Vec<Icons>> {
     Ok(icons)
 }
 
+fn get_monitor_ids() -> anyhow::Result<Vec<u32>> {
+    let output = Command::new("hyprctl")
+        .arg("monitors")
+        .arg("-j")
+        .output().context("Failed to execute hyprctl monitors command")?;
+
+    let output = String::from_utf8_lossy(&output.stdout);
+    let mut monitors: Vec<Monitor> = serde_json::from_str(&output)
+        .context("Invalid JSON input for monitors")?;
+
+    monitors.sort_by_key(|m| (m.name.to_lowercase() != "hdmi-a-1", m.id));
+    Ok(monitors.into_iter().map(|m| m.id).collect())
+}
+
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -173,7 +192,8 @@ async fn main() -> anyhow::Result<()> {
         std::process::exit(1);
     }
 
-    let monitor_id: u32 = args[2].parse().context("Invalid monitor ID")?;
+    let monitor_ids = get_monitor_ids().context("Failed to get monitor IDs")?;
+    let monitor_id: u32 = monitor_ids[args[2].parse::<usize>().context("Invalid monitor ID")?];
 
     // initialize GTK (required for IconTheme)
     gtk::init().expect("Failed to initialize GTK");

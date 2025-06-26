@@ -73,6 +73,10 @@
     # EDITOR = "emacs";
   };
 
+  home.sessionPath = [
+	"/home/alex/.cargo/bin"
+  ];
+
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 }
