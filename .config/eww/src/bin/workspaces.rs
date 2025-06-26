@@ -41,13 +41,13 @@ struct Window {
     workspace: Option<WorkspaceInfo>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Icon {
     active: bool,
     path: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct Icons {
     id: i32,
     workspace: String,
@@ -95,6 +95,30 @@ fn get_active_workspace() -> anyhow::Result<i32> {
         .context("Invalid JSON input for active workspace")?;
 
     Ok(workspace.id)
+
+
+}
+
+fn init_workspaces(monitor: u32, active_workspace_id: Option<i32>) -> anyhow::Result<Vec<Icons>> {
+    let output = Command::new("hyprctl")
+        .arg("workspaces")
+        .arg("-j")
+        .output().context("Failed to execute hyprctl workspaces command")?;
+
+    let output = String::from_utf8_lossy(&output.stdout);
+
+
+    let icons: Vec<WorkspaceInfo> = serde_json::from_str(&output)
+        .context("Invalid JSON input for workspaces")?;
+
+    Ok(icons.into_iter().map(|ws| {
+        Icons {
+            id: ws.id,
+            workspace: ws.name.trim_start_matches("special:").to_string(),
+            active: active_workspace_id.map_or(false, |id| id == ws.id),
+            icons: vec![],
+        }
+    }).collect())
 }
 
 fn get_icons(monitor: u32) -> anyhow::Result<Vec<Icons>> {
@@ -108,9 +132,10 @@ fn get_icons(monitor: u32) -> anyhow::Result<Vec<Icons>> {
     let mut windows: Vec<Window> = serde_json::from_str(&output)
         .context("Invalid JSON input")?;
 
-    let mut icons: Vec<Icons> = Vec::new();
 
     let active_workspace_id = get_active_workspace().ok();
+
+    let mut icons: Vec<Icons> = init_workspaces(monitor, active_workspace_id)?;
 
     for mut window in windows.into_iter().filter(|w| w.monitor == monitor) {
         window.icon = match &window.class {
@@ -136,24 +161,11 @@ fn get_icons(monitor: u32) -> anyhow::Result<Vec<Icons>> {
 
         if let Some(index) = paths {
             icons[index].icons.push(icon);
-        } else {
-            // create a new workspace entry
-            let workspace = Icons {
-                id: workspace_id,
-                active: active_workspace_id.map_or(false, |id| id == workspace_id), 
-                workspace: if workspace_id >= 0 {
-                    workspace_id.to_string()
-                } else {
-                    window.workspace.as_ref().map_or("unknown".to_string(), |ws| ws.name.clone()).trim_start_matches("special:").to_string()
-                },
-                icons: vec![icon],
-            };
-            icons.push(workspace);
         }
     }
 
     // sort by id
-    icons.sort_by_key(|w| w.workspace.clone());
+    icons.sort_by_key(|w| w.id.clone());
 
     // dedup and sort icons for each workspace
     for workspace in icons.iter_mut() {
