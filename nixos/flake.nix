@@ -8,6 +8,8 @@
 	
 	home-manager.url = "github:nix-community/home-manager/release-25.05";
 	home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    rust-workspace.url = "git+ssh://git@github.com/Mesomat-Inc/rust-workspace.git?ref=development";
   };
 
   outputs = { self, nixpkgs, home-manager, ... } @ inputs: {

@@ -219,6 +219,7 @@
     picocom 
     openocd 
 	powerstat
+	inputs.rust-workspace.packages.${pkgs.system}.foo
   ];
      
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono nerd-fonts.agave nerd-fonts.fira-code ];
@@ -260,6 +261,44 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+
+
+  systemd.services = {
+	ssh-tunnel = {
+		description = "remote access tunnel to mesomat@";
+		after = [ "network.target" ];
+		wants = [ "network.target" ];
+		wantedBy = [ "multi-user.target" ];
+
+		serviceConfig = let
+		  port = if config.fileSystems."/".device == "/dev/disk/by-uuid/b5484f30-5c3c-47be-8e06-d7f85896dd50" then 40202 # home desktop
+				 else 40101; # work laptop
+			in {
+			  ExecStart = ''
+				${pkgs.openssh}/bin/ssh \
+				  -o ServerAliveInterval=60 \
+				  -o ServerAliveCountMax=3 \
+				  -N -R ${toString port}:localhost:22 mesomat@104.248.105.107
+			  '';
+			  Restart = "always";
+			  RestartSec = 5;
+			  User = "alex";
+		};
+	 };
+
+	  data-saver-daemon = {
+		description = "Data Saver Daemon";
+		after = [ "network.target" ];
+		wantedBy = [ "multi-user.target" ];
+
+		serviceConfig = {
+		  ExecStart = "${inputs.rust-workspace.packages.${pkgs.system}.foo}/bin/data-saver-daemon";
+		  Restart = "always";
+		  RestartSec = 5;
+		  User = "alex"; # or a custom user if needed
+		};
+	  };
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
