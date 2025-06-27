@@ -145,9 +145,6 @@
     Defaults env_keep += "SSH_AUTH_SOCK"
   '';
 
-  # --- packages !
-  programs.firefox.enable = true;
-
   # file manager
   programs.thunar.enable = true;
   programs.xfconf.enable = true;
@@ -226,6 +223,7 @@
 	inputs.rust-workspace.packages.${pkgs.system}.device-manager-cli
 	inputs.rust-workspace.packages.${pkgs.system}.device-monitor
 	sniffnet
+     
   ];
      
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono nerd-fonts.agave nerd-fonts.fira-code ];

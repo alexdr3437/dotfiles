@@ -407,10 +407,10 @@
         "nixpkgs": "nixpkgs_6"
       },
       "locked": {
-        "lastModified": 1751051723,
-        "narHash": "sha256-0YyYQiQ4UAUXqG2ngtGDI6xpiO8vtcpUlzxZYs0C200=",
+        "lastModified": 1751055392,
+        "narHash": "sha256-zHhIuxZhv0orO9m0AiyV482TLpcbs//hjT2guCJ1/Rk=",
         "ref": "development",
-        "rev": "99b7be8af3d767d15deb0ec127ddd0d607fc4495",
+        "rev": "ba57953742f33fef35df5637bbb787a47df96819",
         "revCount": 123,
         "type": "git",
         "url": "ssh://git@github.com/Mesomat-Inc/rust-workspace.git"

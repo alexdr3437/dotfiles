@@ -28,6 +28,8 @@ struct Monitor {
 struct WorkspaceInfo {
     id: i32,
     name: String,
+    #[serde(rename = "monitorID")]
+    monitor_id: Option<u32>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -106,12 +108,11 @@ fn init_workspaces(monitor: u32, active_workspace_id: Option<i32>) -> anyhow::Re
         .output().context("Failed to execute hyprctl workspaces command")?;
 
     let output = String::from_utf8_lossy(&output.stdout);
-
-
     let icons: Vec<WorkspaceInfo> = serde_json::from_str(&output)
         .context("Invalid JSON input for workspaces")?;
 
-    Ok(icons.into_iter().map(|ws| {
+    Ok(icons.into_iter().filter(|ws| ws.monitor_id == Some(monitor as u32))
+        .map(|ws| {
         Icons {
             id: ws.id,
             workspace: ws.name.trim_start_matches("special:").to_string(),
@@ -126,7 +127,7 @@ fn get_icons(monitor: u32) -> anyhow::Result<Vec<Icons>> {
         .arg("clients")
         .arg("-j")
         .output().context("Failed to execute hyprctl clients command")?;
-    
+
 
     let output = String::from_utf8_lossy(&output.stdout);
     let mut windows: Vec<Window> = serde_json::from_str(&output)
