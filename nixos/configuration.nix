@@ -48,7 +48,7 @@
   };
 
 
-
+  virtualisation.docker.enable = true;
 
   # --- shell
   programs.zsh.enable = true;
@@ -118,7 +118,7 @@
   # --- Define a user account. 
   users.users.alex = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "docker" "dialout"];
     packages = with pkgs; [
       tree
     ];
@@ -140,7 +140,10 @@
     }
   ];
 
-
+  # let root keep your ssh-agent socket when you sudo
+  security.sudo.extraConfig = ''
+    Defaults env_keep += "SSH_AUTH_SOCK"
+  '';
 
   # --- packages !
   programs.firefox.enable = true;
@@ -219,7 +222,9 @@
     picocom 
     openocd 
 	powerstat
-	inputs.rust-workspace.packages.${pkgs.system}.foo
+	inputs.rust-workspace.packages.${pkgs.system}.data-saver
+	inputs.rust-workspace.packages.${pkgs.system}.device-manager-cli
+	inputs.rust-workspace.packages.${pkgs.system}.device-monitor
   ];
      
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono nerd-fonts.agave nerd-fonts.fira-code ];
@@ -292,7 +297,7 @@
 		wantedBy = [ "multi-user.target" ];
 
 		serviceConfig = {
-		  ExecStart = "${inputs.rust-workspace.packages.${pkgs.system}.foo}/bin/data-saver-daemon";
+		  ExecStart = "${inputs.rust-workspace.packages.${pkgs.system}.data-saver}/bin/data-saver-daemon";
 		  Restart = "always";
 		  RestartSec = 5;
 		  User = "alex"; # or a custom user if needed

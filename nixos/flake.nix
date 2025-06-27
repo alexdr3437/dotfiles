@@ -10,6 +10,8 @@
 	home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     rust-workspace.url = "git+ssh://git@github.com/Mesomat-Inc/rust-workspace.git?ref=development";
+	decoder.url = "git+ssh://git@github.com/Mesomat-Inc/decoder.git?ref=development";
+	hw_db_interface.url = "git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=development";
   };
 
   outputs = { self, nixpkgs, home-manager, ... } @ inputs: {
@@ -30,6 +32,12 @@
 			home-manager.useUserPackages = true;
 			home-manager.users.alex = ./home.nix;
 		}
+		({ pkgs, ... }: {
+          environment.systemPackages = [
+            inputs.decoder.packages.${pkgs.system}.default
+            inputs.hw_db_interface.packages.${pkgs.system}.default
+          ];
+        })
       ];
     };
   };

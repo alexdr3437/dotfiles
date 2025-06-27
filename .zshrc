@@ -67,4 +67,10 @@ alias ls='ls --color=auto -alFh'
 alias lz='lazygit'
 alias cd='z'
 
-export PATH="$HOME/.cargo/bin:$PATH"
+
+alias dmp='device_manager -i -b prod'
+alias dmd='device_manager -i -b dev'
+
+alias dsp='data-saver -p'
+alias ds='data-saver'
+
