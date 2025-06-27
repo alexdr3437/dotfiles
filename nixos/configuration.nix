@@ -118,7 +118,7 @@
   # --- Define a user account. 
   users.users.alex = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "docker" "dialout"];
+    extraGroups = [ "wheel" "docker" "dialout" "wireshark"];
     packages = with pkgs; [
       tree
     ];
@@ -225,6 +225,7 @@
 	inputs.rust-workspace.packages.${pkgs.system}.data-saver
 	inputs.rust-workspace.packages.${pkgs.system}.device-manager-cli
 	inputs.rust-workspace.packages.${pkgs.system}.device-monitor
+	sniffnet
   ];
      
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono nerd-fonts.agave nerd-fonts.fira-code ];
@@ -282,8 +283,9 @@
 			  ExecStart = ''
 				${pkgs.openssh}/bin/ssh \
 				  -o ServerAliveInterval=60 \
-				  -o ServerAliveCountMax=3 \
-				  -N -R ${toString port}:localhost:22 mesomat@104.248.105.107
+				  -o StrictHostKeyChecking=no \
+				  -o ExitOnForwardFailure=yes \
+				  -nNTvvv -R ${toString port}:localhost:22 mesomat@104.248.105.107
 			  '';
 			  Restart = "always";
 			  RestartSec = 5;
