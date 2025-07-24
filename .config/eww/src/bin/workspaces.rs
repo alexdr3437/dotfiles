@@ -22,6 +22,8 @@ struct Monitor {
     id: u32,
     name: String,
     description: String,
+    x: i32,
+    y: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -186,7 +188,7 @@ fn get_monitor_ids() -> anyhow::Result<Vec<u32>> {
     let mut monitors: Vec<Monitor> = serde_json::from_str(&output)
         .context("Invalid JSON input for monitors")?;
 
-    monitors.sort_by_key(|m| (m.name.to_lowercase() != "hdmi-a-1", m.id));
+    monitors.sort_by_key(|m| (m.x == 0 && m.y == 0, m.id));
     Ok(monitors.into_iter().map(|m| m.id).collect())
 }
 
