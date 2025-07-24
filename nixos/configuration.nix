@@ -116,6 +116,7 @@
 
 
   # --- Define a user account. 
+  users.defaultUserShell = pkgs.zsh;
   users.users.alex = {
     isNormalUser = true;
     extraGroups = [ "wheel" "docker" "dialout" "wireshark"];
@@ -223,7 +224,9 @@
 	inputs.rust-workspace.packages.${pkgs.system}.device-manager-cli
 	inputs.rust-workspace.packages.${pkgs.system}.device-monitor
 	sniffnet
-     
+	yarn
+    tldr 
+    dbeaver-bin
      
   ];
      
