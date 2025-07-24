@@ -224,6 +224,7 @@
 	inputs.rust-workspace.packages.${pkgs.system}.device-monitor
 	sniffnet
      
+     
   ];
      
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono nerd-fonts.agave nerd-fonts.fira-code ];
@@ -232,6 +233,21 @@
 	SUBSYSTEM=="usb", MODE="0666", TAG+="uaccess"
   '';
 
+
+	services.logind.extraConfig = ''
+		HandlePowerKey=poweroff
+		HandlePowerKeyLongPress=ignore
+		HandleRebootKey=reboot
+		HandleRebootKeyLongPress=poweroff
+		HandleSuspendKey=suspend
+		HandleSuspendKeyLongPress=hibernate
+		HandleHibernateKey=hibernate
+		HandleHibernateKeyLongPress=ignore
+		HandleLidSwitch=ignore
+		HandleLidSwitchExternalPower=ignore
+		HandleLidSwitchDocked=ignore
+		IdleAction=ignore
+	'';
 
 	# this skips the login manager and starts Hyprland directly
 	services.greetd = {
