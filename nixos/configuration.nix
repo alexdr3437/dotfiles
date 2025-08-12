@@ -227,7 +227,10 @@
 	yarn
     tldr 
     dbeaver-bin
-     
+	postgresql
+	gdb
+    dig 
+    lua-language-server 
   ];
      
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono nerd-fonts.agave nerd-fonts.fira-code ];
