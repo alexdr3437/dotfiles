@@ -1,8 +1,18 @@
 
 # Lines configured by zsh-newuser-install
-HISTFILE=~/.histfile
-HISTSIZE=1000
-SAVEHIST=1000
+HISTFILE=~/.zsh_history
+HISTSIZE=5000000
+SAVEHIST=$HISTSIZE
+
+# sane + shared history behavior
+setopt APPEND_HISTORY            # append, don't overwrite
+setopt INC_APPEND_HISTORY_TIME   # write immediately with timestamps
+setopt SHARE_HISTORY             # merge history across sessions
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt EXTENDED_HISTORY
+setopt HIST_FCNTL_LOCK
 
 setopt autocd extendedglob nomatch notify
 unsetopt beep
