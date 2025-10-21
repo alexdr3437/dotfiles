@@ -22,8 +22,12 @@
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
 
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings.General.FastConnectable = true;  # optional
+    settings.Policy.AutoEnable = true;
+  };
 
   services.blueman.enable = true;
 
@@ -68,20 +72,19 @@
     QT_QPA_PLATFORM = "wayland";
     SDL_VIDEODRIVER = "wayland";
     CLUTTER_BACKEND = "wayland";
-    WLR_NO_HARDWARE_CURSORS = "1";
     MOZ_ENABLE_WAYLAND = "1";
   };
 
   hardware = {
     graphics.enable = true;
-	nvidia = {
-	  modesetting.enable = true;
-	  package = config.boot.kernelPackages.nvidiaPackages.stable;
-	};
+	# nvidia = {
+	#   modesetting.enable = true;
+	#   package = config.boot.kernelPackages.nvidiaPackages.stable;
+	# };
   };
 
-  services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.nvidia.open = true; # Enable open source nvidia driver
+  # services.xserver.videoDrivers = [ "nvidia" ];
+  # hardware.nvidia.open = true; # Enable open source nvidia driver
 
 
 
@@ -217,6 +220,7 @@
 	brave
 	nrf-command-line-tools
 	segger-jlink
+	nrfconnect
     picocom 
     openocd 
 	powerstat
@@ -239,6 +243,10 @@
     grim
 	slurp
     swappy 
+    meld 
+	uv
+	p7zip
+	powertop
   ];
      
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono nerd-fonts.agave nerd-fonts.fira-code ];
@@ -246,22 +254,6 @@
   services.udev.extraRules = ''
 	SUBSYSTEM=="usb", MODE="0666", TAG+="uaccess"
   '';
-
-
-	services.logind.extraConfig = ''
-		HandlePowerKey=poweroff
-		HandlePowerKeyLongPress=ignore
-		HandleRebootKey=reboot
-		HandleRebootKeyLongPress=poweroff
-		HandleSuspendKey=suspend
-		HandleSuspendKeyLongPress=hibernate
-		HandleHibernateKey=hibernate
-		HandleHibernateKeyLongPress=ignore
-		HandleLidSwitch=ignore
-		HandleLidSwitchExternalPower=ignore
-		HandleLidSwitchDocked=ignore
-		IdleAction=ignore
-	'';
 
 	# this skips the login manager and starts Hyprland directly
 	services.greetd = {
@@ -290,6 +282,14 @@
   #   enable = true;
   #   enableSSHSupport = true;
   # };
+  programs.appimage.enable = true;
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+	fuse
+    # Add any missing dynamic libraries for unpackaged programs
+    # here, NOT in environment.systemPackages
+  ];
+
 
   # List services that you want to enable:
 

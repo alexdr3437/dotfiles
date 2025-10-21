@@ -84,3 +84,5 @@ alias dmd='device_manager -i -b dev'
 alias dsp='data-saver -p'
 alias ds='data-saver'
 
+
+alias tires='~/.dotfiles/tires.sh'

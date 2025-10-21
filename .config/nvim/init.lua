@@ -784,12 +784,20 @@ require("lazy").setup({
       local lspconfig = require("lspconfig")
 
       lspconfig.clangd.setup {
-        capabilities = capabilities,
         cmd = { "clangd", "--background-index", "--clang-tidy", "--tweaks=-ferror-limit=0", "--tweaks=-ftemplate-backtrace-limit=0" },
-        filetypes = { "c", "cpp", "objc", "objcpp" },
-        root_dir = lspconfig.util.root_pattern("compile_commands.json", "compile_flags.txt", ".git"),
+        filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+        root_dir = function(fname)
+          return require('lspconfig.util').root_pattern(
+            '.clangd',
+            '.clang-tidy',
+            '.clang-format',
+            'compile_commands.json',
+            'compile_flags.txt',
+            'configure.ac',
+            '.git'
+          )(fname)
+        end,
       }
-
       lspconfig.ts_ls.setup({
         on_attach = function(client, bufnr)
           -- disable tsserver formatting in favor of prettier or eslint
@@ -1155,6 +1163,20 @@ require("lazy").setup({
     end,
   },
 
+  {
+    "hedyhli/outline.nvim",
+    config = function()
+      -- Example mapping to toggle outline
+      vim.keymap.set("n", "<leader>o", "<cmd>Outline<CR>",
+        { desc = "Toggle Outline" })
+
+      require("outline").setup {
+        symbol_folding = {
+          autofold_depth = false,
+        },
+      }
+    end,
+  },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.

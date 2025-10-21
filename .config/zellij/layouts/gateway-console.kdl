@@ -1,0 +1,27 @@
+layout {
+  cwd "/home/alex/mesomat/gateway-console/"
+
+  tab name="nvim" {
+	pane size=1 borderless=true {
+        plugin location="zellij:tab-bar"
+    }
+
+	pane {
+	  command "zsh"
+	  args "-c" "nix develop -c zsh -i -c 'nvim .'"
+	}
+
+	floating_panes {
+		pane {
+		  command "zsh"
+		  args "-c" "nix develop -c zsh && clear"
+		  x "2%"
+		  y 1
+		  width "95%"
+		  height "95%"
+		}
+	}
+  }
+
+}
+
