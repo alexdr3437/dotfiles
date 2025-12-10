@@ -798,6 +798,7 @@ require("lazy").setup({
           )(fname)
         end,
       }
+
       lspconfig.ts_ls.setup({
         on_attach = function(client, bufnr)
           -- disable tsserver formatting in favor of prettier or eslint
@@ -830,6 +831,19 @@ require("lazy").setup({
         flags = {
           debounce_text_changes = 150,
         },
+      }
+
+      lspconfig.zls.setup {
+        capabilities = capabilities,
+        cmd = { "zls" },
+        filetypes = { "zig", "zir" },
+        root_dir = function(fname)
+          return require("lspconfig.util").root_pattern(
+            "zls.json",
+            "build.zig",
+            ".git"
+          )(fname)
+        end,
       }
 
       lspconfig.lua_ls.setup({
