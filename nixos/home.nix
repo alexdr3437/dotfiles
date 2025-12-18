@@ -75,6 +75,7 @@
 
   home.sessionPath = [
 	"/home/alex/.cargo/bin"
+	"/home/alex/.local/bin"
   ];
 
   # Let Home Manager install and manage itself.

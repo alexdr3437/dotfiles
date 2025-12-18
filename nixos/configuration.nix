@@ -75,6 +75,11 @@
     MOZ_ENABLE_WAYLAND = "1";
   };
 
+  environment.localBinInPath = true;
+  environment.interactiveShellInit = ''
+    export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+  '';
+
   hardware = {
     graphics.enable = true;
 	# nvidia = {
@@ -120,9 +125,10 @@
 
   # --- Define a user account. 
   users.defaultUserShell = pkgs.zsh;
+  users.groups.plugdev = {};
   users.users.alex = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "docker" "dialout" "wireshark"];
+    extraGroups = [ "wheel" "docker" "dialout" "wireshark" "plugdev" ]; # Enable 'sudo' for the user.
     packages = with pkgs; [
       tree
     ];
@@ -255,12 +261,20 @@
     zig 
     zls 
 	hyperfine 
+    rustc 
+	cargo
+	rust-analyzer
+	rustup
+    probe-rs 
   ];
      
   fonts.packages = with pkgs; [ nerd-fonts.droid-sans-mono nerd-fonts.agave nerd-fonts.fira-code ];
 
   services.udev.extraRules = ''
 	SUBSYSTEM=="usb", MODE="0666", TAG+="uaccess"
+    SUBSYSTEM=="usb", ATTR{idVendor}=="1366", MODE="0666", GROUP="plugdev" 
+    SUBSYSTEM=="usb", ATTR{idVendor}=="0d28", MODE="0666", GROUP="plugdev" 
+    SUBSYSTEM=="usb", ATTR{idVendor}=="0483", MODE="0666", GROUP="plugdev" 
   '';
 
 	# this skips the login manager and starts Hyprland directly
