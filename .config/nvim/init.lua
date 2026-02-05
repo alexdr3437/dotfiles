@@ -782,6 +782,10 @@ require("lazy").setup({
       capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
       local lspconfig = require("lspconfig")
+      local util = require("lspconfig.util")
+      local configs = require("lspconfig.configs")
+
+      vim.lsp.enable('just')
 
       lspconfig.clangd.setup {
         cmd = { "clangd", "--background-index", "--clang-tidy", "--tweaks=-ferror-limit=0", "--tweaks=-ftemplate-backtrace-limit=0" },
@@ -868,6 +872,19 @@ require("lazy").setup({
           },
         },
       })
+
+      if not configs.dts_lsp then
+        configs.dts_lsp = {
+          default_config = {
+            cmd = { "dts-lsp" },
+            filetypes = { "dts", "dtsi", "dtso" },
+            root_dir = util.root_pattern("west.yml", "zephyr", ".git"),
+            single_file_support = true,
+          },
+        }
+      end
+
+      lspconfig.dts_lsp.setup({})
     end,
   },
 
@@ -1107,6 +1124,10 @@ require("lazy").setup({
       require("colorizer").setup()
     end,
   },
+  {
+    "NoahTheDuke/vim-just",
+    ft = { "just" },
+  },
   { -- Collection of various small independent plugins/modules
     "echasnovski/mini.nvim",
     config = function()
@@ -1157,6 +1178,7 @@ require("lazy").setup({
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { "ruby" },
+        disable = { "just" },
       },
       indent = { enable = true, disable = { "ruby" } },
     },
