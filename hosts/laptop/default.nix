@@ -18,7 +18,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "nixos";
+  networking.hostName = "nixos-laptop";
 
   time.timeZone = "America/Toronto";
 
@@ -71,7 +71,7 @@
             -o ServerAliveInterval=60 \
             -o StrictHostKeyChecking=no \
             -o ExitOnForwardFailure=yes \
-            -nNTvvv -R 40202:localhost:22 mesomat@device-manager.mesomat.org
+            -nNTvvv -R 40101:localhost:22 mesomat@device-manager.mesomat.org
         '';
         Restart = "always";
         RestartSec = 5;
