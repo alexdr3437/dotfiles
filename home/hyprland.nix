@@ -1,7 +1,6 @@
 { ... }:
 {
   home.file.".config/hypr".source = ../files/dotfiles/hypr;
-  home.file.".config/waybar".source = ../files/dotfiles/waybar;
   # for some reason, walker complains about the readonly file system, so copy the files instead of symlinking them
   home.activation.walkerConfig = ''
     rm -rf "$HOME/.config/walker"
