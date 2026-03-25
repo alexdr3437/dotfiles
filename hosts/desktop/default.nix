@@ -9,6 +9,7 @@
     ../../modules/embedded-dev.nix
     ../../modules/dev-tools.nix
     ../../modules/gaming.nix
+    ../../modules/nvidia.nix
     ../../modules/virtualisation.nix
     ../../modules/fonts.nix
     ../../modules/apps.nix
