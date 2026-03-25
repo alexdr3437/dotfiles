@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 {
   home.file.".config/hypr".source = ../files/dotfiles/hypr;
   # for some reason, walker complains about the readonly file system, so copy the files instead of symlinking them
@@ -8,4 +8,8 @@
     chmod -R u+w "$HOME/.config/walker"
   '';
   home.file.".config/eww".source = ../files/dotfiles/eww;
+
+  home.packages = with pkgs; [
+    eww
+  ];
 }
