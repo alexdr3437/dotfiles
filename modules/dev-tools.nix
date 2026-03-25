@@ -8,8 +8,6 @@
     export CPATH="${pkgs.linuxHeaders}/include:$CPATH"
   '';
 
-  nixpkgs.config.cudaSupport = true;
-
   environment.systemPackages = with pkgs; [
     gcc
     gnumake
@@ -17,19 +15,8 @@
     git
     gdb
     pkg-config
-    clang-tools
-    rustup
-    nodejs
-    yarn
-    zig
-    zls
-    uv
-    maturin
-    lua-language-server
     openssl
     openssl.dev
     linuxHeaders
-    cudaPackages.cudatoolkit
-    cudaPackages.cudnn
   ];
 }

@@ -2,15 +2,23 @@
   description = "nixos config";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    home-manager.url = "github:nix-community/home-manager/release-25.05";
+    home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
-    { nixpkgs, home-manager, ... }@inputs:
     {
+      nixpkgs,
+      nixpkgs-unstable,
+      home-manager,
+      ...
+    }@inputs:
+    rec {
+      lib = import ./lib inputs;
+
       nixosConfigurations.desktop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
@@ -20,6 +28,12 @@
           home-manager.nixosModules.home-manager
 
           {
+            nixpkgs.overlays = [
+              (final: prev: {
+                kitty = nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.kitty;
+              })
+            ];
+
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.alex = import ./home;
@@ -36,11 +50,24 @@
           home-manager.nixosModules.home-manager
 
           {
+            nixpkgs.overlays = [
+              (final: prev: {
+                kitty = nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.kitty;
+              })
+            ];
+
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.alex = import ./home;
           }
         ];
+      };
+
+      templates = {
+        rust = {
+          path = ./templates/rust;
+          description = "Rust template";
+        };
       };
     };
 }

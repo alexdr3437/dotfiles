@@ -22,11 +22,12 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "nixos";
+  networking.hostName = "nixos-desktop";
 
   time.timeZone = "America/Toronto";
 
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.segger-jlink.acceptLicense = true;
 
   # shell
   programs.zsh.enable = true;

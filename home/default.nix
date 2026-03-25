@@ -68,7 +68,6 @@
     slack
     obsidian
     bitwarden-desktop
-    gimp
     spotify
     firefox
     element-desktop

@@ -2,7 +2,7 @@
 
 
 sleep 0.5
-WALLPAPER_DIR="$HOME/.dotfiles/wallpapers/"
+WALLPAPER_DIR="$HOME/.dotfiles/files/wallpapers/"
 CURRENT_WALL=$(hyprctl hyprpaper listloaded)
 
 # Get a random wallpaper that is not the current one
