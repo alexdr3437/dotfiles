@@ -1,4 +1,5 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   environment.localBinInPath = true;
 
   environment.interactiveShellInit = ''

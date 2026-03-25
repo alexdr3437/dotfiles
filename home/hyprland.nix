@@ -1,4 +1,5 @@
-{ ... }: {
+{ ... }:
+{
   home.file.".config/hypr".source = ../files/dotfiles/hypr;
   home.file.".config/waybar".source = ../files/dotfiles/waybar;
   home.file.".config/walker".source = ../files/dotfiles/walker;

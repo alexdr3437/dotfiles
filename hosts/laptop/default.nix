@@ -1,4 +1,5 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   imports = [
     ./hardware-configuration.nix
     ../../modules/hyprland.nix
@@ -7,13 +8,15 @@
     ../../modules/networking.nix
     ../../modules/embedded-dev.nix
     ../../modules/dev-tools.nix
-    ../../modules/gaming.nix
     ../../modules/virtualisation.nix
     ../../modules/fonts.nix
     ../../modules/apps.nix
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -43,13 +46,17 @@
   };
 
   # passwordless nixos-rebuild
-  security.sudo.extraRules = [{
-    users = [ "alex" ];
-    commands = [{
-      command = "/run/current-system/sw/bin/nixos-rebuild";
-      options = [ "NOPASSWD" ];
-    }];
-  }];
+  security.sudo.extraRules = [
+    {
+      users = [ "alex" ];
+      commands = [
+        {
+          command = "/run/current-system/sw/bin/nixos-rebuild";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
 
   security.sudo.extraConfig = ''
     Defaults env_keep += "SSH_AUTH_SOCK"

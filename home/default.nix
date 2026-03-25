@@ -1,4 +1,5 @@
-{ config, pkgs, ... }: {
+{ config, pkgs, ... }:
+{
   imports = [
     ./hyprland.nix
     ./terminal.nix
@@ -85,10 +86,6 @@
     linuxKernel.packages.linux_6_12.perf
   ];
 
-  # Home Manager is pretty good at managing dotfiles. The primary way to manage
-  # plain files is through 'home.file'.
-  home.file = { };
-
   # Home Manager can also manage your environment variables through
   # 'home.sessionVariables'. These will be explicitly sourced when using a
   # shell provided by Home Manager. If you don't want to manage your shell
@@ -109,7 +106,10 @@
     # EDITOR = "emacs";
   };
 
-  home.sessionPath = [ "/home/alex/.cargo/bin" "/home/alex/.local/bin" ];
+  home.sessionPath = [
+    "/home/alex/.cargo/bin"
+    "/home/alex/.local/bin"
+  ];
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;

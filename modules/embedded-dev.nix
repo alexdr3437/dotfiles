@@ -1,6 +1,9 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   nixpkgs.config = {
-    segger-jlink = { acceptLicense = true; };
+    segger-jlink = {
+      acceptLicense = true;
+    };
     permittedInsecurePackages = [ "segger-jlink-qt4-810" ];
   };
 

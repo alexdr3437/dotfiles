@@ -1,4 +1,5 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   programs.thunar.enable = true;
   programs.xfconf.enable = true;
   services.gvfs.enable = true;
