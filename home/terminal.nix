@@ -2,6 +2,7 @@
 {
   home.file.".config/kitty".source = ../files/dotfiles/kitty;
   home.file.".config/zellij".source = ../files/dotfiles/zellij;
+  home.file.".zshrc".source = ../files/dotfiles/.zshrc;
 
   home.activation.lazygitConfig = ''
     if [ -L "$HOME/.config/lazygit" ]; then
