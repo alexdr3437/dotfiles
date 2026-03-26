@@ -16,7 +16,7 @@
       home-manager,
       ...
     }@inputs:
-    rec {
+    {
       lib = import ./lib inputs;
 
       nixosConfigurations.desktop = nixpkgs.lib.nixosSystem {
