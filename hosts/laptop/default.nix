@@ -21,6 +21,16 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  boot.kernelParams = [
+    "usbcore.autosuspend=-1"
+  ];
+
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="0a2a", ATTR{power/control}="on", ATTR{power/autosuspend}="0"
+  '';
+
   networking.hostName = "nixos-laptop";
 
   time.timeZone = "America/Toronto";
@@ -61,6 +71,8 @@
   security.sudo.extraConfig = ''
     Defaults env_keep += "SSH_AUTH_SOCK"
   '';
+
+  services.fwupd.enable = true;
 
   services.openssh.enable = true;
 
