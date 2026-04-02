@@ -65,6 +65,8 @@
     Defaults env_keep += "SSH_AUTH_SOCK"
   '';
 
+  services.fwupd.enable = true;
+
   services.openssh.enable = true;
 
   # host-specific SSH tunnel
