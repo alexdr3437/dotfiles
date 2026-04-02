@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 {
   nixpkgs.config = {
     segger-jlink = {
@@ -19,6 +19,7 @@
     picocom
     libftdi1
     nrfutil
+    inputs.hw_db_interface.packages.${pkgs.system}.default
   ];
 
   services.udev.extraRules = ''
