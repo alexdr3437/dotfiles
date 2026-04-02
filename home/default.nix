@@ -63,10 +63,11 @@
     obsidian
     bitwarden-desktop
     spotify
-    firefox
     element-desktop
     vscode
     dbeaver-bin
+    firefox
+    brave
 
     # other
     postgresql

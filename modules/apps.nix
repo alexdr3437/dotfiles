@@ -20,11 +20,6 @@
   };
 
   environment.systemPackages = with pkgs; [
-    (brave.override {
-      commandLineArgs = [
-        "--disable-gpu-compositing"
-      ];
-    })
     wireshark
   ];
 }
