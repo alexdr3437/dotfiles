@@ -20,7 +20,11 @@
   };
 
   environment.systemPackages = with pkgs; [
-    (brave.override { commandLineArgs = [ "--ozone-platform=x11" ]; })
+    (brave.override {
+      commandLineArgs = [
+        "--disable-gpu-compositing"
+      ];
+    })
     wireshark
   ];
 }
