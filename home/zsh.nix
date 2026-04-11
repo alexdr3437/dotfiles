@@ -16,7 +16,6 @@
     completionInit = ''
       bindkey '^Y' autosuggest-accept
       bindkey '^[[C' forward-char
-      autoload -U compinit && compinit
     '';
 
     setOptions = [
@@ -31,12 +30,6 @@
       ndev = "nix develop -c zsh";
     };
     history.size = 500000;
-    zplug = {
-      enable = true;
-      plugins = [
-        { name = "zsh-users/zsh-autosuggestions"; }
-      ];
-    };
     initContent = ''
       zmodload zsh/datetime
 
