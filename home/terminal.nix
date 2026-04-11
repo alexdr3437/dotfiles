@@ -21,7 +21,6 @@
 
   programs.zellij = {
     enable = true;
-    enableZshIntegration = true;
     extraConfig = ''
       keybinds clear-defaults=true {
         locked {
@@ -248,6 +247,7 @@
         }
       }
       default_mode "locked"
+      default_shell "zsh"
       scroll_buffer_size 100000
       show_startup_tips false
     '';
