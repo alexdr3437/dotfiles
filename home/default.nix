@@ -28,9 +28,7 @@
     kitty
     btop
     zellij
-    fzf
     ripgrep
-    zoxide
     lazygit
     jq
     tldr
@@ -56,6 +54,7 @@
     pywal
     yay
     stow
+    typst
 
     # GUI apps
     discord
@@ -68,6 +67,7 @@
     dbeaver-bin
     firefox
     brave
+    zathura
 
     # other
     postgresql
