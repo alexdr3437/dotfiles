@@ -28,6 +28,7 @@
     shellAliases = {
       ls = "ls --color=auto -alFh";
       lz = "lazygit";
+      ndev = "nix develop -c zsh";
     };
     history.size = 500000;
     zplug = {
