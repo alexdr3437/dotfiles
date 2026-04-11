@@ -6,5 +6,8 @@
     nodejs
     nixfmt-rfc-style
     nixd
+    harper
+    basedpyright
+    ruff
   ];
 }

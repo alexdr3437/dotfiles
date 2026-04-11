@@ -875,6 +875,29 @@ require("lazy").setup({
 
       vim.lsp.enable('just')
 
+      lspconfig.basedpyright.setup({
+          settings = {
+              basedpyright = {
+                  analysis = {
+                      typeCheckingMode = "basic", -- "off", "basic", or "all"
+                      autoSearchPaths = true,
+                      useLibraryCodeForTypes = true,
+                  },
+              },
+          },
+      })
+
+      lspconfig.ruff.setup({
+          -- Optional: disable Ruff's hover if you prefer Pyright's
+          on_attach = function(client, bufnr)
+              if client.name == 'ruff' then
+                  client.server_capabilities.hoverProvider = false
+              end
+          end,
+      })
+
+      lspconfig.harper_ls.setup {}
+
       lspconfig.clangd.setup {
         cmd = { "clangd", "--background-index", "--clang-tidy", "--tweaks=-ferror-limit=0", "--tweaks=-ftemplate-backtrace-limit=0" },
         filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
