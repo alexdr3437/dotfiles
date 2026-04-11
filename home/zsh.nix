@@ -26,12 +26,10 @@
     };
     initContent = ''
       zmodload zsh/datetime
+      setopt prompt_subst
 
       preexec() {
         __cmd_start=$EPOCHREALTIME
-        __cmd_start_fmt=$(strftime "%b %e, %l:%M:%S %p" $EPOCHSECONDS)
-
-        print -P "%F{247}started $__cmd_start_fmt%f"
       }
 
       precmd() {
@@ -41,12 +39,25 @@
         local dur=$(( end - __cmd_start ))
         printf -v dur "%.3f" "$dur"
 
-        print -P "%F{247}took ''${dur}s%f"
+        if (( $(echo "$dur > 0.1" | bc -l) )); then
+          print -P "%F{247}took ''${dur}s%f"
+        fi
 
         unset __cmd_start
       }
 
-      PROMPT="%3~ ❯ "
+      function prompt_path() {
+        local path="''${PWD/#$HOME/~}"
+        local parts=("''${(s:/:)path}")
+
+        if (( ''${#parts} <= 4 )); then
+          echo "$path"
+        else
+          echo "''${parts[1]}/.../''${parts[-3]}/''${parts[-2]}/''${parts[-1]}"
+        fi
+      }
+
+      PROMPT='$(prompt_path) ❯ '
     '';
   };
 
