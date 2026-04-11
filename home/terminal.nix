@@ -173,13 +173,12 @@
           bind "Super ]" { NextSwapLayout; }
           bind "Super f" { ToggleFloatingPanes; }
           bind "Super h" { MoveFocusOrTab "left"; }
-          bind "Super i" { MoveTab "left"; }
+          bind "Super i" { MoveTab "left"; TogglePanePinned; }
           bind "Super j" { MoveFocus "down"; }
           bind "Super k" { MoveFocus "up"; }
           bind "Super l" { MoveFocusOrTab "right"; }
           bind "Super n" { NewPane; }
           bind "Super o" { MoveTab "right"; }
-          bind "Super i" { TogglePanePinned; }
           bind "Super 1" { GoToTab 1; SwitchToMode "locked"; }
           bind "Super 2" { GoToTab 2; SwitchToMode "locked"; }
           bind "Super 3" { GoToTab 3; SwitchToMode "locked"; }
@@ -246,10 +245,12 @@
           bind "esc" { UndoRenamePane; SwitchToMode "pane"; }
         }
       }
+
       default_mode "locked"
       default_shell "zsh"
       scroll_buffer_size 100000
       show_startup_tips false
+      theme "everforest-dark"
     '';
   };
 }
