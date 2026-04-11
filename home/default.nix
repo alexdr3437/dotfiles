@@ -27,7 +27,6 @@
     # terminal / CLI
     kitty
     btop
-    zellij
     ripgrep
     lazygit
     jq

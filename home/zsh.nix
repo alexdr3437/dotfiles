@@ -13,6 +13,18 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
+    completionInit = ''
+      bindkey '^Y' autosuggest-accept
+      bindkey '^[[C' forward-char
+      autoload -U compinit && compinit
+    '';
+
+    setOptions = [
+      "EXTENDED_HISTORY"
+      "RM_STAR_WAIT"
+      "PROMPT_SUBST"
+    ];
+
     shellAliases = {
       ls = "ls --color=auto -alFh";
       lz = "lazygit";
@@ -21,12 +33,11 @@
     zplug = {
       enable = true;
       plugins = [
-        { name = "zsh-users/zsh-autosuggestions"; } # Simple plugin installation
+        { name = "zsh-users/zsh-autosuggestions"; }
       ];
     };
     initContent = ''
       zmodload zsh/datetime
-      setopt prompt_subst
 
       preexec() {
         __cmd_start=$EPOCHREALTIME
