@@ -60,6 +60,22 @@ vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = false
 
+-- 1. Set the "Max Line" (standard is 80 or 88)
+vim.opt.textwidth = 110
+
+-- 2. Configure the "Logic" 
+-- t: wrap text, q: allow gq formatting, n: lists, 
+-- r: continue comments on Enter, j: smart join
+vim.opt.formatoptions = "tqnjr"
+
+-- 3. The "Manual Reflow" Keymap
+-- This handles your request: Select text, hit <leader>q, it "retypes" the breaks
+vim.keymap.set("v", "<leader>q", "gq", { desc = "Reflow selection to textwidth" })
+
+-- 4. The "Bonus" Auto-Reflow (Optional)
+-- If you want it to reflow as you type without hitting keys, uncomment this:
+-- vim.opt.formatoptions:append("a")
+
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = "split"
 
