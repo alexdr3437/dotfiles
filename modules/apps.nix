@@ -1,9 +1,10 @@
 { pkgs, ... }:
 {
-  programs.thunar.enable = true;
   programs.xfconf.enable = true;
   services.gvfs.enable = true;
   services.tumbler.enable = true;
+
+  services.flatpak.enable = true;
 
   programs.appimage.enable = true;
 

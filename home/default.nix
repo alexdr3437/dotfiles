@@ -67,6 +67,8 @@
     firefox
     brave
     zathura
+    libreoffice-fresh
+    vlc
 
     # other
     postgresql

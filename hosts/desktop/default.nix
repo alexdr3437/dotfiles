@@ -23,6 +23,12 @@
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  swapDevices = [
+    {
+      device = "/var/lib/swapfile";
+      size = 36 * 1024; # 32 GB in MiB
+    }
+  ];
 
   networking.hostName = "nixos-desktop";
 
