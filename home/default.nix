@@ -25,7 +25,6 @@
   # environment.
   home.packages = with pkgs; [
     # terminal / CLI
-    kitty
     btop
     ripgrep
     lazygit

@@ -1,6 +1,25 @@
 { ... }:
 {
-  home.file.".config/kitty".source = ../files/dotfiles/kitty;
+
+  programs.ghostty = {
+    enable = true;
+    enableZshIntegration = true;
+    settings = {
+      font-size = 10;
+      background-opacity = 0.88;
+      keybind = [
+        "ctrl+h=goto_split:left"
+        "ctrl+l=goto_split:right"
+      ];
+    };
+    # extraConfig = ''
+    #   	  [terminal]
+    #   	  shell = "zsh"
+    #   	  scrollback_buffer_size = 100000
+    #   	  show_startup_tips = false
+    #   	  theme = "everforest-dark"
+    #   	'';
+  };
 
   home.activation.lazygitConfig = ''
     if [ -L "$HOME/.config/lazygit" ]; then
