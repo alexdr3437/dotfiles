@@ -6,10 +6,10 @@
     enableZshIntegration = true;
     settings = {
       font-size = 10;
-      background-opacity = 0.88;
+      background-opacity = 0.95;
+      mouse-scroll-multiplier = 1;
       keybind = [
-        "ctrl+h=goto_split:left"
-        "ctrl+l=goto_split:right"
+        "ctrl+enter=unbind"
       ];
     };
     # extraConfig = ''
