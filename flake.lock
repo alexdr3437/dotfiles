@@ -26,32 +26,32 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1772661344,
-        "narHash": "sha256-r0qNHqCgKOcUx9/11hYAJqF4q0X88h79dvDiFly0XEk=",
-        "ref": "development",
-        "rev": "826da02c059f43c000cf24dd60d0d2507d4919bc",
-        "revCount": 69,
+        "lastModified": 1780683700,
+        "narHash": "sha256-gf3OeODTTFgvTiO+nGlCOE0DwB1ZRINSftOy0aAUr3M=",
+        "ref": "main",
+        "rev": "d7bceccfd6029133c8cb81e414eccc68d8b28944",
+        "revCount": 77,
         "type": "git",
         "url": "ssh://git@github.com/Mesomat-Inc/hw_db_interface.git"
       },
       "original": {
-        "ref": "development",
+        "ref": "main",
         "type": "git",
         "url": "ssh://git@github.com/Mesomat-Inc/hw_db_interface.git"
       }
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1750838302,
-        "narHash": "sha256-aVkL3/yu50oQzi2YuKo0ceiCypVZpZXYd2P2p1FMJM4=",
+        "lastModified": 1780453794,
+        "narHash": "sha256-bXMRa9VTsHSPXL4Cw8R6JJLQeY3Y/IP4+YJCYVmQ7FY=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "7284e2decc982b81a296ab35aa46e804baaa1cfe",
+        "rev": "6b316287bae2ee04c9b93c8c858d930fd07d7338",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixos-25.05",
+        "ref": "nixos-26.05",
         "repo": "nixpkgs",
         "type": "github"
       }
