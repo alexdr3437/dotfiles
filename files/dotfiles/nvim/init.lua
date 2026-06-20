@@ -63,8 +63,8 @@ vim.opt.expandtab = false
 -- 1. Set the "Max Line" (standard is 80 or 88)
 vim.opt.textwidth = 110
 
--- 2. Configure the "Logic" 
--- t: wrap text, q: allow gq formatting, n: lists, 
+-- 2. Configure the "Logic"
+-- t: wrap text, q: allow gq formatting, n: lists,
 -- r: continue comments on Enter, j: smart join
 vim.opt.formatoptions = "tqnjr"
 
@@ -97,6 +97,17 @@ vim.keymap.set("n", "[d", vim.diagnostic.goto_next, { desc = "Go to next [D]iagn
 vim.keymap.set("n", "]d", vim.diagnostic.goto_prev, { desc = "Go to previous [D]iagnostic message" })
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
+
+-- Force inactive code to stop being greyed out
+-- This targets the specific highlight group RA uses for inactive code
+vim.api.nvim_set_hl(0, "@lsp.type.comment.rust", { link = "@lsp.type.comment" }) -- Keep actual comments as comments
+vim.api.nvim_set_hl(0, "@lsp.type.unresolvedReference.rust", { link = "Normal" })
+
+-- THIS is the critical one for the "inactive to #[cfg]" message:
+vim.api.nvim_set_hl(0, "DiagnosticUnnecessary", { fg = "NONE", italic = false, underline = false })
+
+-- If your theme is still fighting you, force the link to Normal (standard code color)
+vim.api.nvim_set_hl(0, "@lsp.mod.readingFromConfig.rust", { link = "Normal" })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -690,6 +701,92 @@ require("lazy").setup({
         })
       end
 
+      local function telescope_dirs(roots)
+        local dirs = {}
+
+        for _, root in ipairs(roots) do
+          root = vim.fn.fnamemodify(vim.fn.expand(root), ":p")
+
+          for name, kind in vim.fs.dir(root) do
+            if kind == "directory" then
+              table.insert(dirs, vim.fs.joinpath(root, name))
+            end
+          end
+        end
+
+        require("telescope.pickers")
+            .new({}, {
+              prompt_title = "Directories",
+              finder = require("telescope.finders").new_table({
+                results = dirs,
+                entry_maker = function(path)
+                  return {
+                    value = path,
+                    display = vim.fs.basename(path),
+                    ordinal = vim.fs.basename(path),
+                  }
+                end,
+              }),
+              sorter = require("telescope.config").values.generic_sorter({}),
+              attach_mappings = function(prompt_bufnr)
+                local actions = require("telescope.actions")
+                local action_state = require("telescope.actions.state")
+
+                actions.select_default:replace(function()
+                  local selection = action_state.get_selected_entry()
+                  actions.close(prompt_bufnr)
+
+                  local path = selection.value
+                  local src = vim.fs.joinpath(path, "src")
+
+                  local stat = vim.uv.fs_stat(src)
+                  if stat and stat.type == "directory" then
+                    path = src
+                  end
+
+                  vim.cmd("Oil " .. vim.fn.fnameescape(path))
+                end)
+
+                return true
+              end,
+            })
+            :find()
+      end
+
+      vim.api.nvim_create_user_command("Dirs", function(opts)
+        local roots = opts.fargs
+
+        if #roots == 0 then
+          local project_file = vim.fs.find(".nvim/dirs.lua", {
+            upward = true,
+            path = vim.fn.expand("%:p:h"),
+          })[1]
+
+          if not project_file then
+            vim.notify("No .nvim/dirs.lua found and no directories supplied", vim.log.levels.ERROR)
+            return
+          end
+
+          local project_root = vim.fs.dirname(vim.fs.dirname(project_file))
+          local ok, configured_roots = pcall(dofile, project_file)
+
+          if not ok or type(configured_roots) ~= "table" then
+            vim.notify("Failed to load " .. project_file, vim.log.levels.ERROR)
+            return
+          end
+
+          roots = {}
+          for _, dir in ipairs(configured_roots) do
+            table.insert(roots, vim.fs.joinpath(project_root, dir))
+          end
+        end
+
+        telescope_dirs(roots)
+      end, {
+        nargs = "*",
+        complete = "dir",
+      })
+
       -- project mappings (<leader>p...)
       vim.keymap.set("n", "<leader>pp", p_find_local_files, { desc = "[P]roject [F]iles" })
       vim.keymap.set("n", "<leader>pf", p_find_files, { desc = "[P]roject [F]iles" })
@@ -892,24 +989,24 @@ require("lazy").setup({
       vim.lsp.enable('just')
 
       lspconfig.basedpyright.setup({
-          settings = {
-              basedpyright = {
-                  analysis = {
-                      typeCheckingMode = "basic", -- "off", "basic", or "all"
-                      autoSearchPaths = true,
-                      useLibraryCodeForTypes = true,
-                  },
-              },
+        settings = {
+          basedpyright = {
+            analysis = {
+              typeCheckingMode = "basic", -- "off", "basic", or "all"
+              autoSearchPaths = true,
+              useLibraryCodeForTypes = true,
+            },
           },
+        },
       })
 
       lspconfig.ruff.setup({
-          -- Optional: disable Ruff's hover if you prefer Pyright's
-          on_attach = function(client, bufnr)
-              if client.name == 'ruff' then
-                  client.server_capabilities.hoverProvider = false
-              end
-          end,
+        -- Optional: disable Ruff's hover if you prefer Pyright's
+        on_attach = function(client, bufnr)
+          if client.name == 'ruff' then
+            client.server_capabilities.hoverProvider = false
+          end
+        end,
       })
 
       lspconfig.harper_ls.setup {}
@@ -949,6 +1046,7 @@ require("lazy").setup({
           -- optional: keymaps, autocmds, etc
           local buf_map = vim.api.nvim_buf_set_keymap
           local opts = { noremap = true, silent = true }
+          client.server_capabilities.semanticTokensProvider = nil
           -- ...your other mappings...
         end,
         settings = {
