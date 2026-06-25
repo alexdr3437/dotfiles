@@ -792,6 +792,7 @@ require("lazy").setup({
       vim.keymap.set("n", "<leader>pf", p_find_files, { desc = "[P]roject [F]iles" })
       vim.keymap.set("n", "<leader>pg", p_live_grep, { desc = "[P]roject [G]rep" })
       vim.keymap.set("n", "<leader>pw", p_grep_string, { desc = "[P]roject [W]ord" })
+      vim.keymap.set("n", "<leader>pd", "<cmd>Dirs<CR>", { desc = "[P]roject [D]irs" })
 
       -- session mappings (<leader>s...)
       vim.keymap.set("n", "<leader>sf", s_find_files, { desc = "[S]ession [F]iles" })
@@ -801,7 +802,7 @@ require("lazy").setup({
       -- leave your existing non-cwd-sensitive mappings intact
       vim.keymap.set("n", "<leader>ph", builtin.help_tags, { desc = "[P]earch [H]elp" })
       vim.keymap.set("n", "<leader>pk", builtin.keymaps, { desc = "[P]earch [K]eymaps" })
-      vim.keymap.set("n", "<leader>pd", builtin.diagnostics, { desc = "[P]roject [D]iagnostics" })
+      vim.keymap.set("n", "<leader>pD", builtin.diagnostics, { desc = "[P]roject [D]iagnostics" })
       vim.keymap.set("n", "<leader>pr", builtin.resume, { desc = "[P]roject [R]esume" })
       vim.keymap.set("n", "<leader>p.", builtin.oldfiles, { desc = "[P]roject Recent Files" })
       vim.keymap.set("n", "<leader>pb", builtin.buffers, { desc = "[P]roject [B]uffers" })
