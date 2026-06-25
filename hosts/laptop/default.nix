@@ -24,13 +24,17 @@
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
+  services.power-profiles-daemon.enable = false;
+  services.tlp = {
+    enable = true;
+  };
+
   boot.kernelParams = [
-    "usbcore.autosuspend=-1"
+    "python_backtrace=1" # Helps logs if it still crashes
   ];
 
-  services.udev.extraRules = ''
-    ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="8087", ATTR{idProduct}=="0a2a", ATTR{power/control}="on", ATTR{power/autosuspend}="0"
-  '';
+  hardware.enableAllFirmware = true;
+  hardware.cpu.intel.updateMicrocode = true; # Assuming you have an Intel CPU
 
   networking.hostName = "nixos-laptop";
 
