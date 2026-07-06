@@ -4,6 +4,18 @@ let
   user = "alex";
   mediaRoot = "/srv/media";
 
+  qbittorrentWithUmask = pkgs.symlinkJoin {
+    name = "qbittorrent-with-umask";
+    paths = [ pkgs.qbittorrent ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+
+    postBuild = ''
+      rm "$out/bin/qbittorrent"
+      makeWrapper ${pkgs.qbittorrent}/bin/qbittorrent "$out/bin/qbittorrent" \
+        --run 'umask 002'
+    '';
+  };
+
   qbtImportMovie = pkgs.writeShellApplication {
     name = "qbt-import-movie";
 
@@ -92,6 +104,7 @@ in
   users.groups.media = { };
 
   users.users.${user}.extraGroups = [ "media" ];
+  users.users.sonarr.extraGroups = [ "media" ];
 
   services.jellyfin = {
     enable = true;
@@ -105,8 +118,8 @@ in
     openFirewall = true;
   };
 
-  environment.systemPackages = with pkgs; [
-    qbittorrent
+  environment.systemPackages = [
+    qbittorrentWithUmask
     qbtImportMovie
   ];
 
