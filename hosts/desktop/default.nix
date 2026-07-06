@@ -15,6 +15,7 @@
     ../../modules/fonts.nix
     ../../modules/apps.nix
     ../../modules/torrents.nix
+    ../../modules/tailscale.nix
   ];
 
   nix.settings.experimental-features = [
@@ -94,29 +95,6 @@
 
   systemd.services.systemd-rfkill.enable = false;
   systemd.sockets.systemd-rfkill.enable = false;
-
-  # host-specific SSH tunnel
-  systemd.services = {
-    ssh-tunnel = {
-      description = "remote access tunnel to mesomat@";
-      after = [ "network.target" ];
-      wants = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
-
-      serviceConfig = {
-        ExecStart = ''
-          ${pkgs.openssh}/bin/ssh \
-            -o ServerAliveInterval=60 \
-            -o StrictHostKeyChecking=no \
-            -o ExitOnForwardFailure=yes \
-            -nNTvvv -R 40202:localhost:22 mesomat@device-manager.mesomat.org
-        '';
-        Restart = "always";
-        RestartSec = 5;
-        User = "alex";
-      };
-    };
-  };
 
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.greetd.enableGnomeKeyring = true;

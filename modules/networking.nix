@@ -11,24 +11,17 @@
 
   services.blueman.enable = true;
 
-  # services.resolved = {
-  #   enable = true;
-  #
-  #   settings.Resolve = {
-  #     DNS = [
-  #       "45.90.28.0#9be4fc.dns.nextdns.io"
-  #       "45.90.30.0#9be4fc.dns.nextdns.io"
-  #       "2a07:a8c0::#9be4fc.dns.nextdns.io"
-  #       "2a07:a8c1::#9be4fc.dns.nextdns.io"
-  #     ];
-  #
-  #     DNSOverTLS = false;
-  #   };
-  # };
-  #
-  # networking.networkmanager.dns = "systemd-resolved";
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = true;
+      KbdInteractiveAuthentication = false;
+      PermitRootLogin = "no";
+      AllowUsers = [ "alex" ];
+    };
+  };
 
-  services.tailscale.enable = true;
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
 
   environment.systemPackages = with pkgs; [
     blueman
