@@ -22,5 +22,12 @@
 
   environment.systemPackages = with pkgs; [
     wireshark
+    parted
+    gptfdisk
+    e2fsprogs
+    util-linux
+    rsync
+    nvme-cli
+    smartmontools
   ];
 }

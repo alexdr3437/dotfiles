@@ -14,6 +14,7 @@
     ../../modules/virtualisation.nix
     ../../modules/fonts.nix
     ../../modules/apps.nix
+    ../../modules/torrents.nix
   ];
 
   nix.settings.experimental-features = [
@@ -37,9 +38,17 @@
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.segger-jlink.acceptLicense = true;
 
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-39.8.10"
+    "segger-jlink-qt4-874"
+  ];
+
   # shell
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
+
+  users.groups.inputs = { };
+  users.groups.media = { };
 
   # user account
   users.users.alex = {
@@ -50,9 +59,16 @@
       "dialout"
       "wireshark"
       "plugdev"
+      "inputs"
+      "media"
     ];
     packages = with pkgs; [ tree ];
     shell = pkgs.zsh;
+  };
+
+  fileSystems."/srv/media" = {
+    device = "/dev/disk/by-uuid/a3382bbe-a761-491c-8f78-a198f9cc75b1";
+    fsType = "ext4";
   };
 
   # passwordless nixos-rebuild
@@ -76,6 +92,9 @@
 
   services.openssh.enable = true;
 
+  systemd.services.systemd-rfkill.enable = false;
+  systemd.sockets.systemd-rfkill.enable = false;
+
   # host-specific SSH tunnel
   systemd.services = {
     ssh-tunnel = {
@@ -98,6 +117,9 @@
       };
     };
   };
+
+  services.gnome.gnome-keyring.enable = true;
+  security.pam.services.greetd.enableGnomeKeyring = true;
 
   system.stateVersion = "25.05"; # do not change this!
 }

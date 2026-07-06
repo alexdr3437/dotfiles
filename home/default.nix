@@ -7,10 +7,30 @@
     ./zsh.nix
   ];
 
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-39.8.10"
+  ];
+
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "alex";
   home.homeDirectory = "/home/alex";
+
+  home.file.".config/autostart/proton-vpn.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=Proton VPN
+    Exec=protonvpn-app
+    Terminal=false
+  '';
+
+  home.file.".config/autostart/qbittorrent.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=qBittorrent
+    Exec=qbittorrent
+    Terminal=false
+  '';
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -24,36 +44,6 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
-    # terminal / CLI
-    btop
-    ripgrep
-    lazygit
-    jq
-    tldr
-    htop
-    neofetch
-    scc
-    hyperfine
-    xxd
-    p7zip
-    parallel
-    ydiff
-    wget
-    unzip
-    xclip
-    socat
-    dig
-    nmap
-    meld
-    powertop
-    powerstat
-    lm_sensors
-    man-pages
-    pywal
-    yay
-    stow
-    typst
-
     # GUI apps
     discord
     slack
@@ -68,6 +58,9 @@
     zathura
     libreoffice-fresh
     vlc
+    zed-editor
+    qbittorrent
+    proton-vpn
 
     # other
     postgresql
@@ -107,4 +100,5 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+
 }

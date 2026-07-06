@@ -1,5 +1,39 @@
-{ ... }:
+{ pkgs, ... }:
 {
+
+  home.packages = with pkgs; [
+    btop
+    ripgrep
+    lazygit
+    jq
+    tldr
+    htop
+    scc
+    hyperfine
+    xxd
+    p7zip
+    parallel
+    ydiff
+    wget
+    unzip
+    xclip
+    socat
+    dig
+    nmap
+    meld
+    powertop
+    powerstat
+    lm_sensors
+    man-pages
+    pywal
+    yay
+    stow
+    typst
+    (yazi.override {
+      _7zz = _7zz-rar; # Support for RAR extraction
+    })
+    fastfetch
+  ];
 
   programs.ghostty = {
     enable = true;
