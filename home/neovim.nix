@@ -9,5 +9,6 @@
     harper
     basedpyright
     ruff
+    tree-sitter
   ];
 }
