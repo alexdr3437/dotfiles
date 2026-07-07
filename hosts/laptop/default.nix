@@ -33,6 +33,11 @@
     "python_backtrace=1" # Helps logs if it still crashes
   ];
 
+  boot.kernel.sysctl = {
+    "net.ipv4.ip_forward" = 1;
+    "net.ipv6.conf.all.forwarding" = 1;
+  };
+
   hardware.enableAllFirmware = true;
   hardware.cpu.intel.updateMicrocode = true; # Assuming you have an Intel CPU
 
@@ -41,6 +46,11 @@
   time.timeZone = "America/Toronto";
 
   nixpkgs.config.allowUnfree = true;
+
+  nixpkgs.config.permittedInsecurePackages = [
+    "electron-39.8.10"
+    "segger-jlink-qt4-874"
+  ];
 
   # shell
   programs.zsh.enable = true;
