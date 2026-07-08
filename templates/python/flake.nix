@@ -1,5 +1,5 @@
 {
-  description = "Basic Rust project";
+  description = "Basic Python project, using uv";
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   outputs =
     { self, nixpkgs }:
@@ -20,10 +20,8 @@
         {
           default = pkgs.mkShell {
             buildInputs = with pkgs; [
-              rustc
-              cargo
-              pkg-config
-              openssl
+              python3
+              uv
             ];
           };
         }

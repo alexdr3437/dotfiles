@@ -480,7 +480,6 @@ require("lazy").setup({
   { -- Fuzzy Finder (files, lsp, etc)
     "nvim-telescope/telescope.nvim",
     event = "VimEnter",
-    branch = "0.1.x",
     dependencies = {
       "nvim-lua/plenary.nvim",
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
@@ -1319,7 +1318,7 @@ require("lazy").setup({
     opts = { signs = false },
   },
   {
-    "norcalli/nvim-colorizer.lua",
+    "catgoose/nvim-colorizer.lua",
     config = function()
       require("colorizer").setup()
     end,
