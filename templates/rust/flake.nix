@@ -24,6 +24,7 @@
               rustc
               cargo
               cargo-watch
+              rust-analyzer
               clippy
               rustfmt
               pkg-config

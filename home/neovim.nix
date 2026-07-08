@@ -9,6 +9,7 @@
     harper
     basedpyright
     ruff
+    rust-analyzer
     tree-sitter
   ];
 }

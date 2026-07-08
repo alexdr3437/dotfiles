@@ -970,7 +970,11 @@ require("lazy").setup({
         end,
       })
 
-      lspconfig.harper_ls.setup {}
+      lspconfig.harper_ls.setup {
+        settings = {
+          ["harper-ls"] = {},
+        },
+      }
 
       lspconfig.clangd.setup {
         cmd = { "clangd", "--background-index", "--clang-tidy", "--tweaks=-ferror-limit=0", "--tweaks=-ftemplate-backtrace-limit=0" },
