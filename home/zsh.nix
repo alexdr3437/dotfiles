@@ -33,6 +33,17 @@
     initContent = ''
       zmodload zsh/datetime
 
+      ntmp() {
+        local dir="$HOME/.dotfiles/templates/$1"
+        if [[ -z "$1" || ! -d "$dir" ]]; then
+          local -a tmpls
+          tmpls=("$HOME"/.dotfiles/templates/*(/:t))
+          echo "usage: ntmp <template>  (available: $tmpls)" >&2
+          return 1
+        fi
+        nix develop --no-write-lock-file "$dir" -c zsh
+      }
+
       preexec() {
         __cmd_start=$EPOCHREALTIME
       }
