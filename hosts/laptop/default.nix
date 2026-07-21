@@ -12,6 +12,7 @@
     ../../modules/virtualisation.nix
     ../../modules/fonts.nix
     ../../modules/apps.nix
+    ../../modules/tailscale.nix
   ];
 
   nix.settings.experimental-features = [
