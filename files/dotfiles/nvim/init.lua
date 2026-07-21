@@ -1010,14 +1010,12 @@ require("lazy").setup({
           -- optional: keymaps, autocmds, etc
           local buf_map = vim.api.nvim_buf_set_keymap
           local opts = { noremap = true, silent = true }
-          client.server_capabilities.semanticTokensProvider = nil
           -- ...your other mappings...
         end,
         settings = {
           ["rust-analyzer"] = {
-            cargo = { allFeatures = true },
-            check = { command = "clippy" },
-            checkOnSave = true,
+            cargo = { allFeatures = false },
+            checkOnSave = false,
             procMacro = { enable = true },
           },
         },
@@ -1399,14 +1397,9 @@ require("lazy").setup({
       vim.api.nvim_create_autocmd("FileType", {
         callback = function(args)
           local ft = vim.bo[args.buf].filetype
-
-          if ft ~= "just" then
+          -- The Rust parser can retain gigabytes in large macro-heavy workspaces.
+          if ft ~= "just" and ft ~= "rust" then
             pcall(vim.treesitter.start, args.buf)
-          end
-
-          if ft ~= "ruby" then
-            vim.bo[args.buf].indentexpr =
-              "v:lua.require'nvim-treesitter'.indentexpr()"
           end
         end,
       })
