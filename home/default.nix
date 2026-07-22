@@ -5,6 +5,7 @@
     ./terminal.nix
     ./neovim.nix
     ./zsh.nix
+    ./editor.nix
   ];
 
   nixpkgs.config.permittedInsecurePackages = [
@@ -58,7 +59,6 @@
     zathura
     libreoffice-fresh
     vlc
-    zed-editor
     qbittorrent
     proton-vpn
 
