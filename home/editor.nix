@@ -21,8 +21,8 @@
     userSettings = {
       theme = {
         mode = "system";
-        dark = "Ayu Dark";
-        light = "Ayu Mirage";
+        dark = "Ayu Mirage";
+        light = "Ayu Light";
       };
       preview_tabs = {
         enabled = true;
