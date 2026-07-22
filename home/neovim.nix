@@ -5,11 +5,12 @@
   home.packages = with pkgs; [
     nodejs
     nixfmt-rfc-style
-    nixd
     harper
     basedpyright
     ruff
     rust-analyzer
     tree-sitter
+    nil
+    nixd
   ];
 }
