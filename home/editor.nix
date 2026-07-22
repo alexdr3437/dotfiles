@@ -10,6 +10,14 @@
       "rust"
       "zig"
     ];
+    userKeymaps = [
+      {
+        context = "Workspace";
+        bindings = {
+          "super-f" = "terminal_panel::Toggle";
+        };
+      }
+    ];
     userSettings = {
       theme = {
         mode = "system";
@@ -22,6 +30,9 @@
       };
       hour_format = "hour24";
       vim_mode = true;
+      vim = {
+        toggle_relative_line_numbers = true;
+      };
     };
   };
 }
