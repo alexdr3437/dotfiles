@@ -90,6 +90,7 @@
       vim_mode = true;
       vim = {
         toggle_relative_line_numbers = true;
+      };
       project_panel = {
         auto_reveal_entries = true;
         auto_fold_dirs = false;
