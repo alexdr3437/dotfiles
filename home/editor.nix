@@ -50,6 +50,7 @@
           "r" = "project_panel::Rename";
           "a" = "project_panel::NewFile";
           "shift-a" = "project_panel::NewDirectory";
+          "/" = "file_finder::Toggle";
         };
       }
 
