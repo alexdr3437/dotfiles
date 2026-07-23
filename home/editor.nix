@@ -1,23 +1,81 @@
 { ... }:
 {
+
   programs.direnv.enable = true;
   programs.direnv.nix-direnv.enable = true;
   programs.zed-editor = {
     enable = true;
-    extensions = [
-      "nix"
-      "toml"
-      "rust"
-      "zig"
-    ];
+
     userKeymaps = [
       {
         context = "Workspace";
         bindings = {
           "super-f" = "terminal_panel::Toggle";
+
+          # Project tree.
+          "ctrl-shift-e" = "project_panel::ToggleFocus";
+
+          # Agent panel.
+          "super-a" = "agent::ToggleFocus";
+          "super-alt-a" = "agent::Toggle";
+          "super-shift-a" = "agent::NewThread";
+        };
+      }
+
+      # From the editor: reveal the current file in the project tree.
+      {
+        context = "!AcpThread > Editor && mode == full";
+        bindings = {
+          "ctrl-shift-e" = "pane::RevealInProjectPanel";
+        };
+      }
+
+      # Keyboard-first project tree navigation.
+      {
+        context = "ProjectPanel && not_editing";
+        bindings = {
+          # Vim-style movement in the project tree.
+          "h" = "project_panel::CollapseSelectedEntry";
+          "j" = "menu::SelectNext";
+          "k" = "menu::SelectPrevious";
+          "l" = "project_panel::ExpandSelectedEntry";
+
+          # Open selected file/directory.
+          "o" = "project_panel::Open";
+          "enter" = "project_panel::Open";
+
+          # File operations.
+          "r" = "project_panel::Rename";
+          "a" = "project_panel::NewFile";
+          "shift-a" = "project_panel::NewDirectory";
+        };
+      }
+
+      # Agent panel bindings.
+      {
+        context = "AgentPanel";
+        bindings = {
+          "super-shift-a" = "agent::NewThread";
+          "super-a" = "agent::ToggleFocus";
+          "alt-a" = "agent::Toggle";
+        };
+      }
+
+      # Agent thread/editor bindings.
+      {
+        context = "AcpThread > Editor";
+        bindings = {
+          "ctrl-enter" = "agent::ChatWithFollow";
+          "ctrl-shift-enter" = "agent::SendImmediately";
+          "ctrl-alt-p" = "agent::ManageProfiles";
+          "ctrl-alt-l" = "agent::ManageSkills";
+          "ctrl-alt-/" = "agent::ToggleModelSelector";
+          "ctrl-i" = "agent::ToggleProfileSelector";
+          "ctrl-f" = "agent::ToggleSearch";
         };
       }
     ];
+
     userSettings = {
       theme = {
         mode = "system";
@@ -32,6 +90,9 @@
       vim_mode = true;
       vim = {
         toggle_relative_line_numbers = true;
+      project_panel = {
+        auto_reveal_entries = true;
+        auto_fold_dirs = false;
       };
     };
   };
