@@ -17,8 +17,8 @@
 
           # Agent panel.
           "super-a" = "agent::ToggleFocus";
-          "super-alt-a" = "agent::Toggle";
           "super-shift-a" = "agent::NewThread";
+          "alt-a" = "agent::Toggle";
         };
       }
 
