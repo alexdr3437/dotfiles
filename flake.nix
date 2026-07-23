@@ -32,7 +32,7 @@
           {
             nixpkgs.overlays = [
               (final: prev: {
-                kitty = nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.kitty;
+                zed-editor = nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.zed-editor;
               })
             ];
 
@@ -54,7 +54,7 @@
           {
             nixpkgs.overlays = [
               (final: prev: {
-                kitty = nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.kitty;
+                zed-editor = nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.zed-editor;
               })
             ];
 

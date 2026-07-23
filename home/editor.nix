@@ -44,6 +44,8 @@
           "o" = "project_panel::Open";
           "enter" = "project_panel::Open";
 
+          "i" = "workspace::FocusCenterPane";
+
           # File operations.
           "r" = "project_panel::Rename";
           "a" = "project_panel::NewFile";
