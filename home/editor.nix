@@ -82,14 +82,15 @@
     userSettings = {
       theme = {
         mode = "system";
-        dark = "Ayu Mirage";
-        light = "Ayu Light";
+        dark = "Everforest Dark Hard (material)";
+        light = "Everforest Light Hard (material)";
       };
       preview_tabs = {
         enabled = true;
         enable_preview_from_file_finder = true;
       };
       hour_format = "hour24";
+      preferred_line_length = 100;
       vim_mode = true;
       vim = {
         toggle_relative_line_numbers = true;
