@@ -38,6 +38,12 @@
     }
   ];
 
+  # attempt to fix desktop stuttering
+  boot.kernelParams = [ "nvme_core.default_ps_max_latency_us=0" ];
+  boot.extraModprobeConfig = ''
+    options nvidia_modeset disable_vrr_memclk_switch=1
+  '';
+
   networking.hostName = "nixos-desktop";
 
   time.timeZone = "America/Toronto";
