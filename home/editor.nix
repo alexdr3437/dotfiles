@@ -77,6 +77,20 @@
           "ctrl-f" = "agent::ToggleSearch";
         };
       }
+
+      # Git and Markdown bindings.
+      {
+        context = "Editor && (vim_mode == normal || vim_mode == visual) && !VimWaiting && !menu";
+        bindings = {
+
+          # markdown preview
+          "space m p" = "markdown::OpenPreview";
+
+          # git hunks
+          "space g h d" = "editor::ToggleSelectedDiffHunks";
+          "space g h r" = "git::Restore";
+        };
+      }
     ];
 
     userSettings = {
