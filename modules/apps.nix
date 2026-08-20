@@ -29,5 +29,6 @@
     rsync
     nvme-cli
     smartmontools
+    calibre
   ];
 }
