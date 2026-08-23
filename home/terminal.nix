@@ -39,6 +39,7 @@
     enable = true;
     enableZshIntegration = true;
     settings = {
+      async-backend = "epoll";
       font-size = 10;
       background-opacity = 0.95;
       mouse-scroll-multiplier = 1;
@@ -207,7 +208,7 @@
           }
           bind "w" {
             LaunchOrFocusPlugin "session-manager" {
-              floating true 
+              floating true
               move_to_focused_tab true
               close_on_exit true
             }
