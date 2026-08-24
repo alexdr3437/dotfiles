@@ -91,6 +91,13 @@
           "space g h r" = "git::Restore";
         };
       }
+
+      {
+        context = "Terminal || vim_mode == insert";
+        bindings = {
+          "ctrl-v" = "editor::Paste";
+        };
+      }
     ];
 
     userSettings = {

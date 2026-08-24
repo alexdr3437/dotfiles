@@ -16,6 +16,7 @@
     ../../modules/apps.nix
     ../../modules/torrents.nix
     ../../modules/tailscale.nix
+    ../../modules/wispr-flow.nix
   ];
 
   nix.gc = {
@@ -72,7 +73,7 @@
       "dialout"
       "wireshark"
       "plugdev"
-      "inputs"
+      "input"
       "media"
     ];
     packages = with pkgs; [ tree ];

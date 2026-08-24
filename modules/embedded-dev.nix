@@ -20,6 +20,7 @@
     libftdi1
     nrfutil
     inputs.hw_db_interface.packages.${pkgs.system}.default
+    wl-clipboard
   ];
 
   services.udev.extraRules = ''
@@ -37,5 +38,9 @@
 
     # Prevent ModemManager from grabbing nRF CDC ACM devices
     ENV{NRF_CDC_ACM}=="1", ENV{ID_MM_CANDIDATE}="0", ENV{ID_MM_DEVICE_IGNORE}="1"
+
+    # wisprflow
+    KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", TAG+="uaccess", GROUP="input", MODE="0660"
+    SUBSYSTEM=="input", KERNEL=="event*", TAG+="uaccess", GROUP="input", MODE="0660"
   '';
 }
