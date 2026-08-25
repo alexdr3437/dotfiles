@@ -92,28 +92,5 @@
 
   services.openssh.enable = true;
 
-  # host-specific SSH tunnel
-  systemd.services = {
-    ssh-tunnel = {
-      description = "remote access tunnel to mesomat@";
-      after = [ "network.target" ];
-      wants = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
-
-      serviceConfig = {
-        ExecStart = ''
-          ${pkgs.openssh}/bin/ssh \
-            -o ServerAliveInterval=60 \
-            -o StrictHostKeyChecking=no \
-            -o ExitOnForwardFailure=yes \
-            -nNTvvv -R 40101:localhost:22 mesomat@device-manager.mesomat.org
-        '';
-        Restart = "always";
-        RestartSec = 5;
-        User = "alex";
-      };
-    };
-  };
-
   system.stateVersion = "25.05"; # do not change this!
 }
