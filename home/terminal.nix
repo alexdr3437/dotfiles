@@ -1,4 +1,7 @@
-{ pkgs, ... }:
+{ nixpkgs-unstable, pkgs, ... }:
+let
+  unstablePackages = nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+in
 {
 
   home.packages = with pkgs; [
@@ -28,7 +31,7 @@
     pywal
     yay
     stow
-    typst
+    unstablePackages.typst
     (yazi.override {
       _7zz = _7zz-rar; # Support for RAR extraction
     })
