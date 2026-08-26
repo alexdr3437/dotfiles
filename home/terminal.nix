@@ -36,6 +36,7 @@ in
       _7zz = _7zz-rar; # Support for RAR extraction
     })
     fastfetch
+    ncdu
   ];
 
   programs.ghostty = {
