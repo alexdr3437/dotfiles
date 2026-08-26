@@ -1,11 +1,20 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
-  services.xserver.videoDrivers = [ "nvidia" ];
+  services.xserver.videoDrivers = [
+    "modesetting"
+    "nvidia"
+  ];
 
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
+    extraPackages = with pkgs; [
+      intel-media-driver
+      vpl-gpu-rt
+    ];
   };
+
+  environment.sessionVariables.LIBVA_DRIVER_NAME = "iHD";
 
   hardware.nvidia = {
     modesetting.enable = true;
@@ -13,6 +22,16 @@
     powerManagement.finegrained = false;
     open = true;
     nvidiaSettings = true;
+
+    prime = {
+      intelBusId = "PCI:0@0:2:0";
+      nvidiaBusId = "PCI:1@0:0:0";
+
+      offload = {
+        enable = true;
+        enableOffloadCmd = true;
+      };
+    };
 
     package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
       version = "610.57.04";
