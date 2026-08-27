@@ -33,5 +33,6 @@
     nvme-cli
     smartmontools
     calibre
+    bruno
   ];
 }

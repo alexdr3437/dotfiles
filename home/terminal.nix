@@ -3,7 +3,6 @@ let
   unstablePackages = nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
 in
 {
-
   home.packages = with pkgs; [
     btop
     ripgrep
