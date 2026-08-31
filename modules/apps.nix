@@ -34,5 +34,6 @@
     smartmontools
     calibre
     bruno
+    zotero
   ];
 }
