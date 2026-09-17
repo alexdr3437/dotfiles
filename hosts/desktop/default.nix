@@ -17,6 +17,7 @@
     ../../modules/torrents.nix
     ../../modules/tailscale.nix
     ../../modules/wispr-flow.nix
+    ../../modules/llm.nix
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
