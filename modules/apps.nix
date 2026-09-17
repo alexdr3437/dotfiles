@@ -23,6 +23,26 @@
     xkb.layout = "us";
   };
 
+  services.actual = {
+    enable = true;
+    settings.port = 5006;
+  };
+
+  systemd.services.actual-tailscale-serve = {
+    description = "Expose Actual through Tailscale HTTPS";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "tailscaled.service" "actual.service" ];
+    wants = [ "tailscaled.service" "actual.service" ];
+
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg http://127.0.0.1:5006";
+    };
+  };
+
+  networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 443 ];
+
   environment.systemPackages = with pkgs; [
     wireshark
     parted
