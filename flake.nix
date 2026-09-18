@@ -69,6 +69,19 @@
         ];
       };
 
+      nixosConfigurations.linode = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [ ./hosts/linode ];
+      };
+
+      nixosConfigurations.linode-image = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [ ./hosts/linode/image.nix ];
+      };
+
+      packages.x86_64-linux.linode-image =
+        inputs.self.nixosConfigurations.linode-image.config.system.build.linodeImage;
+
       templates = {
         rust = {
           path = ./templates/rust;
