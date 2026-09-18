@@ -1,16 +1,39 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
+let
+  u = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+in
 {
-  home.file.".config/nvim".source = ../files/dotfiles/nvim;
+  programs.nixvim = {
+    enable = true;
 
-  home.packages = with pkgs; [
-    nodejs
-    nixfmt-rfc-style
-    harper
-    basedpyright
-    ruff
-    rust-analyzer
-    tree-sitter
-    nil
-    nixd
-  ];
+    nixpkgs.pkgs = u;
+
+    package = inputs.neovim-nightly.packages.${pkgs.stdenv.hostPlatform.system}.default;
+
+    plugins.lspconfig.enable = true;
+    lsp.servers = {
+      rust_analyzer.enable = true;
+      clangd.enable = true;
+      lua_ls.enable = true;
+      nixd.enable = true;
+      just.enable = true;
+    };
+
+    plugins = {
+
+      telescope.enable = true;
+
+      treesitter = {
+        enable = true;
+        highlight.enable = true;
+        indent.enable = true;
+      };
+
+      lualine.enable = true;
+
+      gitsigns.enable = true;
+
+      web-devicons.enable = true;
+    };
+  };
 }

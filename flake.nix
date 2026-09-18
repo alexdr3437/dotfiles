@@ -8,6 +8,16 @@
     home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    neovim-nightly = {
+      url = "github:nix-community/neovim-nightly-overlay";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     hw_db_interface.url = "git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";
   };
 
@@ -16,6 +26,8 @@
       nixpkgs,
       nixpkgs-unstable,
       home-manager,
+      nixvim,
+      neovim-nightly,
       ...
     }@inputs:
     {
@@ -39,7 +51,10 @@
 
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { inherit nixpkgs-unstable; };
+            home-manager.extraSpecialArgs = {
+              inherit nixpkgs-unstable;
+              inherit inputs;
+            };
             home-manager.users.alex = import ./home;
           }
         ];
@@ -63,7 +78,10 @@
 
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { inherit nixpkgs-unstable; };
+            home-manager.extraSpecialArgs = {
+              inherit nixpkgs-unstable;
+              inherit inputs;
+            };
             home-manager.users.alex = import ./home;
           }
         ];

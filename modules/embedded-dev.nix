@@ -1,4 +1,9 @@
-{ inputs, pkgs, ... }:
+{
+  inputs,
+  pkgs,
+  lib,
+  ...
+}:
 {
   nixpkgs.config = {
     segger-jlink = {
@@ -21,7 +26,30 @@
     nrfutil
     inputs.hw_db_interface.packages.${pkgs.system}.default
     wl-clipboard
+    vault
   ];
+
+  services.vault = {
+    enable = true;
+    dev = true;
+    devRootTokenID = "root";
+  };
+
+  systemd.services.vault.postStart = lib.mkAfter ''
+    export VAULT_ADDR=http://127.0.0.1:8200
+    export VAULT_TOKEN=root
+
+    until ${pkgs.vault}/bin/vault status >/dev/null 2>&1; do
+      sleep 0.1
+    done
+
+    ${pkgs.vault}/bin/vault secrets enable transit
+  '';
+
+  environment.sessionVariables = {
+    VAULT_ADDR = "http://127.0.0.1:8200";
+    VAULT_TOKEN = "root";
+  };
 
   services.udev.extraRules = ''
     SUBSYSTEM=="usb", MODE="0666", TAG+="uaccess"

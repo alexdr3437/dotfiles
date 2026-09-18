@@ -1,9 +1,10 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 {
   imports = [
+    inputs.nixvim.homeModules.nixvim
     ./hyprland.nix
     ./terminal.nix
-    ./neovim.nix
+    ./neovim
     ./zsh.nix
     ./editor.nix
   ];

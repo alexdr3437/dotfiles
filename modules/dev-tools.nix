@@ -1,4 +1,7 @@
-{ pkgs, ... }:
+{ pkgs, nixpkgs-unstable, ... }:
+let
+  u = nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+in
 {
   environment.localBinInPath = true;
 
@@ -18,5 +21,7 @@
     openssl
     openssl.dev
     linuxHeaders
+    u.just
+    u.just-lsp
   ];
 }
