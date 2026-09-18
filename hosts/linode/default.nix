@@ -30,6 +30,23 @@
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL8t/syQrxBwqGDeciO+4KAycDGllBAjAgMliSYR4ofW alex@nixos-desktop"
   ];
 
+  users.groups.restic = { };
+  users.users.restic = {
+    isSystemUser = true;
+    group = "restic";
+    home = "/srv/restic";
+    createHome = true;
+    shell = pkgs.bashInteractive;
+
+    openssh.authorizedKeys.keys = [
+      ''restrict,command="internal-sftp" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL8t/syQrxBwqGDeciO+4KAycDGllBAjAgMliSYR4ofW alex@nixos-desktop''
+    ];
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /srv/restic/actual 0700 restic restic -"
+  ];
+
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [

@@ -14,6 +14,7 @@
     ../../modules/virtualisation.nix
     ../../modules/fonts.nix
     ../../modules/apps.nix
+    ../../modules/actual-backup.nix
     ../../modules/torrents.nix
     ../../modules/tailscale.nix
     ../../modules/wispr-flow.nix
