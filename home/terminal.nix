@@ -36,6 +36,7 @@ in
     })
     fastfetch
     ncdu
+    pv
   ];
 
   programs.ghostty = {
