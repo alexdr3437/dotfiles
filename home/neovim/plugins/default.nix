@@ -18,5 +18,6 @@
     ./transparent.nix
     ./ui.nix
     ./which-key.nix
+    ./undotree.nix
   ];
 }
