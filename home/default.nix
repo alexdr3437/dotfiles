@@ -9,10 +9,6 @@
     ./editor.nix
   ];
 
-  nixpkgs.config.permittedInsecurePackages = [
-    "electron-39.8.10"
-  ];
-
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "alex";
@@ -71,7 +67,7 @@
     arandr
     fftw
     linuxKernel.packages.linux_6_12.cpupower
-    linuxKernel.packages.linux_6_12.perf
+    perf
   ];
 
   # Home Manager can also manage your environment variables through

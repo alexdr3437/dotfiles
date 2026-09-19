@@ -5,7 +5,6 @@
     # ../../modules/hyprland.nix
     ../../modules/kde.nix
     ../../modules/audio.nix
-    ../../modules/neovim.nix
     ../../modules/networking.nix
     ../../modules/embedded-dev.nix
     ../../modules/dev-tools.nix
