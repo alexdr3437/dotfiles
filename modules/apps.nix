@@ -31,8 +31,14 @@
   systemd.services.actual-tailscale-serve = {
     description = "Expose Actual through Tailscale HTTPS";
     wantedBy = [ "multi-user.target" ];
-    after = [ "tailscaled.service" "actual.service" ];
-    wants = [ "tailscaled.service" "actual.service" ];
+    after = [
+      "tailscaled.service"
+      "actual.service"
+    ];
+    wants = [
+      "tailscaled.service"
+      "actual.service"
+    ];
 
     serviceConfig = {
       Type = "oneshot";
