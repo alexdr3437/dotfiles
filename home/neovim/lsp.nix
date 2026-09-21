@@ -25,6 +25,10 @@
             cargo.allFeatures = false;
             checkOnSave = false;
             procMacro.enable = true;
+            diagnostics.disabled = [
+              "inactive-code"
+              "inactive_code"
+            ];
           };
           flags.debounce_text_changes = 150;
         };
@@ -170,9 +174,6 @@
           ];
         };
       };
-
-      # Prose: grammar and style in comments and markdown.
-      harper_ls.enable = true;
     };
 
     # Registered on LspAttach, so they are buffer-local to buffers with a server.
@@ -181,7 +182,9 @@
     # (implementation), grt (type definition), grn (rename), gra (code action),
     # gO (document symbols) and K (hover, set on attach). Mapped here are the two
     # it has no equivalent for, plus g. -- a nearer-to-hand alias for gra, which
-    # is the one default worth reaching for often.
+    # is the one default worth reaching for often. grr is re-bound to the
+    # telescope picker, so references land in the same UI as gd instead of the
+    # quickfix list.
     #
     # Note gd is NOT an nvim default -- unmapped it stays vim's built-in "goto
     # local declaration", which searches backwards in the file and lands on the
@@ -193,6 +196,12 @@
         key = "gd";
         action = "<cmd>Telescope lsp_definitions<cr>";
         options.desc = "[G]oto [D]efinition";
+      }
+      {
+        mode = "n";
+        key = "grr";
+        action = "<cmd>Telescope lsp_references<cr>";
+        options.desc = "[G]oto [R]eferences";
       }
       {
         mode = "n";

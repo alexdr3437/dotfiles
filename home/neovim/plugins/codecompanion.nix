@@ -1,10 +1,10 @@
 # codecompanion.nvim: chat buffer, inline edits, and a terminal wrapper around
-# agent CLIs. Three interactions, three backends -- and deliberately no API key
-# anywhere, because every one of them rides a subscription that is already
-# authenticated on this machine:
+# agent CLIs. Three interactions, subscription-backed throughout -- and
+# deliberately no API key anywhere:
 #
-#   chat   -> claude_code over ACP, which drives the logged-in `claude` CLI and
-#             bills the Claude Pro subscription.
+#   chat   -> claude_code or codex over ACP. Claude is the default; `ga` in the
+#             chat buffer switches between them and their models. Both use the
+#             corresponding logged-in subscription.
 #   inline -> copilot, over the auth copilot.lua already put in
 #             ~/.config/github-copilot. ACP cannot serve this: upstream supports
 #             ACP adapters for the chat interaction only, so inline needs an HTTP
@@ -56,13 +56,15 @@ let
 in
 {
   programs.nixvim = {
-    # The ACP bridge between CodeCompanion and Claude Code. Its nixpkgs wrapper
-    # `--set-default`s CLAUDE_CODE_EXECUTABLE to the nixpkgs claude-code, which
-    # is a second Claude Code install a few patches behind ~/.local/bin/claude --
-    # but it reads the same credentials in ~/.claude, and it is pinned rather
-    # than self-updating. Set CLAUDE_CODE_EXECUTABLE in the adapter env below to
-    # point it at the native binary instead.
-    extraPackages = [ nvimPkgs.claude-agent-acp ];
+    # The ACP bridges between CodeCompanion and the two agent CLIs. The Claude
+    # wrapper `--set-default`s CLAUDE_CODE_EXECUTABLE to nixpkgs' claude-code;
+    # codex-acp does the same with CODEX_PATH and nixpkgs' codex. Both pinned
+    # CLIs read the same subscription credentials as their native installers
+    # from ~/.claude and ~/.codex respectively.
+    extraPackages = [
+      nvimPkgs.claude-agent-acp
+      nvimPkgs.codex-acp
+    ];
 
     plugins.codecompanion = {
       enable = true;
@@ -105,12 +107,32 @@ in
           end
         '';
 
+        # The built-in Codex adapter otherwise requests ACP's `api-key` auth
+        # method. Force `chat-gpt` so codex-acp uses the login in ~/.codex (and
+        # opens the subscription login flow on first use) instead. Clearing the
+        # inherited adapter field also avoids the same unset-variable-to-literal
+        # fallback described above; no OPENAI_API_KEY is sent by CodeCompanion.
+        adapters.acp.codex.__raw = ''
+          function()
+            return require("codecompanion.adapters").extend("codex", {
+              defaults = {
+                auth_method = "chat-gpt",
+              },
+              env = {
+                OPENAI_API_KEY = function()
+                  return nil
+                end,
+              },
+            })
+          end
+        '';
+
         interactions = {
-          # Model left unset on both: claude_code takes whatever the logged-in
-          # CLI defaults to, and copilot's list is fetched live from
-          # api.githubcopilot.com and depends on entitlements, so pinning an id
-          # here would be a guess that fails at request time rather than at eval
-          # time. `ga` in the chat buffer lists what is actually available.
+          # Models are left unset: the ACP agents advertise the models available
+          # to each logged-in subscription, while copilot's list is fetched live
+          # from api.githubcopilot.com and also depends on entitlements. Pinning
+          # an id here would be a guess that fails at request time rather than at
+          # eval time. `ga` in the chat buffer switches adapter and model.
           chat.adapter = "claude_code";
           inline.adapter = "copilot";
 
