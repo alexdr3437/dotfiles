@@ -16,6 +16,34 @@
         "%.*node_modules/"
       ];
 
+      # vim.ui.select -- which is what gra / g. use to list code actions -- is
+      # handed to telescope instead of the built-in command-line prompt.
+      #
+      # get_cursor draws the list right at the cursor, the way the cmp menu sits
+      # under the word being completed, and <C-y> confirms, so accepting an
+      # action uses the same key as accepting a completion (completion.nix).
+      # <CR> still confirms too, and arrows / <C-n> / <C-p> move the selection --
+      # telescope maps those by default.
+      #
+      # This is global: every vim.ui.select prompt goes through it, not just
+      # code actions.
+      extensions.ui-select = {
+        enable = true;
+        settings = [
+          {
+            __raw = ''
+              require("telescope.themes").get_cursor({
+                layout_config = { width = 60, height = 12 },
+                mappings = {
+                  i = { ["<C-y>"] = require("telescope.actions").select_default },
+                  n = { ["<C-y>"] = require("telescope.actions").select_default },
+                },
+              })
+            '';
+          }
+        ];
+      };
+
       # Plain builtin pickers, no cwd juggling needed.
       keymaps = {
         "<leader>ph" = {
