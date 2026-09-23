@@ -25,6 +25,7 @@
     libftdi1
     nrfutil
     inputs.hw_db_interface.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.marc.packages.${pkgs.stdenv.hostPlatform.system}.default
     wl-clipboard
     vault
   ];
