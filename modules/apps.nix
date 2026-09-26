@@ -34,15 +34,18 @@
     after = [
       "tailscaled.service"
       "actual.service"
+      "network-online.target"
     ];
     wants = [
       "tailscaled.service"
       "actual.service"
+      "network-online.target"
     ];
 
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      ExecStartPre = "${pkgs.tailscale}/bin/tailscale wait";
       ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg http://127.0.0.1:5006";
     };
   };
