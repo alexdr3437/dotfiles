@@ -18,6 +18,8 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    voxtype.url = "github:peteonrails/voxtype/v1.1.1-rc2";
+
     hw_db_interface.url = "git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";
     marc.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?dir=device-manager/tools/marc&ref=dev";
   };

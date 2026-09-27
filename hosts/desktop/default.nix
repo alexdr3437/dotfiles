@@ -16,7 +16,7 @@
     ../../modules/actual-backup.nix
     ../../modules/torrents.nix
     ../../modules/tailscale.nix
-    ../../modules/wispr-flow.nix
+    ../../modules/dictation.nix
     ../../modules/llm.nix
   ];
 
