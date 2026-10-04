@@ -16,6 +16,7 @@ in
     gnumake
     cmake
     git
+    jujutsu # Provides the `jj` command.
     gdb
     pkg-config
     openssl
