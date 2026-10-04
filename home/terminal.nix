@@ -31,6 +31,7 @@ in
     yay
     stow
     unstablePackages.typst
+    unstablePackages.pi-coding-agent # state lives in ~/.pi/agent, not managed here
     (yazi.override {
       _7zz = _7zz-rar; # Support for RAR extraction
     })
