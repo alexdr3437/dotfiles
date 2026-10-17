@@ -2,6 +2,7 @@
 {
   imports = [
     inputs.nixvim.homeModules.nixvim
+    ./hermes.nix
     ./hyprland.nix
     ./terminal.nix
     ./neovim
@@ -19,14 +20,6 @@
     Type=Application
     Name=Proton VPN
     Exec=protonvpn-app
-    Terminal=false
-  '';
-
-  home.file.".config/autostart/qbittorrent.desktop".text = ''
-    [Desktop Entry]
-    Type=Application
-    Name=qBittorrent
-    Exec=qbittorrent
     Terminal=false
   '';
 
@@ -58,6 +51,7 @@
     vlc
     qbittorrent
     proton-vpn
+    proton-vpn-cli
 
     # other
     postgresql
