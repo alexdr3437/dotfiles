@@ -16,6 +16,7 @@
     ../../modules/actual-backup.nix
     ../../modules/torrents.nix
     ../../modules/tailscale.nix
+    ../../modules/home-dns.nix
     ../../modules/dictation.nix
     ../../modules/llm.nix
   ];

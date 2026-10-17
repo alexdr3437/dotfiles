@@ -123,6 +123,23 @@ in
     qbtImportMovie
   ];
 
+  # Headless qBittorrent from boot, sharing the GUI's profile in ~alex (web UI
+  # on :8080, https://torrent.home). It is bound to proton0 in its own settings,
+  # so it stays offline until Proton connects.
+  systemd.services.qbittorrent-nox = {
+    description = "qBittorrent (headless)";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+
+    serviceConfig = {
+      User = user;
+      UMask = "0002";
+      ExecStart = "${pkgs.qbittorrent-nox}/bin/qbittorrent-nox";
+      Restart = "on-failure";
+    };
+  };
+
   systemd.tmpfiles.rules = [
     "d ${mediaRoot} 2775 ${user} media -"
     "d ${mediaRoot}/torrents 2775 ${user} media -"
