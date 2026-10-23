@@ -1,9 +1,17 @@
-{ pkgs, nixpkgs-unstable, ... }:
+{
+  pkgs,
+  nixpkgs-unstable,
+  inputs,
+  ...
+}:
 let
   u = nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+  gateway-console = inputs.tires-firmware.packages.${pkgs.stdenv.hostPlatform.system}.gateway-console;
 in
 {
   environment.localBinInPath = true;
+
+  environment.shellAliases.gcon = "gateway-console";
 
   environment.interactiveShellInit = ''
     export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
@@ -24,5 +32,6 @@ in
     linuxHeaders
     u.just
     u.just-lsp
+    gateway-console
   ];
 }
