@@ -2,7 +2,6 @@
 {
   imports = [
     inputs.nixvim.homeModules.nixvim
-    ./hermes.nix
     ./hyprland.nix
     ./terminal.nix
     ./neovim

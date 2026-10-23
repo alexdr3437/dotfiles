@@ -20,12 +20,6 @@
 
     voxtype.url = "github:peteonrails/voxtype/v1.1.1-rc2";
 
-    # Tracks main; `nix flake update hermes-agent` to bump.
-    hermes-agent = {
-      url = "github:NousResearch/hermes-agent/main";
-      inputs.home-manager.follows = "home-manager";
-    };
-
     hw_db_interface.url = "git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";
     marc.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?dir=device-manager/tools/marc&ref=dev";
   };
