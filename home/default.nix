@@ -48,7 +48,6 @@
     zathura
     libreoffice-fresh
     vlc
-    qbittorrent
     proton-vpn
     proton-vpn-cli
 
