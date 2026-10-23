@@ -5,7 +5,9 @@
   ...
 }:
 {
-  imports = [ (modulesPath + "/virtualisation/linode-config.nix") ];
+  imports = [
+    (modulesPath + "/virtualisation/linode-config.nix")
+  ];
 
   networking.hostName = "linode";
 
@@ -63,8 +65,11 @@
     allowedUDPPorts = [ config.services.tailscale.port ];
   };
 
-  environment.systemPackages = [
-    pkgs.ghostty.terminfo
+  environment.systemPackages = with pkgs; [
+    btop
+    ripgrep
+    neovim
+    ghostty.terminfo
   ];
 
   system.stateVersion = "26.05";
