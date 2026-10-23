@@ -29,6 +29,39 @@
     enable = true;
   };
 
+  # The Intel AX211 bluetooth controller throws "Hardware error 0x0c" on BLE
+  # reconnects, and eventually an LE connection cancel fails ("Opcode 0x200e
+  # failed: -16"). After that the kernel never reconnects anything until the
+  # adapter is power cycled, so do that automatically.
+  systemd.services.bluetooth-watchdog = {
+    description = "Power cycle the bluetooth adapter when it wedges";
+    after = [ "bluetooth.service" ];
+    requires = [ "bluetooth.service" ];
+    wantedBy = [ "multi-user.target" ];
+    path = with pkgs; [
+      systemd
+      gnugrep
+      bluez
+      coreutils
+    ];
+    script = ''
+      last=0
+      journalctl -kf -n0 -o cat \
+        | grep --line-buffered -E 'Bluetooth: hci[0-9]+: (Opcode 0x200e failed|command 0x[0-9a-f]+ tx timeout|Reset after hardware error failed)' \
+        | while read -r line; do
+            now=$(date +%s)
+            [ $((now - last)) -lt 60 ] && continue
+            echo "bluetooth wedged ($line), power cycling adapter"
+            sleep 10 # let the kernel finish its own reset first
+            bluetoothctl power off
+            sleep 2
+            bluetoothctl power on
+            last=$(date +%s)
+          done
+    '';
+    serviceConfig.Restart = "always";
+  };
+
   boot.kernelParams = [
     "python_backtrace=1" # Helps logs if it still crashes
   ];
