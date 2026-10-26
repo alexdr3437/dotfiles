@@ -536,11 +536,11 @@
         "zephyr-nix": "zephyr-nix"
       },
       "locked": {
-        "lastModified": 1792789590,
-        "narHash": "sha256-riIJ0hxBxa7Jp9a+hEtPSxWkl569G7K9tIIfOb8wWI8=",
+        "lastModified": 1793021721,
+        "narHash": "sha256-RWXBphn4lgoK8L+IJ9ov/MCbHNgHLKriqTxX2rN4mjI=",
         "ref": "dev",
-        "rev": "0385a7c4299e649bd72aea758112b9222c891200",
-        "revCount": 1129,
+        "rev": "47e1b8abf92916db2287a6664a1d0293b51ff0e5",
+        "revCount": 1131,
         "submodules": true,
         "type": "git",
         "url": "ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git"
