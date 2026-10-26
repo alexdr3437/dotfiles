@@ -23,6 +23,7 @@
     hw_db_interface.url = "git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";
     marc.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?dir=device-manager/tools/marc&ref=dev";
     tires-firmware.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?ref=dev";
+    gateway-certs.url = "git+ssh://git@github.com/Mesomat-Inc/gateway-certificate-signing.git";
   };
 
   outputs =

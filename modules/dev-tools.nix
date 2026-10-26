@@ -7,11 +7,13 @@
 let
   u = nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
   gateway-console = inputs.tires-firmware.packages.${pkgs.stdenv.hostPlatform.system}.gateway-console;
+  gateway-certs = inputs.gateway-certs.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in
 {
   environment.localBinInPath = true;
 
   environment.shellAliases.gcon = "gateway-console";
+  environment.shellAliases.gcert = "gateway-certificate-signing";
 
   environment.interactiveShellInit = ''
     export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
@@ -33,5 +35,6 @@ in
     u.just
     u.just-lsp
     gateway-console
+    gateway-certs
   ];
 }
