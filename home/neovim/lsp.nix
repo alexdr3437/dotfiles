@@ -7,6 +7,9 @@
 #
 # Capabilities are NOT set here: plugins/completion.nix sets them once, globally,
 # on the `*` pseudo-server.
+#
+# No server binaries are installed here (`package = null` on each): they must
+# come from the project dev shell (direnv/flake) so versions match the toolchain.
 { ... }:
 {
   programs.nixvim = {
@@ -19,6 +22,7 @@
       # rust-analyzer expensive in a big workspace. :LspMem (see lspmem.nix) is
       # there to keep an eye on the rest.
       rust_analyzer = {
+        package = null;
         enable = true;
         config = {
           settings."rust-analyzer" = {
@@ -42,6 +46,7 @@
       # recognise. If the intent was to lift the error limit, that belongs in a
       # .clangd file as `CompileFlags: Add: [-ferror-limit=0]`.
       clangd = {
+        package = null;
         enable = true;
         config = {
           cmd = [
@@ -74,6 +79,7 @@
       # Lua. The runtime-file library is what makes `vim.*` resolve when editing
       # this config's own lua, which is the job neodev used to do.
       lua_ls = {
+        package = null;
         enable = true;
         config.settings.Lua = {
           runtime.version = "LuaJIT";
@@ -94,14 +100,19 @@
       # for the `nix` filetype and so never falls back to the LSP). This is kept
       # so that vim.lsp.buf.format() still does the right thing on its own.
       nixd = {
+        package = null;
         enable = true;
         config.settings.nixd.formatting.command = [ "nixfmt" ];
       };
 
-      just.enable = true;
+      just = {
+        enable = true;
+        package = null;
+      };
 
       # Python: basedpyright for types, ruff for lint/format.
       basedpyright = {
+        package = null;
         enable = true;
         config.settings.basedpyright.analysis = {
           typeCheckingMode = "basic";
@@ -111,6 +122,7 @@
       };
 
       ruff = {
+        package = null;
         enable = true;
         # Both servers attach to python buffers and both answer hover. Ruff's
         # answer is the less useful one, so it stands down and K always comes
@@ -132,6 +144,7 @@
       # Formatting is declined so prettier/eslint can own it; plugins/format.nix
       # already refuses LSP formatting for these filetypes on save.
       ts_ls = {
+        package = null;
         enable = true;
         config = {
           filetypes = [
@@ -147,6 +160,7 @@
       };
 
       zls = {
+        package = null;
         enable = true;
         config.root_markers = [
           "zls.json"
@@ -159,6 +173,7 @@
       # an nvim-lspconfig concept, and vim.lsp.config already starts a server
       # with a nil root when no marker is found.
       dts_lsp = {
+        package = null;
         enable = true;
         config = {
           cmd = [ "dts-lsp" ];
