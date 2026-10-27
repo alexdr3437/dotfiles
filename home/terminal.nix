@@ -1,4 +1,4 @@
-{ nixpkgs-unstable, pkgs, ... }:
+{ nixpkgs-unstable, pkgs, config, ... }:
 let
   unstablePackages = nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
 in
@@ -51,6 +51,11 @@ in
       keybind = [
         "ctrl+enter=unbind"
       ];
+      # From github.com/sahaj-b/cursor-shaders
+      custom-shader = [
+        "${config.xdg.configHome}/ghostty/shaders/cursor_warp.glsl"
+        "${config.xdg.configHome}/ghostty/shaders/ripple_cursor.glsl"
+      ];
     };
     # extraConfig = ''
     #   	  [terminal]
@@ -60,6 +65,8 @@ in
     #   	  theme = "everforest-dark"
     #   	'';
   };
+
+  xdg.configFile."ghostty/shaders".source = ../files/dotfiles/ghostty/shaders;
 
   home.activation.lazygitConfig = ''
     if [ -L "$HOME/.config/lazygit" ]; then
