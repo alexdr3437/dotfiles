@@ -18,6 +18,9 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # don't follow nixpkgs, ghostty pins its own zig toolchain
+    ghostty.url = "github:ghostty-org/ghostty/v1.4.0";
+
     voxtype.url = "github:peteonrails/voxtype/v1.1.1-rc2";
 
     hw_db_interface.url = "git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";

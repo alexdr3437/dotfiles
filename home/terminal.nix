@@ -1,4 +1,10 @@
-{ nixpkgs-unstable, pkgs, config, ... }:
+{
+  nixpkgs-unstable,
+  inputs,
+  pkgs,
+  config,
+  ...
+}:
 let
   unstablePackages = nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
 in
@@ -42,6 +48,7 @@ in
 
   programs.ghostty = {
     enable = true;
+    package = inputs.ghostty.packages.${pkgs.stdenv.hostPlatform.system}.default;
     enableZshIntegration = true;
     settings = {
       async-backend = "epoll";
