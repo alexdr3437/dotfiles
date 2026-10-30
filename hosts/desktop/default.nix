@@ -19,6 +19,7 @@
     ../../modules/home-dns.nix
     ../../modules/dictation.nix
     ../../modules/llm.nix
+    ../../modules/logitech.nix
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
