@@ -21,6 +21,15 @@
     # don't follow nixpkgs, ghostty pins its own zig toolchain
     ghostty.url = "github:ghostty-org/ghostty/v1.4.0";
 
+    # don't follow nixpkgs, mango tracks unstable wlroots/scenefx
+    mango.url = "github:mangowm/mango";
+
+    # waybar master, for the mango/* modules (not in a release yet as of 0.15.0)
+    waybar = {
+      url = "github:Alexays/Waybar";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     voxtype.url = "github:peteonrails/voxtype/v1.1.1-rc2";
 
     hw_db_interface.url = "git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";
@@ -48,6 +57,7 @@
           { _module.args = { inherit inputs; }; }
 
           ./hosts/desktop
+          inputs.mango.nixosModules.mango
           home-manager.nixosModules.home-manager
 
           {

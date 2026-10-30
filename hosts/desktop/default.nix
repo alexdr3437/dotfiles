@@ -4,6 +4,7 @@
     ./hardware-configuration.nix
     # ../../modules/hyprland.nix
     ../../modules/kde.nix
+    ../../modules/mango.nix
     ../../modules/audio.nix
     ../../modules/networking.nix
     ../../modules/embedded-dev.nix
