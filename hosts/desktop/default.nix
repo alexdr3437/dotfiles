@@ -22,7 +22,8 @@
     ../../modules/logitech.nix
   ];
 
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  # nvidia 610.57.04 does not build on 7.3 (dmem_cgroup_register_region API change)
+  boot.kernelPackages = pkgs.linuxPackages_7_2;
 
   nix.gc = {
     automatic = true;
