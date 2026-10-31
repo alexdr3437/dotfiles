@@ -69,6 +69,8 @@
 
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            # move anything already at a managed path aside instead of failing the switch
+            home-manager.backupFileExtension = "hm-bak";
             home-manager.extraSpecialArgs = {
               inherit nixpkgs-unstable;
               inherit inputs;
@@ -96,6 +98,8 @@
 
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            # move anything already at a managed path aside instead of failing the switch
+            home-manager.backupFileExtension = "hm-bak";
             home-manager.extraSpecialArgs = {
               inherit nixpkgs-unstable;
               inherit inputs;

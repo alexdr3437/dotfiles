@@ -1,0 +1,88 @@
+/* gtklock style (lock.sh). Colours come from theme.css like everything else;
+ * the background image is passed on the command line, this only draws the card. */
+@import "theme.css";
+
+* {
+  font-family: "FiraCode Nerd Font", sans-serif;
+}
+
+window {
+  background-color: @crust;   /* shows only if lock.png is missing */
+}
+
+/* the card holding clock, date and the password form */
+#window-box {
+  background-color: alpha(@base, 0.82);
+  border: 1px solid @surface1;
+  border-radius: 18px;
+  padding: 28px 36px 32px 36px;
+  min-width: 320px;
+}
+
+/* while the form is hidden (start-hidden / idle-hide) gtklock adds .hidden to
+ * the window: drop the card so only the clock floats over the wallpaper */
+window.hidden #window-box {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+#clock-label {
+  font-size: 76px;
+  font-weight: bold;
+  color: @text;
+  text-shadow: 0 2px 12px alpha(@crust, 0.8);
+}
+#date-label {
+  font-size: 18px;
+  color: @subtext0;
+  margin-bottom: 18px;
+  text-shadow: 0 1px 6px alpha(@crust, 0.8);
+}
+
+#input-label {
+  font-size: 14px;
+  color: @subtext1;
+}
+#input-field {
+  background-color: @surface0;
+  color: @text;
+  caret-color: @accent;
+  border: 1px solid @surface1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-height: 20px;
+}
+#input-field:focus {
+  border-color: @accent;
+}
+
+/* GTK's theme draws buttons with a gradient background-image plus shadows;
+ * those win over background-color, so clear them explicitly */
+#unlock-button, #unlock-button:focus, #unlock-button:active {
+  background-image: none;
+  background-color: @accent;
+  color: @base;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  box-shadow: none;
+  text-shadow: none;
+  -gtk-icon-shadow: none;
+  padding: 8px 20px;
+  margin-top: 6px;
+}
+#unlock-button label {
+  color: @base;
+}
+#unlock-button:hover {
+  background-image: none;
+  background-color: @lavender;
+}
+
+#error-label, #warning-label {
+  color: @urgent;
+  font-size: 14px;
+}
+#info-box, #message-box {
+  color: @subtext0;
+}

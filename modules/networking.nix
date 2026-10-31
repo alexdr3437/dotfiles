@@ -10,6 +10,7 @@
     powerOnBoot = true;
     settings.General.FastConnectable = true;
     settings.Policy.AutoEnable = true;
+    settings.General.Experimental = true; # exports BLE battery levels (bluetoothctl / upower)
   };
 
   services.blueman.enable = true;

@@ -1,0 +1,43 @@
+#!/usr/bin/env sh
+# Started once per session by `exec_once` in config.conf.
+# Safe to re-run by hand: each component is killed before it's restarted.
+# (pkill -f on the command line: NixOS wraps binaries so -x name never matches)
+dir="$HOME/.config/mango"
+log="$HOME/.cache/mango"
+mkdir -p "$log"
+
+# fresh checkout: theme.css and the files theme.sh derives from it are gitignored
+[ -e "$dir/theme.css" ] || "$dir/theme.sh" catppuccin-mocha >/dev/null 2>&1
+
+# idle lock / screen off (no-op until swayidle + wlopm are installed)
+"$dir/idle.sh" start
+"$dir/nightlight.sh" auto   # unless turned off in settings
+
+# wallpaper (random from ~/Pictures/backgrounds)
+"$dir/wallpaper.sh" >/dev/null 2>&1 &
+
+# polkit agent: password prompts for nm / blueman / systemctl
+pkill -f '^[^ ]*polkit-kde-authentication-agent-1'
+/run/current-system/sw/libexec/polkit-kde-authentication-agent-1 >/dev/null 2>&1 &
+
+# notifications
+pkill -f '^swaync '
+swaync -c "$dir/swaync.json" -s "$dir/swaync.css" >"$log/swaync.log" 2>&1 &
+
+# tray applets (right-click menus for wifi / bluetooth)
+pkill -f '^nm-applet'
+nm-applet --indicator >/dev/null 2>&1 &
+pkill -f '^[^ ]*python[^ ]* [^ ]*blueman-applet'  # it's a python script
+blueman-applet >/dev/null 2>&1 &
+
+# calendar popup daemon
+for p in $(pgrep -x .eww-wrapped); do kill "$p"; done   # eww kill misses orphaned daemons
+eww -c "$dir/eww" daemon >"$log/eww.log" 2>&1 &
+sleep 1.5
+for mon in $(mmsg get all-monitors 2>/dev/null | jq -r '.monitors[].name'); do   # grouped taskbar, one per monitor
+  eww -c "$dir/eww" open taskbar --screen "$mon" --id "taskbar-$mon" --arg "mon=$mon" >/dev/null 2>&1
+done
+
+# bars (needs swaync running first for the notification module)
+pkill -f '^waybar '
+waybar -c "$dir/waybar.jsonc" -s "$dir/waybar.css" >"$log/waybar.log" 2>&1 &

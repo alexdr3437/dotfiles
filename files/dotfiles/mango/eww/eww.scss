@@ -1,0 +1,196 @@
+// _colors.scss is generated from ../theme.css by theme.sh — don't edit it by hand.
+@import "colors";
+
+* {
+  all: unset;
+  font-family: "FiraCode Nerd Font", sans-serif;
+  font-size: 16px;
+}
+
+.backdrop { background: rgba(0, 0, 0, 0); }
+
+// ---------------------------------------------------------------- shared
+.popup, .power-box {
+  background: $base;
+  border: 1px solid $surface1;
+  border-radius: 14px;
+  padding: 10px;
+  color: $text;
+}
+
+tooltip {
+  background: $mantle;
+  border: 1px solid $surface1;
+  border-radius: 8px;
+  padding: 4px 8px;
+  color: $text;
+}
+
+// popup header: icon · title · [on/off] · [open app]
+.hdr { padding: 2px 4px 8px 4px; }
+.hdr-icon { color: $accent; font-size: 19px; }
+.hdr-title { font-weight: bold; font-size: 17px; }
+
+.chip-on, .chip-off, .chip-app {
+  min-width: 48px;
+  min-height: 22px;
+  padding: 6px 18px;
+  border-radius: 99px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 150ms ease;
+}
+.chip-on  { background: $accent;   color: $base; }
+.chip-off { background: $surface1; color: $subtext1; }
+.chip-app { background: $surface0; color: $text; }
+.chip-on:hover  { background: $lavender; }
+.chip-off:hover { background: $surface2; color: $text; }
+.chip-app:hover { background: $surface1; }
+
+// list rows
+.row, .row-click {
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+.row-click:hover { background: $surface0; }
+.row-icon    { color: $subtext0; font-size: 19px; min-width: 22px; }
+.row-icon-on { color: $accent;   font-size: 19px; min-width: 22px; }
+.row-title { color: $text; }
+.row-sub   { color: $subtext0; font-size: 13px; }
+.section   { color: $subtext1; font-size: 13px; font-weight: bold; padding: 6px 8px 0 8px; }
+.empty     { color: $subtext0; padding: 8px; }
+.foot      { padding: 4px 4px 0 4px; }
+
+// round action buttons on rows
+.act, .act-on, .act-danger {
+  min-width: 26px;
+  min-height: 26px;
+  border-radius: 99px;
+  background: $surface0;
+  color: $subtext1;
+  font-size: 17px;
+  transition: background 150ms ease;
+}
+.act:hover        { background: $accent; color: $base; }
+.act-on           { background: $surface1; color: $accent; }
+.act-on:hover     { background: $peach; color: $base; }
+.act-danger       { color: $subtext1; }
+.act-danger:hover { background: $red; color: $base; }
+
+// progress bars (battery / system meters)
+.bar, .bar-warn { min-height: 6px; margin: 2px 0; }
+.bar trough, .bar-warn trough {
+  min-height: 6px;
+  background: $surface1;
+  border-radius: 3px;
+}
+.bar trough progress      { min-height: 6px; background: $accent; border-radius: 3px; }
+.bar-warn trough progress { min-height: 6px; background: $red;    border-radius: 3px; }
+.proc { padding: 3px 8px; }
+
+// volume slider (GTK scale)
+.vol-scale { min-height: 20px; margin: 0 4px; }
+.vol-scale trough {
+  min-height: 6px;
+  background: $surface1;
+  border-radius: 3px;
+}
+.vol-scale highlight {
+  min-height: 6px;
+  background: $accent;
+  border-radius: 3px;
+}
+.vol-scale slider {
+  min-width: 14px;
+  min-height: 14px;
+  margin: -5px;
+  background: $text;
+  border-radius: 99px;
+}
+
+// ---------------------------------------------------------------- calendar
+.cal-head { padding: 2px 2px 8px 2px; }
+.cal-title { font-weight: bold; font-size: 17px; color: $text; border-radius: 8px; }
+.cal-title:hover { background: $surface0; }
+.cal-nav { color: $subtext0; padding: 0 10px; border-radius: 8px; }
+.cal-nav:hover { color: $text; background: $surface0; }
+.cal-dow label { color: $accent2; font-size: 16px; font-weight: bold; padding-bottom: 4px; }
+.day, .day-dim, .day-today, .day-sel {
+  border-radius: 8px;
+  margin: 1px 0;
+  transition: background 100ms ease;
+}
+.day       { color: $text; }
+.day-dim   { color: $overlay1; }   // other-month days stay de-emphasised
+.day-today { color: $accent; font-weight: bold; }
+.day-sel   { background: $accent; color: $base; font-weight: bold; }
+.day:hover, .day-dim:hover, .day-today:hover { background: $surface0; }
+
+// ---------------------------------------------------------------- power menu
+.power-box { padding: 6px; }
+.power-item {
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: $text;
+  background: transparent;
+  transition: background 150ms ease;
+}
+.power-item:hover { background: $surface0; }
+.power-icon { color: $accent; font-size: 18px; min-width: 22px; }
+.power-danger .power-icon { color: $red; }
+.power-item:hover .power-danger {
+  color: $base;
+  .power-icon { color: $base; }
+}
+
+// ---------------------------------------------------------------- weather / media
+.wx-now  { padding: 2px 8px 6px 8px; }
+.wx-temp { font-size: 36px; font-weight: bold; color: $text; }
+.wx-icon { font-size: 22px; color: $accent2; }
+.wx-pop  { font-size: 13px; color: $blue; }
+.wx-hour { padding: 4px 0; }
+.art     { border-radius: 10px; margin: 2px; }
+
+// ---------------------------------------------------------------- history
+.hist-row { padding: 4px 8px; border-radius: 8px; }
+.hist-cmd:hover { color: $accent; }
+.hist-row:hover { background: $surface0; }
+.hist-cmd { color: $text; font-family: "FiraCode Nerd Font Mono", monospace; font-size: 14px; }
+.hist-ok  { color: $green; min-width: 16px; }
+.hist-err { color: $red;   min-width: 16px; }
+
+// chip sizing lives on the inner label: GTK ignores padding/min-size on the eventbox itself
+.chip-on > label, .chip-off > label, .chip-app > label {
+  padding: 5px 16px;
+  min-width: 30px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+// ---------------------------------------------------------------- taskbar
+.taskbar {
+  background: rgba($base, 0.78);
+  border: 1px solid $surface0;
+  border-radius: 14px;
+  padding: 3px 6px;
+}
+.taskbar-empty { padding: 0; min-height: 1px; }   // invisible, bar keeps its reserved strip tiny
+.task, .task-on, .task-urgent {
+  padding: 5px 7px;
+  border-radius: 10px;
+  border-bottom: 2px solid transparent;
+  transition: background 150ms ease;
+}
+.task:hover, .task-urgent:hover { background: $surface0; }
+.task-on { background: $surface0; border-bottom: 2px solid $accent; }
+.task-urgent { border-bottom: 2px solid $red; }
+.badge {
+  background: $accent;
+  color: $base;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 99px;
+  padding: 0 5px;
+  min-width: 10px;
+  margin: 0 0 1px 0;
+}

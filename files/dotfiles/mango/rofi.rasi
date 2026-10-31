@@ -1,0 +1,79 @@
+/* rofi theme for the mango desktop.
+ * Colours come from rofi-colors.rasi, generated from theme.css by theme.sh — don't edit that one.
+ * Launched by config.conf:  rofi -show drun -theme ~/.config/mango/rofi.rasi */
+@import "rofi-colors.rasi"
+
+configuration {
+  modi: "drun,run,window";
+  show-icons: true;
+  display-drun: "󰀻";
+  display-run: "󰆍";
+  display-window: "󰖯";
+  drun-display-format: "{name}";
+  font: "FiraCode Nerd Font 15";
+}
+
+* {
+  background-color: transparent;
+  text-color: @text;
+  spacing: 0;
+}
+
+window {
+  location: center;
+  width: 620px;
+  background-color: @base;
+  border: 1px;
+  border-color: @surface1;
+  border-radius: 14px;
+  padding: 10px;
+}
+
+mainbox { spacing: 8px; }
+
+inputbar {
+  children: [ "prompt", "entry" ];
+  background-color: @surface0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  spacing: 12px;
+}
+prompt { text-color: @accent; }
+entry {
+  placeholder: "search…";
+  placeholder-color: @subtext0;
+  cursor: text;
+}
+
+listview {
+  lines: 8;
+  columns: 1;
+  scrollbar: false;
+  spacing: 2px;
+  fixed-height: false;
+}
+
+element {
+  padding: 8px 10px;
+  border-radius: 10px;
+  spacing: 10px;
+}
+element normal.normal, element alternate.normal { text-color: @text; }
+element selected.normal { background-color: @accent; text-color: @base; }
+element normal.urgent,  element selected.urgent  { text-color: @red; }
+element normal.active,  element selected.active  { text-color: @green; }
+element-icon { size: 1.4em; }
+element-text { vertical-align: 0.5; }
+
+/* mode switcher (drun / run / window), shown at the bottom */
+mode-switcher { spacing: 6px; }
+button {
+  padding: 6px 12px;
+  border-radius: 10px;
+  background-color: @surface0;
+  text-color: @subtext0;
+}
+button selected { background-color: @accent; text-color: @base; }
+
+message { padding: 6px; }
+textbox { text-color: @subtext1; }

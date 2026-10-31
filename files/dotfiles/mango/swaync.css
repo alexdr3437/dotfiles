@@ -1,0 +1,156 @@
+/* Loaded on top of swaync's default style; only colours/shapes are overridden. */
+@import "theme.css";
+
+* {
+  font-family: "FiraCode Nerd Font", sans-serif;
+  font-size: 16px;
+}
+
+/* ---- popups ----------------------------------------------------------- */
+.notification-row {
+  outline: none;
+  background: transparent;
+}
+.notification {
+  border-radius: 14px;
+  margin: 6px 10px;
+  padding: 0;
+  border: 1px solid @surface1;
+  background: alpha(@base, 0.96);
+  box-shadow: 0 2px 8px alpha(@crust, 0.6);
+}
+.notification-content {
+  padding: 10px;
+}
+.notification-default-action,
+.notification-action {
+  background: transparent;
+  border: none;
+  color: @text;
+  border-radius: 12px;
+}
+.notification-action {
+  margin: 4px;
+  background: @surface0;
+  padding: 6px;
+}
+.notification-action:hover,
+.notification-default-action:hover {
+  background: @surface1;
+}
+.summary {
+  color: @text;
+  font-weight: bold;
+}
+.body {
+  color: @subtext1;
+}
+.time {
+  color: @subtext0;
+}
+.close-button {
+  background: @surface0;
+  color: @text;
+  border-radius: 99px;
+  margin: 6px;
+  min-width: 20px;
+  min-height: 20px;
+}
+.close-button:hover {
+  background: @red;
+  color: @base;
+}
+.critical .notification {
+  border-color: @urgent;
+}
+.low .notification {
+  border-color: @surface0;
+}
+.notification.image .image {
+  border-radius: 10px;
+}
+
+/* ---- control centre --------------------------------------------------- */
+.control-center {
+  background: alpha(@base, 0.96);
+  border: 1px solid @surface1;
+  border-radius: 16px;
+  color: @text;
+  padding: 8px;
+}
+.control-center .notification-row:focus,
+.control-center .notification-row:hover {
+  background: transparent;
+}
+.control-center-list {
+  background: transparent;
+}
+.control-center-list-placeholder {
+  color: @subtext0;
+}
+
+.widget-title {
+  margin: 4px 8px;
+  font-size: 19px;
+  font-weight: bold;
+  color: @text;
+}
+.widget-title > button {
+  background: @surface0;
+  color: @text;
+  border: none;
+  border-radius: 10px;
+  padding: 4px 12px;
+}
+.widget-title > button:hover {
+  background: @red;
+  color: @base;
+}
+
+.widget-dnd {
+  margin: 4px 8px;
+  color: @text;
+  font-size: 17px;
+}
+.widget-dnd > switch {
+  background: @surface0;
+  border: 1px solid @surface1;
+  border-radius: 99px;
+}
+.widget-dnd > switch:checked {
+  background: @accent;
+}
+.widget-dnd > switch slider {
+  background: @text;
+  border-radius: 99px;
+}
+
+.widget-inhibitors {
+  margin: 4px 8px;
+  color: @text;
+}
+.widget-inhibitors > button {
+  background: @surface0;
+  border-radius: 10px;
+  color: @text;
+}
+
+.widget-mpris {
+  background: transparent;
+}
+.widget-mpris-player {
+  background: @surface0;
+  border-radius: 14px;
+  margin: 6px 8px;
+  padding: 10px;
+}
+.widget-mpris-title {
+  font-weight: bold;
+  color: @text;
+}
+.widget-mpris-subtitle {
+  color: @subtext0;
+}
+.widget-mpris > box > button {
+  color: @text;
+}

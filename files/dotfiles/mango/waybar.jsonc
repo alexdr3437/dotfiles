@@ -1,0 +1,201 @@
+// Top bar only: tags / clock / system. The bottom (grouped taskbar) is an eww window, see eww/eww.yuck.
+// Started by autostart.sh:  waybar -c waybar.jsonc -s waybar.css
+[
+  {
+    "name": "top",
+    "layer": "top",
+    "position": "top",
+    "height": 38,
+    "margin-top": 6,
+    "margin-left": 10,
+    "margin-right": 10,
+    "spacing": 0,
+
+    "modules-left": ["mango/workspaces", "mango/layout", "custom/media"],
+    "modules-center": ["custom/clock", "custom/weather"],
+    "modules-right": [
+      "tray",
+      "custom/sys",
+      "custom/battery",
+      "custom/proton",
+      "custom/tailscale",
+      "pulseaudio",
+      "bluetooth",
+      "network",
+      "custom/notification",
+      "custom/history",
+      "custom/settings",
+      "custom/power"
+    ],
+
+    "mango/workspaces": {
+      "format": "{index}",
+      "hide-empty": true,
+      "on-click": "activate",
+      "on-click-right": "toggle",
+      "overview-label": "󰕰"
+    },
+    "mango/layout": {
+      "format": "{}",
+      "tooltip": false
+    },
+
+    // `date` instead of the clock module: waybar's formatter can't do an unpadded 12h hour (%-I)
+    "custom/clock": {
+      "exec": "date '+%a %d %b   %-I:%M %p'",
+      "interval": 5,
+      "tooltip": false,
+      "on-click": "~/.config/mango/popup.sh calendar 'xdg-open https://calendar.google.com/calendar/r/month'",
+      "on-click-right": "xdg-open https://calendar.google.com/calendar/r/month"
+    },
+
+    // cpu + memory; click → system popup, double/right-click → btop
+    // no "interval": the script keeps running and streams a line every 0.5s
+    "custom/sys": {
+      "exec": "~/.config/mango/sys.sh bar-stream",
+      "return-type": "json",
+      "format": "{}",
+      "on-click": "~/.config/mango/popup.sh system 'ghostty -e btop'",
+      "on-click-right": "ghostty -e btop"
+    },
+
+    // laptop battery if there is one, else the lowest device battery; click → battery popup
+    "custom/battery": {
+      "exec": "~/.config/mango/battery.sh bar",
+      "return-type": "json",
+      "interval": 30,
+      "format": "{}",
+      "on-click": "~/.config/mango/popup.sh battery"
+    },
+
+    // now playing (media.sh streams it every second); click → media popup, right-click → play/pause, scroll → next/prev
+    "custom/media": {
+      "exec": "~/.config/mango/media.sh bar-stream",
+      "return-type": "json",
+      "format": "{}",
+      "on-click": "~/.config/mango/popup.sh media",
+      "on-click-right": "~/.config/mango/media.sh playpause",
+      "on-scroll-up": "~/.config/mango/media.sh next",
+      "on-scroll-down": "~/.config/mango/media.sh prev"
+    },
+
+    // weather for the public-IP location (Open-Meteo); click → forecast popup
+    "custom/weather": {
+      "exec": "~/.config/mango/weather.sh bar",
+      "return-type": "json",
+      "interval": 600,
+      "format": "{}",
+      "on-click": "~/.config/mango/popup.sh weather 'xdg-open https://merrysky.net'",
+      "on-click-right": "xdg-open https://merrysky.net"
+    },
+
+
+    "custom/proton": {
+      "exec": "~/.config/mango/vpn.sh bar-proton",
+      "return-type": "json",
+      "interval": 10,
+      "format": "{}",
+      "on-click": "~/.config/mango/popup.sh proton protonvpn-app",
+      "on-click-right": "protonvpn-app"
+    },
+
+    "custom/tailscale": {
+      "exec": "~/.config/mango/vpn.sh bar-ts",
+      "return-type": "json",
+      "interval": 10,
+      "format": "{}",
+      "on-click": "~/.config/mango/popup.sh tailscale"
+    },
+
+    "tray": {
+      "icon-size": 16,
+      "spacing": 8,
+      // nm-applet / blueman-applet stay running (blueman-manager needs its applet)
+      // but their icons duplicate the network/bluetooth modules, so hide them
+      "ignore-list": ["nm-applet", "nm_applet", "blueman"]
+    },
+
+    "pulseaudio": {
+      "format": "{icon}  {volume}%",
+      "format-muted": "󰝟  mute",
+      "format-icons": {
+        "headphone": "󰋋",
+        "headset": "󰋎",
+        "default": ["󰕿", "󰖀", "󰕾"]
+      },
+      "tooltip-format": "{desc}\n{volume}%",
+      "scroll-step": 5,
+      "on-click": "~/.config/mango/popup.sh volume pavucontrol",
+      "on-click-right": "pavucontrol",
+      "on-click-middle": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+    },
+
+    "bluetooth": {
+      "format": "󰂯",
+      "format-off": "󰂲",
+      "format-disabled": "󰂲",
+      "format-connected": "󰂱  {num_connections}",
+      "format-connected-battery": "󰂱  {device_battery_percentage}%",
+      "tooltip-format": "{controller_alias}  {controller_address}\n\nno devices connected",
+      "tooltip-format-connected": "{controller_alias}  {controller_address}\n\n{device_enumerate}",
+      "tooltip-format-enumerate-connected": "{device_alias}  {device_address}",
+      "tooltip-format-enumerate-connected-battery": "{device_alias}  {device_address}  {device_battery_percentage}%",
+      "on-click": "~/.config/mango/popup.sh bluetooth blueman-manager",
+      "on-click-right": "blueman-manager"
+    },
+
+    "network": {
+      "interface": "wl*",   // not the default route (that is the VPN tunnel when Proton is up)
+      "interval": 5,
+      "format-wifi": "{icon}  {essid}",
+      "format-ethernet": "󰈀  {ifname}",
+      "format-linked": "󰈀  no ip",
+      "format-disconnected": "󰖪  offline",
+      "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+      "tooltip-format": "{ifname}  {ipaddr}/{cidr}\ngw {gwaddr}\n⇡ {bandwidthUpBytes}   ⇣ {bandwidthDownBytes}",
+      "tooltip-format-wifi": "{essid}  {signalStrength}%  {frequency} GHz\n{ifname}  {ipaddr}/{cidr}\ngw {gwaddr}\n⇡ {bandwidthUpBytes}   ⇣ {bandwidthDownBytes}",
+      "tooltip-format-disconnected": "disconnected",
+      "on-click": "~/.config/mango/popup.sh wifi nm-connection-editor",
+      "on-click-right": "nm-connection-editor"
+    },
+
+    // swaync-client -swb streams JSON {text: count, alt: state, class: ...}
+    "custom/notification": {
+      "format": "{icon}",
+      "format-icons": {
+        "notification": "󰂚<span foreground='#f38ba8'><sup></sup></span>",
+        "none": "󰂚",
+        "dnd-notification": "󰂛<span foreground='#f38ba8'><sup></sup></span>",
+        "dnd-none": "󰂛",
+        "inhibited-notification": "󰂚<span foreground='#f38ba8'><sup></sup></span>",
+        "inhibited-none": "󰂚",
+        "dnd-inhibited-notification": "󰂛<span foreground='#f38ba8'><sup></sup></span>",
+        "dnd-inhibited-none": "󰂛"
+      },
+      "return-type": "json",
+      "exec": "swaync-client -swb",
+      "on-click": "~/.config/mango/popup.sh notifications",
+      "on-click-right": "swaync-client -d -sw",
+      "tooltip": false,
+      "escape": true
+    },
+
+    "custom/history": {
+      "format": "󰆍",
+      "tooltip-format": "what the widgets ran",
+      "on-click": "~/.config/mango/popup.sh history"
+    },
+
+    "custom/settings": {
+      "format": "󰒓",
+      "tooltip-format": "settings",
+      "on-click": "~/.config/mango/popup.sh settings"
+    },
+
+    "custom/power": {
+      "format": "󰐥",
+      "tooltip-format": "power menu",
+      "on-click": "~/.config/mango/popup.sh power"
+    }
+  }
+]

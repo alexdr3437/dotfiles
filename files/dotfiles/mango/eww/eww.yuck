@@ -1,0 +1,390 @@
+;; Popups toggled by popup.sh from bar clicks. Data comes from the *.sh scripts
+;; next to this dir; polls only run while a window that uses them is open.
+;; Style notes: one class name per widget (multi-class strings didn't match reliably);
+;; custom-widget params can't be called "visible" (built-in attribute), hence "show".
+;; Window :y is measured below the bar's reserved strip — 8px matches swaync's panel.
+
+(defpoll bt   :interval "3s"  :initial '{"powered":false,"devices":[]}'              "~/.config/mango/bt.sh status")
+(defpoll wifi :interval "5s"  :initial '{"enabled":false,"ssid":"","networks":[]}'   "~/.config/mango/wifi.sh status")
+(defpoll vol  :interval "2s"  :initial '{"volume":0,"muted":false,"name":"","sinks":[]}' "~/.config/mango/vol.sh status")
+(defpoll bat  :interval "30s" :initial '{"laptop":{"present":false,"percent":0,"glyph":"","detail":""},"devices":[]}' "~/.config/mango/battery.sh status")
+(defpoll idle :interval "5s" :initial '{"available":false,"active":false,"lock_min":10,"off_min":15}' "~/.config/mango/idle.sh status")
+(defpoll weather :interval "10m" :initial '{"error":true,"city":"","updated":0,"temp":0,"feels":0,"icon":"󰼯","desc":"loading…","humidity":0,"wind":0,"sunrise":"","sunset":"","hourly":[],"daily":[]}' "~/.config/mango/weather.sh status")
+(defpoll media :interval "2s" :initial '{"player":"","status":"","title":"","artist":"","art":"","length":0,"pos":0,"pct":0}' "~/.config/mango/media.sh status")
+(defpoll vpn :interval "5s" :initial '{"proton":[],"ts":{"online":false,"ip":"","exit_active":false,"exit_name":"","exit_options":[],"peers_online":0,"peers":0}}' "~/.config/mango/vpn.sh status")
+(defpoll history :interval "3s" :initial '[]' "~/.config/mango/history.sh status")
+(defpoll taskbar :interval "1s" :initial '{}' "~/.config/mango/taskbar.sh status")
+(defpoll settings :interval "3s" :initial '{"theme":"","themes":[],"dnd":false,"nl":{"active":false,"start":"","stop":"","after":30}}' "~/.config/mango/settings.sh status")
+;; streamed (0.5s ticks) rather than polled; eww runs it only while the system popup is open
+(deflisten sys :initial '{"cpu":0,"load":"","cores":0,"temp":0,"mem":{"used":0,"total":0,"pct":0},"swap":{"used":0,"total":0,"pct":0},"top":[]}' "~/.config/mango/sys.sh stream")
+
+;; ---------------------------------------------------------------- backdrop
+;; invisible window covering each monitor (below the bars) while a popup is open;
+;; clicking it closes everything. popup.sh opens one per monitor as backdrop-<name>.
+(defwindow backdrop
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-backdrop"
+  :geometry (geometry :x "0px" :y "0px" :width "100%" :height "100%" :anchor "top left")
+  ;; (:timeout everywhere: eww kills click commands after 200ms by default)
+  ;; scrolling also closes: a layer surface can't pass scroll through while catching clicks
+  (eventbox :class "backdrop" :timeout "10s"
+            :onclick "~/.config/mango/async.sh ~/.config/mango/popup.sh close"
+            :onscroll "~/.config/mango/async.sh ~/.config/mango/popup.sh close"
+            :onrightclick "~/.config/mango/async.sh ~/.config/mango/popup.sh close"
+            :onmiddleclick "~/.config/mango/async.sh ~/.config/mango/popup.sh close"
+    (box)))
+
+;; ---------------------------------------------------------------- calendar
+;; hand-built grid: cal.sh fills `cal` ({title, ofs, sel, weeks:[[{date,day,cur,today,sel}×7]×6]})
+;; when the popup opens (popup.sh) and on navigation; click selects, double-click opens Google Calendar
+(defvar cal '{"title":"","ofs":0,"sel":"","weeks":[]}')
+
+(defwindow calendar
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-calendar"
+  :geometry (geometry :x "0px" :y "8px" :width "320px" :anchor "top center")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 2
+    (box :class "cal-head" :orientation "h" :space-evenly false
+      (eventbox :class "cal-nav" :cursor "pointer" :timeout "5s" :tooltip "previous month"
+                :onclick "~/.config/mango/async.sh ~/.config/mango/cal.sh show ${cal.ofs - 1}" (label :text "󰅁"))
+      (eventbox :class "cal-title" :cursor "pointer" :hexpand true :timeout "5s" :tooltip "back to this month"
+                :onclick "~/.config/mango/async.sh ~/.config/mango/cal.sh show 0" (label :text {cal.title}))
+      (eventbox :class "cal-nav" :cursor "pointer" :timeout "5s" :tooltip "next month"
+                :onclick "~/.config/mango/async.sh ~/.config/mango/cal.sh show ${cal.ofs + 1}" (label :text "󰅂")))
+    (box :class "cal-dow" :orientation "h" :space-evenly true
+      (label :text "Su") (label :text "Mo") (label :text "Tu") (label :text "We")
+      (label :text "Th") (label :text "Fr") (label :text "Sa"))
+    (for week in {cal.weeks}
+      (box :orientation "h" :space-evenly true
+        (for d in {week}
+          (eventbox :class {d.sel ? "day-sel" : d.today ? "day-today" : d.cur ? "day" : "day-dim"}
+                    :cursor "pointer" :halign "center" :timeout "5s"
+                    :tooltip "double-click: open in Google Calendar"
+                    :onclick "~/.config/mango/async.sh ~/.config/mango/cal.sh click ${d.date}"
+            (label :text {d.day} :width 36 :height 30)))))))
+
+;; ---------------------------------------------------------------- power
+(defwindow power
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-power"
+  :geometry (geometry :x "10px" :y "8px" :width "190px" :anchor "top right")
+  (box :class "power-box" :orientation "v" :space-evenly false :spacing 2
+    (power-item :icon "󰌾" :label "Lock"      :cmd "~/.config/mango/run.sh ~/.config/mango/lock.sh"  :danger false)
+    (power-item :icon "󰍃" :label "Log out"   :cmd "~/.config/mango/run.sh mmsg dispatch quit"       :danger false)
+    (power-item :icon "󰤄" :label "Suspend"   :cmd "~/.config/mango/run.sh systemctl suspend"        :danger false)
+    (power-item :icon "󰜉" :label "Reboot"    :cmd "~/.config/mango/run.sh systemctl reboot"   :danger true)
+    (power-item :icon "󰐥" :label "Shut down" :cmd "~/.config/mango/run.sh systemctl poweroff" :danger true)))
+
+(defwidget power-item [icon label cmd danger]
+  ;; eventbox, not button: GTK's theme adds its own button padding unpredictably
+  (eventbox :class "power-item" :cursor "pointer" :timeout "10s"
+            :onclick "~/.config/mango/async.sh sh -c '~/.config/mango/ewwc.sh close power; ${cmd}'"
+    (box :class {danger ? "power-danger" : "power-normal"}
+         :orientation "h" :space-evenly false :spacing 12 :halign "start"
+      (label :class "power-icon" :text icon)
+      (label :text label))))
+
+;; ---------------------------------------------------------------- shared bits
+;; header: icon, title, optional on/off chip (toggle = command), optional "open full app" button
+(defwidget header [icon title win app toggle on]
+  (box :class "hdr" :orientation "h" :space-evenly false :spacing 8
+    (label :class "hdr-icon" :text icon)
+    (label :class "hdr-title" :text title :halign "start" :hexpand true)
+    (eventbox :class {on ? "chip-on" : "chip-off"} :cursor "pointer" :visible {toggle != ""} :valign "center"
+              :tooltip {on ? "turn off" : "turn on"} :onclick "~/.config/mango/async.sh ${toggle}" :timeout "30s"
+      (label :text {on ? "on" : "off"}))
+    (eventbox :class "chip-app" :cursor "pointer" :tooltip "open ${app}" :valign "center" :visible {app != ""}
+              :onclick "~/.config/mango/async.sh sh -c '~/.config/mango/ewwc.sh close ${win}; ${app}'" :timeout "10s"
+      (label :text "󰏌"))))
+
+;; small round action button
+(defwidget act [icon cmd tip kind show]
+  (eventbox :class {kind == "danger" ? "act-danger" : kind == "on" ? "act-on" : "act"}
+            :width 26 :height 26 :valign "center" :visible show
+            :cursor "pointer" :tooltip tip :onclick "~/.config/mango/async.sh ${cmd}" :timeout "60s"
+    (label :text icon)))
+
+(defwidget empty [text show]
+  (label :class "empty" :text text :halign "center" :visible show))
+
+;; icon · title · subtitle, with a progress bar underneath (red when `pct` ≥ `warn`)
+(defwidget meter [icon title sub pct warn show]
+  (box :class "row" :orientation "v" :space-evenly false :spacing 4 :visible show
+    (box :orientation "h" :space-evenly false :spacing 10
+      (label :class "row-icon-on" :text icon)
+      (label :class "row-title" :halign "start" :hexpand true :text title :limit-width 26)
+      (label :class "row-sub" :text sub))
+    ;; GTK hides the inner node at exactly 0 and the trough balloons, so floor at a sliver
+    (progress :class {pct >= warn ? "bar-warn" : "bar"} :value {pct > 0 ? pct : 0.3} :orientation "h")))
+
+;; ---------------------------------------------------------------- bluetooth
+(defwindow bluetooth
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-bluetooth"
+  :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 6
+    (header :icon "󰂯" :title "Bluetooth" :win "bluetooth" :app "blueman-manager"
+            :toggle "~/.config/mango/bt.sh toggle" :on {bt.powered})
+    (box :orientation "v" :space-evenly false :spacing 2 :visible {bt.powered}
+      (for d in {bt.devices}
+        (box :class "row" :orientation "h" :space-evenly false :spacing 10
+          (label :class {d.connected ? "row-icon-on" : "row-icon"} :text {d.glyph})
+          (box :orientation "v" :halign "start" :hexpand true :valign "center"
+            (label :class "row-title" :halign "start" :text {d.name} :limit-width 24)
+            (label :class "row-sub" :halign "start"
+                   :text {d.connected ? (d.battery != "" ? "connected · ${d.battery}%" : "connected") : "paired"}))
+          (act :icon {d.connected ? "󰂲" : "󰂱"} :kind {d.connected ? "on" : ""} :show true
+               :tip {d.connected ? "disconnect" : "connect"}
+               :cmd "~/.config/mango/bt.sh ${d.connected ? 'disconnect' : 'connect'} ${d.mac}")
+          (act :icon "󰆴" :kind "danger" :tip "forget device" :show true
+               :cmd "~/.config/mango/bt.sh forget ${d.mac}")))
+      (empty :text "no paired devices — pair in blueman" :show {arraylength(bt.devices) == 0}))
+    (empty :text "bluetooth is off" :show {!bt.powered})))
+
+;; ---------------------------------------------------------------- wifi
+(defwindow wifi
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-wifi"
+  :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 6
+    (header :icon "󰤨" :title "Wi-Fi" :win "wifi" :app "nm-connection-editor"
+            :toggle "~/.config/mango/wifi.sh toggle" :on {wifi.enabled})
+    (scroll :vscroll true :hscroll false :height 300 :visible {wifi.enabled}
+      (box :orientation "v" :space-evenly false :spacing 2
+        (for n in {wifi.networks}
+          (box :class "row" :orientation "h" :space-evenly false :spacing 10
+            (label :class {n.active ? "row-icon-on" : "row-icon"}
+                   :text {n.signal > 75 ? "󰤨" : n.signal > 50 ? "󰤥" : n.signal > 25 ? "󰤢" : "󰤟"})
+            (box :orientation "v" :halign "start" :hexpand true :valign "center"
+              (label :class "row-title" :halign "start" :text {n.ssid} :limit-width 22)
+              (label :class "row-sub" :halign "start"
+                     :text "${n.active ? 'connected' : n.known ? 'saved' : n.secure ? 'password' : 'open'} · ${n.signal}%"))
+            (act :icon {n.active ? "󰤮" : "󰤨"} :kind {n.active ? "on" : ""} :show true
+                 :tip {n.active ? "disconnect" : "connect"}
+                 :cmd {n.active ? "~/.config/mango/wifi.sh disconnect" : "~/.config/mango/wifi.sh connect '${n.ssid}'"})
+            (act :icon "󰆴" :kind "danger" :tip "forget network" :show {n.known}
+                 :cmd "~/.config/mango/wifi.sh forget '${n.ssid}'")))
+        (empty :text "no networks found" :show {arraylength(wifi.networks) == 0})))
+    (box :class "foot" :orientation "h" :space-evenly false :visible {wifi.enabled}
+      (eventbox :class "chip-app" :cursor "pointer" :tooltip "rescan" :onclick "~/.config/mango/async.sh ~/.config/mango/wifi.sh rescan" :timeout "30s"
+        (label :text "󰑐  rescan")))
+    (empty :text "wi-fi is off" :show {!wifi.enabled})))
+
+;; ---------------------------------------------------------------- volume
+(defwindow volume
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-volume"
+  :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 6
+    (header :icon "󰕾" :title "Volume" :win "volume" :app "pavucontrol"
+            :toggle "~/.config/mango/vol.sh mute" :on {!vol.muted})
+    (box :class "row" :orientation "h" :space-evenly false :spacing 10
+      (label :class {vol.muted ? "row-icon" : "row-icon-on"}
+             :text {vol.muted ? "󰝟" : vol.volume > 66 ? "󰕾" : vol.volume > 33 ? "󰖀" : "󰕿"})
+      (scale :class "vol-scale" :hexpand true :min 0 :max 100 :value {vol.volume}
+             :onchange "~/.config/mango/async.sh ~/.config/mango/vol.sh set {}" :timeout "5s")
+      (label :class "row-title" :text "${vol.volume}%" :width 44 :halign "end"))
+    (label :class "section" :text "output" :halign "start")
+    (box :orientation "v" :space-evenly false :spacing 2
+      (for s in {vol.sinks}
+        (eventbox :class "row-click" :cursor "pointer" :onclick "~/.config/mango/async.sh ~/.config/mango/vol.sh sink ${s.name}" :timeout "10s"
+          (box :orientation "h" :space-evenly false :spacing 10
+            (label :class {s.default ? "row-icon-on" : "row-icon"} :text {s.default ? "󰄬" : "󰓃"})
+            (label :class "row-title" :halign "start" :hexpand true :text {s.desc} :limit-width 32)))))))
+
+;; ---------------------------------------------------------------- battery
+(defwindow battery
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-battery"
+  :geometry (geometry :x "10px" :y "8px" :width "320px" :anchor "top right")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 6
+    (header :icon "󰁹" :title "Batteries" :win "battery" :app "" :toggle "" :on false)
+    (meter :icon {bat.laptop.glyph} :title "Laptop" :sub {bat.laptop.detail}
+           :pct {bat.laptop.percent} :warn 101 :show {bat.laptop.present})
+    (for d in {bat.devices}
+      (meter :icon {d.glyph} :title {d.name} :sub "${d.percent}%" :pct {d.percent} :warn 101 :show true))
+    (empty :text "no batteries found" :show {!bat.laptop.present && arraylength(bat.devices) == 0})))
+
+;; ---------------------------------------------------------------- system
+(defwindow system
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-system"
+  :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 6
+    (header :icon "󰻠" :title "System" :win "system" :app "ghostty -e btop" :toggle "" :on false)
+    (meter :icon "󰻠" :title "CPU" :sub "${sys.cpu}% · load ${sys.load} · ${sys.temp}°C"
+           :pct {sys.cpu} :warn 85 :show true)
+    (meter :icon "󰍛" :title "Memory" :sub "${sys.mem.used} / ${sys.mem.total} GiB"
+           :pct {sys.mem.pct} :warn 90 :show true)
+    (meter :icon "󰓡" :title "Swap" :sub "${sys.swap.used} / ${sys.swap.total} GiB"
+           :pct {sys.swap.pct} :warn 50 :show {sys.swap.total > 0})
+    (label :class "section" :text "top processes" :halign "start")
+    (box :orientation "v" :space-evenly false
+      (for p in {sys.top}
+        (box :class "proc" :orientation "h" :space-evenly false :spacing 8
+          (label :class "row-title" :halign "start" :hexpand true :text {p.name} :limit-width 22)
+          (label :class "row-sub" :text "${p.cpu}% cpu" :width 70 :halign "end")
+          (label :class "row-sub" :text "${p.mem}% mem" :width 70 :halign "end"))))))
+
+;; ---------------------------------------------------------------- settings
+(defwidget setting-toggle [icon title sub on cmd]
+  (box :class "row" :orientation "h" :space-evenly false :spacing 10
+    (label :class {on ? "row-icon-on" : "row-icon"} :text icon)
+    (box :orientation "v" :halign "start" :hexpand true :valign "center"
+      (label :class "row-title" :halign "start" :text title)
+      (label :class "row-sub" :halign "start" :text sub :visible {sub != ""}))
+    (eventbox :class {on ? "chip-on" : "chip-off"} :cursor "pointer" :valign "center" :timeout "30s"
+              :onclick "~/.config/mango/async.sh ${cmd}"
+      (label :text {on ? "on" : "off"}))))
+
+(defwidget setting-action [icon title cmd]
+  (eventbox :class "row-click" :cursor "pointer" :timeout "30s"
+            :onclick "~/.config/mango/async.sh sh -c '~/.config/mango/ewwc.sh close settings; ${cmd}'"
+    (box :orientation "h" :space-evenly false :spacing 10
+      (label :class "row-icon" :text icon)
+      (label :class "row-title" :halign "start" :hexpand true :text title))))
+
+(defwindow settings
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-settings"
+  :geometry (geometry :x "10px" :y "8px" :width "320px" :anchor "top right")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 2
+    (header :icon "󰒓" :title "Settings" :win "settings" :app "ghostty -e nvim ~/.config/mango/config.conf" :toggle "" :on false)
+    (label :class "section" :text "theme" :halign "start")
+    (box :orientation "v" :space-evenly false :spacing 2   ; own box: a bare `for` renders after its siblings
+    (for t in {settings.themes}
+      (eventbox :class "row-click" :cursor "pointer" :timeout "30s"
+                :onclick "~/.config/mango/async.sh ~/.config/mango/settings.sh theme ${t}"
+        (box :orientation "h" :space-evenly false :spacing 10
+          (label :class {t == settings.theme ? "row-icon-on" : "row-icon"} :text {t == settings.theme ? "󰄬" : "󰏘"})
+          (label :class "row-title" :halign "start" :hexpand true :text {t})))))
+    (label :class "section" :text "toggles" :halign "start")
+    (setting-toggle :icon "󰂛" :title "Do not disturb" :sub "" :on {settings.dnd}
+                    :cmd "~/.config/mango/settings.sh dnd")
+    (setting-toggle :icon "󰖔" :title "Night light" :on {settings.nl.active}
+                    :sub "warm ${settings.nl.start} → ${settings.nl.stop}  (sunset + ${settings.nl.after} min → sunrise)"
+                    :cmd "~/.config/mango/settings.sh nightlight")
+    (setting-toggle :icon "󰌾" :title "Auto-lock" :on {idle.active}
+                    :sub "lock after ${idle.lock_min} min · screens off after ${idle.off_min}"
+                    :cmd "~/.config/mango/idle.sh toggle")
+    (label :class "section" :text "actions" :halign "start")
+    (setting-action :icon "󰸉" :title "Next wallpaper"       :cmd "~/.config/mango/run.sh ~/.config/mango/wallpaper.sh")
+    (setting-action :icon "󰁌" :title "Toggle window gaps"   :cmd "~/.config/mango/run.sh mmsg dispatch togglegaps")
+    (setting-action :icon "󰑓" :title "Restart bar & popups" :cmd "~/.config/mango/settings.sh restart")
+    (setting-action :icon "󰷈" :title "Edit bar config"      :cmd "ghostty -e nvim ~/.config/mango/waybar.jsonc")
+    (setting-action :icon "󰷈" :title "Edit popups config"   :cmd "ghostty -e nvim ~/.config/mango/eww/eww.yuck")))
+
+;; ---------------------------------------------------------------- weather
+(defwindow weather
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-weather"
+  :geometry (geometry :x "0px" :y "8px" :width "380px" :anchor "top center")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 6
+    (box :class "hdr" :orientation "h" :space-evenly false :spacing 8
+      (label :class "hdr-icon" :text {weather.icon})
+      (label :class "hdr-title" :text {weather.city != "" ? weather.city : "Weather"} :halign "start" :hexpand true)
+      (eventbox :class "chip-app" :cursor "pointer" :tooltip "refresh" :timeout "30s" :valign "center"
+                :onclick "~/.config/mango/async.sh ~/.config/mango/weather.sh refresh"
+        (label :text "󰑐")))
+    (box :class "wx-now" :orientation "h" :space-evenly false :spacing 14
+      (label :class "wx-temp" :text "${weather.temp}°")
+      (box :orientation "v" :halign "start" :valign "center" :hexpand true
+        (label :class "row-title" :halign "start" :text {weather.desc})
+        (label :class "row-sub" :halign "start" :text "feels ${weather.feels}° · 󰖎 ${weather.humidity}% · 󰖝 ${weather.wind} km/h")
+        (label :class "row-sub" :halign "start" :text "󰖜 ${weather.sunrise}   󰖛 ${weather.sunset}")))
+    (label :class "section" :text "next hours" :halign "start")
+    (box :orientation "h" :space-evenly true
+      (for h in {weather.hourly}
+        (box :class "wx-hour" :orientation "v" :space-evenly false :spacing 2
+          (label :class "row-sub" :text {h.h})
+          (label :class "wx-icon" :text {h.icon})
+          (label :class "row-title" :text "${h.temp}°")
+          (label :class "wx-pop" :text {h.pop > 0 ? "${h.pop}%" : " "}))))
+    (label :class "section" :text "forecast" :halign "start")
+    (box :orientation "v" :space-evenly false
+      (for d in {weather.daily}
+        (box :class "proc" :orientation "h" :space-evenly false :spacing 10
+          (label :class "row-title" :halign "start" :text {d.day} :width 64)
+          (label :class "wx-icon" :text {d.icon} :width 28)
+          (label :class "wx-pop" :halign "start" :hexpand true :text {d.pop > 0 ? "󰖌 ${d.pop}%" : ""})
+          (label :class "row-sub" :text "${d.min}°" :width 40 :halign "end")
+          (label :class "row-title" :text "${d.max}°" :width 40 :halign "end"))))
+    (empty :text "weather unavailable (no network?)" :show {weather.error})))
+
+;; ---------------------------------------------------------------- media (now playing)
+(defwindow media
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-media"
+  :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top left")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 8
+    (box :orientation "h" :space-evenly false :spacing 12
+      (image :class "art" :path {media.art} :image-width 72 :image-height 72 :visible {media.art != ""})
+      (box :orientation "v" :halign "start" :valign "center" :hexpand true
+        (label :class "hdr-title" :halign "start" :limit-width 28 :text {media.title != "" ? media.title : "Nothing playing"})
+        (label :class "row-sub" :halign "start" :limit-width 34 :text {media.artist})
+        (label :class "row-sub" :halign "start" :text {media.player})))
+    (progress :class "bar" :value {media.pct > 0 ? media.pct : 0.3} :orientation "h" :visible {media.length > 0})
+    (box :orientation "h" :space-evenly true :visible {media.player != ""}
+      (act :icon "󰒮" :kind "" :show true :tip "previous" :cmd "~/.config/mango/media.sh prev")
+      (act :icon {media.status == "Playing" ? "󰏤" : "󰐊"} :kind "on" :show true :tip "play / pause" :cmd "~/.config/mango/media.sh playpause")
+      (act :icon "󰒭" :kind "" :show true :tip "next" :cmd "~/.config/mango/media.sh next"))))
+
+;; ---------------------------------------------------------------- proton vpn
+(defwindow proton
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-proton"
+  :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 4
+    (header :icon "󰒃" :title "Proton VPN" :win "proton" :app "protonvpn-app" :toggle "" :on false)
+    (box :orientation "v" :space-evenly false
+      (for c in {vpn.proton}
+        (setting-toggle :icon "󰖂" :title {c.name} :sub "" :on {c.active}
+                        :cmd "~/.config/mango/vpn.sh proton '${c.name}'")))
+    (empty :text "no vpn connections in NetworkManager — connect once in the Proton app" :show {arraylength(vpn.proton) == 0})))
+
+;; ---------------------------------------------------------------- tailscale
+(defwindow tailscale
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-tailscale"
+  :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 4
+    (header :icon "󰒍" :title "Tailscale" :win "tailscale" :app "" :toggle "~/.config/mango/vpn.sh ts" :on {vpn.ts.online})
+    (box :class "row" :orientation "v" :space-evenly false :visible {vpn.ts.online}
+      (label :class "row-sub" :halign "start" :text "this machine  ${vpn.ts.ip}")
+      (label :class "row-sub" :halign "start" :text "${vpn.ts.peers_online} of ${vpn.ts.peers} peers online"))
+    (setting-toggle :icon "󰩠" :title "Exit node" :on {vpn.ts.exit_active}
+                    :sub {vpn.ts.exit_active ? "routing all traffic via ${vpn.ts.exit_name}" : arraylength(vpn.ts.exit_options) > 0 ? "available: ${vpn.ts.exit_options[0]}" : "no peer offers one"}
+                    :cmd "~/.config/mango/vpn.sh ts-exit")
+    (empty :text "tailscale is off" :show {!vpn.ts.online})))
+
+;; ---------------------------------------------------------------- history (what the widgets ran)
+(defwindow history
+  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-history"
+  :geometry (geometry :x "10px" :y "8px" :width "460px" :anchor "top right")
+  (box :class "popup" :orientation "v" :space-evenly false :spacing 4
+    (box :class "hdr" :orientation "h" :space-evenly false :spacing 8
+      (label :class "hdr-icon" :text "󰆍")
+      (label :class "hdr-title" :text "History" :halign "start" :hexpand true)
+      (eventbox :class "chip-app" :cursor "pointer" :tooltip "clear" :valign "center" :timeout "10s"
+                :onclick "~/.config/mango/async.sh ~/.config/mango/history.sh clear"
+        (label :text "󰆴  clear"))
+      (eventbox :class "chip-app" :cursor "pointer" :tooltip "open the full log" :valign "center" :timeout "10s"
+                :onclick "~/.config/mango/async.sh ~/.config/mango/history.sh open"
+        (label :text "󰏌")))
+    (scroll :vscroll true :hscroll false :height 380
+      (box :orientation "v" :space-evenly false :spacing 2
+        (for e in {history}
+         (eventbox :cursor "pointer" :timeout "10s" :tooltip "click: open full output in the editor"
+                   :onclick "~/.config/mango/async.sh ~/.config/mango/history.sh open ${e.file}"
+          (box :class "hist-row" :orientation "h" :space-evenly false :spacing 8
+            (label :class "row-sub" :text {e.t} :width 84 :halign "start" :valign "start")
+            (label :class {e.rc == 0 ? "hist-ok" : "hist-err"} :text {e.rc == 0 ? "󰄬" : "󰅖"} :valign "start"
+                   :tooltip {e.rc == 0 ? "exit 0" : "exit ${e.rc}"})
+            (box :orientation "v" :halign "start" :hexpand true
+              (label :class "hist-cmd" :halign "start" :text {e.cmd} :limit-width 46 :tooltip {e.cmd})
+              (label :class "row-sub" :halign "start" :text {e.out} :limit-width 52 :visible {e.out != ""})))))
+        (empty :text "nothing run yet — actions from the widgets will show up here" :show {arraylength(history) == 0})))))
+
+;; ---------------------------------------------------------------- taskbar (bottom bar)
+;; one window per monitor:  eww open taskbar --id taskbar-<mon> --screen <mon> --arg mon=<mon>
+;; apps are grouped; the badge is the window count. click: cycle through them, middle: close, right: cycle back... no — right: close
+(defwindow taskbar [mon]
+  :monitor 0 :stacking "fg" :exclusive true :focusable false :namespace "eww-taskbar"
+  :geometry (geometry :x "0px" :y "6px" :anchor "bottom center")
+  (box :class {arraylength(taskbar[mon] ?: []) > 0 ? "taskbar" : "taskbar-empty"}
+       :orientation "h" :space-evenly false :spacing 2
+    (for g in {taskbar[mon] ?: []}
+      (eventbox :class {g.focused ? "task-on" : g.urgent ? "task-urgent" : "task"} :cursor "pointer" :timeout "5s"
+                :tooltip "${g.title}${g.count > 1 ? '  (' + g.count + ' windows — click to cycle)' : ''}"
+                :onclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh cycle ${mon} '${g.app}'"
+                :onmiddleclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh close ${mon} '${g.app}'"
+        (overlay
+          (image :icon {g.icon} :icon-size "dnd")
+          (label :class "badge" :text {g.count} :visible {g.count > 1} :halign "end" :valign "end"))))))

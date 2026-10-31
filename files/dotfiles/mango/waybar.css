@@ -1,0 +1,187 @@
+@import "theme.css";
+
+* {
+  font-family: "FiraCode Nerd Font", "Symbols Nerd Font", sans-serif;
+  font-size: 16px;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+window#waybar {
+  background: transparent;
+  color: @text;
+}
+/* top bar: one floating strip (margins set in waybar.jsonc); bottom bar keeps its pill */
+window#waybar.top {
+  background: alpha(@base, 0.78);
+  border: 1px solid @surface0;
+  border-radius: 14px;
+}
+
+tooltip {
+  background: @mantle;
+  border: 1px solid @surface1;
+  border-radius: 10px;
+}
+tooltip label {
+  color: @text;
+  padding: 4px;
+}
+
+/* ---- module groups -------------------------------------------------- */
+.modules-left,
+.modules-center,
+.modules-right {
+  padding: 0 6px;
+}
+/* the bottom taskbar is still a floating pill */
+window#waybar.bottom .modules-center {
+  background: alpha(@base, 0.78);
+  border: 1px solid @surface0;
+  border-radius: 14px;
+}
+
+#workspaces, #layout, #custom-clock, #tray, #pulseaudio, #bluetooth, #network,
+#custom-notification, #custom-power, #custom-sys, #custom-battery, #custom-settings, #custom-history, #custom-media, #custom-weather, #custom-proton, #custom-tailscale {
+  padding: 0 10px;
+  margin: 3px 2px;
+  border-radius: 10px;
+  color: @subtext1;
+}
+
+/* ---- tags ----------------------------------------------------------- */
+#workspaces {
+  padding: 0 2px;
+}
+#workspaces button {
+  color: @subtext0;
+  padding: 0 8px;
+  margin: 2px 1px;
+  border-radius: 8px;
+  background: transparent;
+  transition: all 150ms ease;
+}
+#workspaces button:hover {
+  color: @text;
+  background: @surface0;
+}
+#workspaces button.active {
+  color: @base;
+  background: @accent;
+  font-weight: bold;
+}
+#workspaces button.visible {
+  color: @accent;
+}
+#workspaces button.urgent {
+  color: @base;
+  background: @urgent;
+}
+#workspaces button.overview {
+  color: @base;
+  background: @accent2;
+}
+
+#layout {
+  color: @accent2;
+  font-weight: bold;
+  padding: 0 8px;
+}
+
+/* ---- clock ---------------------------------------------------------- */
+#custom-clock {
+  color: @text;
+  font-weight: bold;
+  padding: 0 14px;
+}
+#custom-clock:hover {
+  background: @surface0;
+}
+
+/* ---- right side ----------------------------------------------------- */
+#pulveaudio, #bluetooth, #network, #custom-notification, #custom-power {
+  transition: background 150ms ease;
+}
+#pulseaudio:hover, #bluetooth:hover, #network:hover,
+#custom-notification:hover, #custom-power:hover, #custom-sys:hover, #custom-battery:hover, #custom-settings:hover, #custom-media:hover, #custom-weather:hover, #custom-proton:hover, #custom-tailscale:hover {
+  background: @surface0;
+  color: @text;
+}
+
+#custom-sys { color: @teal; }
+#custom-sys.high { color: @urgent; }
+
+#custom-battery { color: @green; }
+#custom-battery.low { color: @urgent; }
+
+#pulseaudio { color: @peach; }
+#pulseaudio.muted { color: @subtext0; }
+
+#bluetooth { color: @blue; }
+#bluetooth.off, #bluetooth.disabled { color: @subtext0; }
+#bluetooth.connected { color: @sky; }
+
+#network { color: @green; }
+#network.disconnected, #network.linked { color: @urgent; }
+
+#custom-notification { color: @yellow; font-size: 18px; }
+#custom-notification.dnd-none,
+#custom-notification.dnd-notification { color: @subtext0; }
+
+#custom-power {
+  color: @red;
+  font-size: 18px;
+  padding: 0 10px 0 11px;
+}
+#custom-power:hover {
+  background: @red;
+  color: @base;
+}
+
+#tray {
+  padding: 0 6px;
+}
+#tray > .passive { -gtk-icon-effect: dim; }
+#tray > .needs-attention { -gtk-icon-effect: highlight; }
+
+/* ---- bottom bar: taskbar -------------------------------------------- */
+#taskbar {
+  padding: 0 4px;
+}
+#taskbar.empty {
+  background: transparent;
+  border: none;
+}
+#taskbar button {
+  padding: 4px 8px;
+  margin: 3px 2px;
+  border-radius: 10px;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  transition: all 150ms ease;
+}
+#taskbar button:hover {
+  background: @surface0;
+}
+#taskbar button.active {
+  background: @surface0;
+  border-bottom: 2px solid @accent;
+}
+#taskbar button.minimized {
+  opacity: 0.5;
+}
+
+#custom-settings { color: @subtext1; font-size: 18px; }
+
+#custom-media { color: @text; background: alpha(@surface0, 0.6); }
+#custom-media.paused { color: @subtext0; }
+#custom-weather { color: @sky; font-weight: bold; }
+#custom-weather.error { color: @subtext0; }
+#custom-proton, #custom-tailscale { color: @subtext0; font-size: 18px; }
+#custom-proton.on { color: @green; }
+#custom-tailscale.on { color: @blue; }
+#custom-tailscale.exit { color: @green; }
+#custom-history { color: @subtext1; font-size: 17px; }
