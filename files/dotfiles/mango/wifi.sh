@@ -11,18 +11,19 @@ enabled() { [ "$(nmcli radio wifi)" = enabled ]; }
 status() {
   en=false; enabled && en=true
   known=$(nmcli -t -f NAME,TYPE con show | awk -F: '$2=="802-11-wireless"{print $1}')
-  # one row per SSID: prefer the connected BSSID, else the strongest (done in jq below)
-  networks=$(nmcli -t --escape no -f ACTIVE,SSID,SIGNAL,SECURITY dev wifi list \
-    | awk -F: 'NF>=4 && $2!=""' \
-    | while IFS=: read -r active ssid signal security; do
-        k=false; printf '%s\n' "$known" | grep -qxF -- "$ssid" && k=true
-        a=false; [ "$active" = yes ] && a=true
-        jq -cn --arg ssid "$ssid" --argjson signal "${signal:-0}" --arg sec "$security" \
-          --argjson active "$a" --argjson known "$k" \
-          '{ssid:$ssid, signal:$signal, secure:($sec!=""), active:$active, known:$known}'
-      done | jq -cs 'group_by(.ssid) | map(sort_by([(.active | not), -.signal]) | first) | sort_by([(.active | not), -.signal])')
-  jq -cn --argjson enabled "$en" --argjson networks "${networks:-[]}" \
-    '{enabled:$enabled, networks:$networks, ssid:(([$networks[] | select(.active)] | first | .ssid) // "")}'
+  # --rescan no: by default nmcli rescans when the last scan is stale and blocks for 1-2 s;
+  # the popup has its own rescan button. One jq for the whole list instead of one per row.
+  # With --escape no an SSID may itself contain ":", so the fields are taken from both ends
+  # (ACTIVE first, SIGNAL and SECURITY last) and the middle joined back into the SSID.
+  # One row per SSID: prefer the connected BSSID, else the strongest.
+  nmcli -t --escape no -f ACTIVE,SSID,SIGNAL,SECURITY dev wifi list --rescan no \
+    | jq -R -s -c --argjson enabled "$en" --arg known "$known" '
+        ($known | split("\n") | map(select(length > 0))) as $k
+        | [split("\n")[] | select(length > 0) | split(":") | select(length >= 4)
+            | {active: (.[0] == "yes"), ssid: (.[1:-2] | join(":")), signal: (.[-2] | tonumber? // 0), secure: (.[-1] != "")}
+            | select(.ssid != "") | .known = (.ssid as $s | any($k[]; . == $s))]
+        | group_by(.ssid) | map(sort_by([(.active | not), -.signal]) | first) | sort_by([(.active | not), -.signal])
+        | {enabled: $enabled, networks: ., ssid: (([.[] | select(.active)] | first | .ssid) // "")}'
 }
 
 case "$1" in

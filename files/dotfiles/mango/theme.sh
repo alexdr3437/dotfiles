@@ -36,4 +36,5 @@ swaync-client -rs >/dev/null 2>&1
 # random stacking order — so close the popups first; they come back themed on next open
 "$dir/popup.sh" close >/dev/null 2>&1
 ewwc reload >/dev/null 2>&1
+rm -f "$runtime_dir/mango-cal-state"   # reload resets every defvar; cal.sh show trusts that file and would skip the rebuild
 echo "theme: $1"

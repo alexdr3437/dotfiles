@@ -58,8 +58,8 @@ popup's "Restart bar & popups" runs.
 
 ```
 bar click (waybar.jsonc on-click)
-  └─ popup.sh <window> [app]      toggle one eww window, close the others, open a backdrop
-       └─ ewwc.sh open <window>    eww client wrapper (heals the two-daemon state)
+  └─ popup.sh <window> [app]      toggle one eww window, close the others, open a backdrop per monitor
+       └─ ewwc.sh active-windows  / open-many ...    eww client wrapper (--no-daemonize; heals the two-daemon state on failure)
 
 eww window (eww.yuck)
   ├─ reads a defpoll var    ← "<name>.sh status"  (JSON, polled only while a window using it is open)
@@ -90,7 +90,7 @@ Defines the paths and the only way scripts talk to the primitives:
 | `$host_dir` | `~/.config/mango-host` → `hosts/<host>`; its `env.sh` is sourced here if present |
 | `$dbl_ms` | double-click window (popup.sh, cal.sh) |
 | `run CMD...` | run.sh: execute and record for the History popup |
-| `ewwc ARGS...` | ewwc.sh: the eww client |
+| `ewwc ARGS...` | the eww client (`eww --no-daemonize`; ewwc.sh heals + retries on failure) |
 | `refresh VAR JSON` | push new state to eww now instead of waiting for the poll |
 | `now_ms`, `usage`, `device_glyph KIND` | helpers |
 
@@ -152,10 +152,15 @@ one cannot verify the password and must be killed from a TTY.
    every eventbox is set generously for the same reason (default is 200 ms).
 2. **Every real action goes through `run`** (run.sh). That is what makes the
    History popup work and what records exit codes for debugging.
-3. **Talk to eww only via `ewwc`** (ewwc.sh), never bare `eww`. eww's client
-   auto-starts a second daemon when an IPC call fails; ewwc.sh detects and
-   heals that. autostart.sh kills by process name `.eww-wrapped` for the same
-   reason (eww's own `kill` misses orphaned daemons).
+3. **Talk to eww only via `ewwc`** (lib.sh), never bare `eww`. eww's client
+   auto-starts a second daemon when an IPC call fails; `ewwc` passes
+   `--no-daemonize` so that cannot happen, and when a call fails it runs
+   ewwc.sh, which checks the daemons (none → start one, several → kill all,
+   start one) and retries once. popup.sh's run time is the click-to-popup
+   delay, so it makes two eww calls per click (active-windows, open-many) and
+   the daemon check is only on the failure path. autostart.sh kills by process
+   name `.eww-wrapped` for the same reason (eww's own `kill` misses orphaned
+   daemons).
 4. **`pkill -f` on the full command line, never `pkill -x name`.** NixOS
    wraps binaries, so the process name is `.foo-wrapped`, not `foo`.
 5. **Popups never take keyboard focus** (`:focusable false`) and are always

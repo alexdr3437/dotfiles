@@ -22,8 +22,10 @@
 ;; ---------------------------------------------------------------- backdrop
 ;; invisible window covering each monitor (below the bars) while a popup is open;
 ;; clicking it closes everything. popup.sh opens one per monitor as backdrop-<name>.
-(defwindow backdrop
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-backdrop"
+;; every popup window (this one included) takes mon, a monitor name or index: popup.sh opens
+;; the backdrops and the popup in one `eww open-many`, which has no --screen
+(defwindow backdrop [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-backdrop"
   :geometry (geometry :x "0px" :y "0px" :width "100%" :height "100%" :anchor "top left")
   ;; (:timeout everywhere: eww kills click commands after 200ms by default)
   ;; scrolling also closes: a layer surface can't pass scroll through while catching clicks
@@ -39,8 +41,8 @@
 ;; when the popup opens (popup.sh) and on navigation; click selects, double-click opens Google Calendar
 (defvar cal '{"title":"","ofs":0,"sel":"","weeks":[]}')
 
-(defwindow calendar
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-calendar"
+(defwindow calendar [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-calendar"
   :geometry (geometry :x "0px" :y "8px" :width "320px" :anchor "top center")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 2
     (box :class "cal-head" :orientation "h" :space-evenly false
@@ -63,8 +65,8 @@
             (label :text {d.day} :width 36 :height 30)))))))
 
 ;; ---------------------------------------------------------------- power
-(defwindow power
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-power"
+(defwindow power [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-power"
   :geometry (geometry :x "10px" :y "8px" :width "190px" :anchor "top right")
   (box :class "power-box" :orientation "v" :space-evenly false :spacing 2
     (power-item :icon "󰌾" :label "Lock"      :cmd "~/.config/mango/run.sh ~/.config/mango/lock.sh"  :danger false)
@@ -116,8 +118,8 @@
     (progress :class {pct >= warn ? "bar-warn" : "bar"} :value {pct > 0 ? pct : 0.3} :orientation "h")))
 
 ;; ---------------------------------------------------------------- bluetooth
-(defwindow bluetooth
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-bluetooth"
+(defwindow bluetooth [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-bluetooth"
   :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 6
     (header :icon "󰂯" :title "Bluetooth" :win "bluetooth" :app "blueman-manager"
@@ -139,8 +141,8 @@
     (empty :text "bluetooth is off" :show {!bt.powered})))
 
 ;; ---------------------------------------------------------------- wifi
-(defwindow wifi
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-wifi"
+(defwindow wifi [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-wifi"
   :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 6
     (header :icon "󰤨" :title "Wi-Fi" :win "wifi" :app "nm-connection-editor"
@@ -167,8 +169,8 @@
     (empty :text "wi-fi is off" :show {!wifi.enabled})))
 
 ;; ---------------------------------------------------------------- volume
-(defwindow volume
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-volume"
+(defwindow volume [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-volume"
   :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 6
     (header :icon "󰕾" :title "Volume" :win "volume" :app "pavucontrol"
@@ -188,8 +190,8 @@
             (label :class "row-title" :halign "start" :hexpand true :text {s.desc} :limit-width 32)))))))
 
 ;; ---------------------------------------------------------------- battery
-(defwindow battery
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-battery"
+(defwindow battery [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-battery"
   :geometry (geometry :x "10px" :y "8px" :width "320px" :anchor "top right")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 6
     (header :icon "󰁹" :title "Batteries" :win "battery" :app "" :toggle "" :on false)
@@ -200,8 +202,8 @@
     (empty :text "no batteries found" :show {!bat.laptop.present && arraylength(bat.devices) == 0})))
 
 ;; ---------------------------------------------------------------- system
-(defwindow system
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-system"
+(defwindow system [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-system"
   :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 6
     (header :icon "󰻠" :title "System" :win "system" :app "ghostty -e btop" :toggle "" :on false)
@@ -251,8 +253,8 @@
       (label :class "row-icon" :text icon)
       (label :class "row-title" :halign "start" :hexpand true :text title))))
 
-(defwindow settings
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-settings"
+(defwindow settings [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-settings"
   :geometry (geometry :x "10px" :y "8px" :width "320px" :anchor "top right")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 2
     (header :icon "󰒓" :title "Settings" :win "settings" :app "ghostty -e nvim ~/.config/mango/config.conf" :toggle "" :on false)
@@ -281,8 +283,8 @@
     (setting-action :icon "󰷈" :title "Edit popups config"   :cmd "ghostty -e nvim ~/.config/mango/eww/eww.yuck")))
 
 ;; ---------------------------------------------------------------- weather
-(defwindow weather
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-weather"
+(defwindow weather [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-weather"
   :geometry (geometry :x "0px" :y "8px" :width "380px" :anchor "top center")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 6
     (box :class "hdr" :orientation "h" :space-evenly false :spacing 8
@@ -317,8 +319,8 @@
     (empty :text "weather unavailable (no network?)" :show {weather.error})))
 
 ;; ---------------------------------------------------------------- media (now playing)
-(defwindow media
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-media"
+(defwindow media [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-media"
   :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top left")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 8
     (box :orientation "h" :space-evenly false :spacing 12
@@ -334,8 +336,8 @@
       (act :icon "󰒭" :kind "" :show true :tip "next" :cmd "~/.config/mango/media.sh next"))))
 
 ;; ---------------------------------------------------------------- proton vpn
-(defwindow proton
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-proton"
+(defwindow proton [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-proton"
   :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 4
     (header :icon "󰒃" :title "Proton VPN" :win "proton" :app "protonvpn-app" :toggle "" :on false)
@@ -346,8 +348,8 @@
     (empty :text "no vpn connections in NetworkManager — connect once in the Proton app" :show {arraylength(vpn.proton) == 0})))
 
 ;; ---------------------------------------------------------------- tailscale
-(defwindow tailscale
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-tailscale"
+(defwindow tailscale [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-tailscale"
   :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 4
     (header :icon "󰒍" :title "Tailscale" :win "tailscale" :app "" :toggle "~/.config/mango/vpn.sh ts" :on {vpn.ts.online})
@@ -360,8 +362,8 @@
     (empty :text "tailscale is off" :show {!vpn.ts.online})))
 
 ;; ---------------------------------------------------------------- history (what the widgets ran)
-(defwindow history
-  :monitor 0 :stacking "overlay" :exclusive false :focusable false :namespace "eww-history"
+(defwindow history [mon]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-history"
   :geometry (geometry :x "10px" :y "8px" :width "460px" :anchor "top right")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 4
     (box :class "hdr" :orientation "h" :space-evenly false :spacing 8
