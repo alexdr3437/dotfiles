@@ -4,6 +4,7 @@
     ./hardware-configuration.nix
     ../../modules/greetd.nix
     ../../modules/mango.nix # the session greetd boots into; config in files/dotfiles/mango
+    ../../modules/dolphin.nix
     ../../modules/audio.nix
     ../../modules/networking.nix
     ../../modules/embedded-dev.nix
