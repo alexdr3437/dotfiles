@@ -184,6 +184,9 @@ tooltip {
 .task:hover, .task-urgent:hover { background: $surface0; }
 .task-on { background: $surface0; border-bottom: 2px solid $accent; }
 .task-urgent { border-bottom: 2px solid $red; }
+.task-sep { background: $surface0; min-width: 1px; margin: 6px 4px; }   // between the apps and the minimized windows
+.task-min { padding: 5px 7px; border-radius: 10px; opacity: 0.45; transition: background 150ms ease, opacity 150ms ease; }
+.task-min:hover { background: $surface0; opacity: 1; }
 .badge {
   background: $accent;
   color: $base;

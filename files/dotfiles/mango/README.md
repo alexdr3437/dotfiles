@@ -125,7 +125,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | nightlight.sh | (via settings) | | wlsunset; sun times from `weather.sh cached`, never the network |
 | settings.sh | settings | custom/settings | theme / dnd / nightlight / restart |
 | sys.sh | sys (deflisten) | custom/sys (bar-stream), custom/net (`bar-stream net`, 1s) | /proc only, no forks per tick; net rates over the physical interfaces every 1s; `top` padded to exactly 5 so the popup uses fixed rows (a `for` rebuilt its children every 2s and flickered) |
-| taskbar.sh | taskbar | | one eww window per monitor; `.desktop` icon lookups cached in icons.tsv (hits only) |
+| taskbar.sh | taskbar | | one eww window per monitor: grouped apps, then a dimmed section with that monitor's minimized windows (click restores through `focusid`, which un-minimizes); `.desktop` icon lookups cached in icons.tsv (hits only) |
 | vol.sh | vol | pulseaudio (built-in) | pactl + wpctl |
 | vpn.sh | vpn | custom/proton (`bar proton`), custom/tailscale (`bar ts`) | NetworkManager + tailscale |
 | weather.sh | weather | custom/weather | Open-Meteo, cached 15 min; location from ipinfo.io (https, ip-api.com fallback), pinned while a VPN is up |

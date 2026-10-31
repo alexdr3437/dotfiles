@@ -392,16 +392,24 @@
 ;; ---------------------------------------------------------------- taskbar (bottom bar)
 ;; one window per monitor:  eww open taskbar --id taskbar-<mon> --screen <mon> --arg mon=<mon>
 ;; apps are grouped; the badge is the window count. click: cycle through the app's windows, middle-click: close one
+;; after a divider: this monitor's minimized windows, one dimmed icon each. click: restore, middle-click: close
 (defwindow taskbar [mon]
   :monitor 0 :stacking "fg" :exclusive true :focusable false :namespace "eww-taskbar"
   :geometry (geometry :x "0px" :y "6px" :anchor "bottom center")
-  (box :class {arraylength(taskbar[mon] ?: []) > 0 ? "taskbar" : "taskbar-empty"}
+  (box :class {arraylength(taskbar[mon]?.apps ?: []) + arraylength(taskbar[mon]?.min ?: []) > 0 ? "taskbar" : "taskbar-empty"}
        :orientation "h" :space-evenly false :spacing 2
-    (for g in {taskbar[mon] ?: []}
+    (for g in {taskbar[mon]?.apps ?: []}
       (eventbox :class {g.focused ? "task-on" : g.urgent ? "task-urgent" : "task"} :cursor "pointer" :timeout "5s"
                 :tooltip "${g.title}${g.count > 1 ? '  (' + g.count + ' windows — click to cycle)' : ''}"
                 :onclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh cycle ${mon} '${g.app}'"
                 :onmiddleclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh close ${mon} '${g.app}'"
         (overlay
           (image :icon {g.icon} :icon-size "dnd")
-          (label :class "badge" :text {g.count} :visible {g.count > 1} :halign "end" :valign "end"))))))
+          (label :class "badge" :text {g.count} :visible {g.count > 1} :halign "end" :valign "end"))))
+    (box :class "task-sep" :visible {arraylength(taskbar[mon]?.apps ?: []) > 0 && arraylength(taskbar[mon]?.min ?: []) > 0})
+    (for w in {taskbar[mon]?.min ?: []}
+      (eventbox :class "task-min" :cursor "pointer" :timeout "5s"
+                :tooltip "${w.title}  (minimized — click to restore)"
+                :onclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh restore ${w.id}"
+                :onmiddleclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh kill ${w.id}"
+        (image :icon {w.icon} :icon-size "dnd")))))
