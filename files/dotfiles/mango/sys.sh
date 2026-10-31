@@ -97,8 +97,8 @@ emit_status() {
   rate "$down"; down_h=$rate_out; rate "$up"; up_h=$rate_out
   # padded strings for labels; cpu and pct stay numbers for the meters
   pad "$cpu" 3; cpu_p=$pad_out; pad "$mem_used" 4; mem_p=$pad_out; pad "$swap_used" 4; swap_p=$pad_out
-  printf '{"cpu":%d,"cpu_pad":"%s","load":"%s","cores":%d,"temp":%d,"mem":{"used":"%s","total":%s,"pct":%d},"swap":{"used":"%s","total":%s,"pct":%d},"net":{"iface":"%s","down":"%s","up":"%s","down_bps":%d,"up_bps":%d},"top":%s}\n' \
-    "$cpu" "$cpu_p" "$load" "$cores" "$temp" "$mem_p" "$mem_total" "$mem_pct" "$swap_p" "$swap_total" "$swap_pct" \
+  printf '{"cpu":%d,"cpu_pad":"%s","load":"%s","load1":"%s","cores":%d,"temp":%d,"mem":{"used":"%s","total":%s,"pct":%d},"swap":{"used":"%s","total":%s,"pct":%d},"net":{"iface":"%s","down":"%s","up":"%s","down_bps":%d,"up_bps":%d},"top":%s}\n' \
+    "$cpu" "$cpu_p" "$load" "$l1" "$cores" "$temp" "$mem_p" "$mem_total" "$mem_pct" "$swap_p" "$swap_total" "$swap_pct" \
     "${net_ifaces# }" "$down_h" "$up_h" "$down" "$up" "${top_json:-[]}"
 }
 emit_bar_net() {
