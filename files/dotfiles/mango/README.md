@@ -118,6 +118,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | bt.sh | bt | | the only script that parses bluetoothctl (BLE battery needs bluez Experimental) |
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
 | history.sh | history | custom/history | reads run.sh's log |
+| layout.sh | | | rofi dmenu of `mmsg get layouts` with a description per row, current one preselected; Super+Shift+n |
 | idle.sh | idle | | swayidle wrapper; timers by power source (/sys Mains supply; none → AC); `on-battery` for other scripts |
 | media.sh | media | custom/media (bar-stream) | MPRIS via busctl, no playerctl |
 | monitors.sh | | | `names` (enabled monitors), `taskbars` (one eww taskbar per monitor), internal panel vs externals (`status`, `apply`, `watch`) and lid (`fold`, `unfold`). Disabled monitors stay in `all-monitors` with width 0 |
