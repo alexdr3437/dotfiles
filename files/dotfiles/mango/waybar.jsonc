@@ -19,6 +19,7 @@
     "modules-right": [
       "tray",
       "custom/sys",
+      "custom/net",
       "custom/battery",
       "custom/proton",
       "custom/tailscale",
@@ -60,6 +61,15 @@
       "format": "{}",
       "on-click": "~/.config/mango/popup.sh system 'ghostty -e btop'",
       "on-click-right": "ghostty -e btop"
+    },
+
+    // down / up rate over the physical interfaces, once a second (sys.sh); click → system popup
+    "custom/net": {
+      "exec": "~/.config/mango/sys.sh bar-stream net",
+      "return-type": "json",
+      "format": "{}",
+      "on-click": "~/.config/mango/popup.sh system 'ghostty -e btop'",
+      "on-click-right": "ghostty -e sniffnet"
     },
 
     // laptop battery if there is one, else the lowest device battery; click → battery popup

@@ -2,10 +2,11 @@
 # System stats backend.
 #   sys.sh stream      → eww JSON every $tick (top processes every 2s); deflisten runs it while the popup is open
 #   sys.sh bar-stream  → waybar JSON every $tick; waybar keeps it running (no "interval" in the module)
+#   sys.sh bar-stream net → waybar JSON every 1s with the down/up rates (custom/net)
 #   sys.sh status|bar  → one-shot versions of the above
 # Each tick only reads /proc files with shell builtins — no subprocesses — so 0.5s is cheap.
 # JSON: {cpu, load, cores, temp, mem:{used,total,pct}, swap:{used,total,pct},
-#        net:{iface, down, up, down_bps, up_bps}, top:[{name,cpu,mem} x5]}
+#        net:{iface, down, up, down_bps, up_bps}, top:[{name, cpu, mem:"340 MiB"} x5]}
 # top always has exactly 5 entries (padded with name "") and net is refreshed every 1s,
 # so the popup renders fixed rows whose text changes instead of rebuilding widgets.
 # net sums the physical interfaces (those with a /sys/class/net/*/device), which leaves
@@ -67,10 +68,13 @@ sample() {
 
 top() {
   # fresh processes (ps itself, this script) report inflated cpu, so drop them; names may contain spaces
-  top_json=$(ps -eo pid,pcpu,pmem,comm --sort=-pcpu --no-headers | head -8 \
+  # rss is KiB → "340 MiB" / "1.2 GiB"
+  top_json=$(ps -eo pid,pcpu,rss,comm --sort=-pcpu --no-headers | head -8 \
     | awk -v me="$$" '$1 != me && $4 != "ps" {c=$2; m=$3; $1=""; $2=""; $3=""; sub(/^ +/, ""); printf "%s\t%s\t%s\n", $0, c, m}' \
-    | jq -R -s -c 'split("\n") | map(select(length > 0) | split("\t") | {name: .[0], cpu: (.[1] | tonumber), mem: (.[2] | tonumber)}) | .[:5]
-                   | . + [range(5 - length) | {name: "", cpu: 0, mem: 0}]')   # always 5 rows
+    | jq -R -s -c 'split("\n") | map(select(length > 0) | split("\t")
+                   | {name: .[0], cpu: (.[1] | tonumber),
+                      mem: ((.[2] | tonumber) | if . >= 1048576 then "\((. * 10 / 1048576 | floor) / 10) GiB" else "\(. / 1024 | floor) MiB" end)})
+                   | .[:5] | . + [range(5 - length) | {name: "", cpu: 0, mem: ""}]')   # always 5 rows
 }
 
 emit_status() {
@@ -78,6 +82,17 @@ emit_status() {
   printf '{"cpu":%d,"load":"%s","cores":%d,"temp":%d,"mem":{"used":%s,"total":%s,"pct":%d},"swap":{"used":%s,"total":%s,"pct":%d},"net":{"iface":"%s","down":"%s","up":"%s","down_bps":%d,"up_bps":%d},"top":%s}\n' \
     "$cpu" "$load" "$cores" "$temp" "$mem_used" "$mem_total" "$mem_pct" "$swap_used" "$swap_total" "$swap_pct" \
     "${net_ifaces# }" "$down_h" "$up_h" "$down" "$up" "${top_json:-[]}"
+}
+# compact rate for the bar: "792B" "252K" "1.2M"
+rate_short() {
+  if [ "$1" -ge 1048576 ]; then v=$(( $1 * 10 / 1048576 )); rate_out="$((v / 10)).$((v % 10))M"
+  elif [ "$1" -ge 1024 ]; then rate_out="$(( $1 / 1024 ))K"
+  else rate_out="$1B"; fi
+}
+emit_bar_net() {
+  rate_short "$down"; d=$rate_out; rate_short "$up"; u=$rate_out
+  rate "$down"; dl=$rate_out; rate "$up"; ul=$rate_out
+  printf '{"text":"⇣ %s  ⇡ %s","tooltip":"⇣ %s   ⇡ %s\\n%s","class":"ok"}\n' "$d" "$u" "$dl" "$ul" "${net_ifaces# }"
 }
 emit_bar() {
   class=ok; { [ "$cpu" -gt 85 ] || [ "$mem_pct" -gt 90 ]; } && class=high
@@ -97,7 +112,11 @@ case "$1" in
       emit_status; tickn=$((tickn + 1)); sleep $tick
     done ;;
   bar-stream)
+    if [ "$2" = net ]; then
+      net 1000; sleep 1
+      while :; do net 1000; emit_bar_net; sleep 1; done
+    fi
     sample; sleep 0.2
     while :; do sample; emit_bar; sleep $tick; done ;;
-  *) echo "usage: sys.sh status|stream|bar|bar-stream" >&2; exit 1 ;;
+  *) echo "usage: sys.sh status|stream|bar|bar-stream [net]" >&2; exit 1 ;;
 esac

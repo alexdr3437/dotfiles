@@ -17,7 +17,7 @@
 (defpoll taskbar :interval "1s" :initial '{}' "~/.config/mango/taskbar.sh status")
 (defpoll settings :interval "3s" :initial '{"theme":"","themes":[],"dnd":false,"nl":{"active":false,"start":"","stop":"","after":30}}' "~/.config/mango/settings.sh status")
 ;; streamed (0.5s ticks) rather than polled; eww runs it only while the system popup is open
-(deflisten sys :initial '{"cpu":0,"load":"","cores":0,"temp":0,"mem":{"used":0,"total":0,"pct":0},"swap":{"used":0,"total":0,"pct":0},"net":{"iface":"","down":"","up":"","down_bps":0,"up_bps":0},"top":[{"name":"","cpu":0,"mem":0},{"name":"","cpu":0,"mem":0},{"name":"","cpu":0,"mem":0},{"name":"","cpu":0,"mem":0},{"name":"","cpu":0,"mem":0}]}' "~/.config/mango/sys.sh stream")
+(deflisten sys :initial '{"cpu":0,"load":"","cores":0,"temp":0,"mem":{"used":0,"total":0,"pct":0},"swap":{"used":0,"total":0,"pct":0},"net":{"iface":"","down":"","up":"","down_bps":0,"up_bps":0},"top":[{"name":"","cpu":0,"mem":""},{"name":"","cpu":0,"mem":""},{"name":"","cpu":0,"mem":""},{"name":"","cpu":0,"mem":""},{"name":"","cpu":0,"mem":""}]}' "~/.config/mango/sys.sh stream")
 
 ;; ---------------------------------------------------------------- backdrop
 ;; invisible window covering each monitor (below the bars) while a popup is open;
@@ -231,7 +231,7 @@
   (box :class "proc" :orientation "h" :space-evenly false :spacing 8 :visible {p.name != ""}
     (label :class "row-title" :halign "start" :hexpand true :text {p.name} :limit-width 22)
     (label :class "row-sub" :text "${p.cpu}% cpu" :width 70 :halign "end")
-    (label :class "row-sub" :text "${p.mem}% mem" :width 70 :halign "end")))
+    (label :class "row-sub" :text {p.mem} :width 75 :halign "end")))
 
 ;; ---------------------------------------------------------------- settings
 (defwidget setting-toggle [icon title sub on cmd]
