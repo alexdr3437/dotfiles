@@ -20,4 +20,18 @@ in
   # cannot live inside ~/.config/mango because that is the repo checkout itself.
   # `host` comes from home-manager.extraSpecialArgs in flake.nix.
   xdg.configFile."mango-host".source = config.lib.file.mkOutOfStoreSymlink "${mango}/hosts/${host}";
+
+  # "Screenshot" in the rofi app launcher: the same pipeline as Super+t
+  # (screenshot.sh: slurp → grim → satty). satty's own entry is NoDisplay and
+  # needs an image, so it never shows up on its own.
+  xdg.desktopEntries.screenshot = {
+    name = "Screenshot";
+    genericName = "Region screenshot with annotation";
+    comment = "Drag a region, annotate in satty, Enter copies it to the clipboard";
+    exec = "${mango}/screenshot.sh";
+    icon = "satty";
+    terminal = false;
+    categories = [ "Utility" "Graphics" ];
+    settings.Keywords = "screenshot;capture;snapshot;grim;slurp;satty;";
+  };
 }
