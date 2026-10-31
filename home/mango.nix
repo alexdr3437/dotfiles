@@ -6,10 +6,10 @@ in
   # popups + taskbar daemon (eww.yuck); the rest of the stack is in modules/mango.nix
   home.packages = [ pkgs.eww ];
 
-  # ~/.config/mango → files/dotfiles/mango as a live symlink into the checkout,
-  # not a store copy: theme.sh writes generated files next to the config
-  # (theme.css, eww/_colors.scss, rofi-colors.rasi; gitignored there), and bar /
-  # popup / css edits reload in place without a rebuild. See its README.md.
+  # ~/.config/mango → files/dotfiles/mango as a live symlink into the checkout, not a
+  # store copy, so bar / popup / script edits apply without a rebuild (the trade-off:
+  # rollbacks do not cover this directory). Nothing writes into it at runtime; generated
+  # files go to ~/.local/state/mango and ~/.cache/mango. See its README.md.
   # Packages (mango, waybar, swaync, gtklock, ...) come from modules/mango.nix;
   # jq is in home/default.nix.
   xdg.configFile."mango".source = config.lib.file.mkOutOfStoreSymlink mango;

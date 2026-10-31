@@ -10,10 +10,9 @@
 #                          (started by autostart.sh after the eww daemon)
 #   monitors.sh fold     → lid closed: on battery suspend, on AC lock + sleep the panel
 #   monitors.sh unfold   → lid opened: wake the panel if it is the one in use
-# $internal_monitor comes from hosts/<host>/env.sh (laptop: eDP-1); empty (desktop) makes
-# apply/fold/unfold panel-free no-ops. To dry-run:  internal_monitor=HDMI-A-2 monitors.sh status
-# Enabled vs disabled: mango keeps disabled monitors in `all-monitors` with a zero
-# box, so width > 0 means enabled (a DPMS-slept monitor keeps its box).
+# $internal_monitor is set in hosts/<host>/env.sh (laptop: eDP-1); unset on the desktop, where the
+# panel parts are no-ops. Dry run:  internal_monitor=HDMI-A-2 monitors.sh status
+# mango lists disabled monitors with a zero box, so width > 0 means enabled (DPMS sleep keeps the box).
 # shellcheck source=lib.sh
 . "$HOME/.config/mango/lib.sh"
 
@@ -66,10 +65,8 @@ watch() {
   mmsg watch all-monitors 2>/dev/null | while read -r _; do sync; done
 }
 
-on_battery() { "$dir/idle.sh" on-battery; }
-
 fold() {
-  if on_battery; then
+  if "$dir/idle.sh" on-battery; then
     run systemctl suspend
   else
     run "$dir/lock.sh"

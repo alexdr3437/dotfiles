@@ -38,8 +38,7 @@ start() {
       timeout $((bat_suspend_min * 60)) "systemctl suspend" \
       lock "$dir/lock.sh" before-sleep "$dir/lock.sh" >/dev/null 2>&1 </dev/null
   else
-    # wlopm --on '*' cannot re-light a panel monitors.sh disabled: mango drops a
-    # disabled output from the layout, which removes its wl_output global
+    # wlopm never sees a monitor that monitors.sh disabled (no wl_output global), so --on '*' is safe
     setsid -f swayidle -w \
       timeout $((ac_lock_min * 60)) "$dir/lock.sh" \
       timeout $((ac_off_min * 60)) "wlopm --off '*'" resume "wlopm --on '*'" \

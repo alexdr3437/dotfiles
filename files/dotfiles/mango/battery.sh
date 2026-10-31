@@ -4,10 +4,9 @@
 #   battery.sh bar    → waybar JSON {text, tooltip, class}; also fires the low-battery warning
 #   battery.sh warn PERCENT STATE [DETAIL] → what bar calls for the laptop battery; run by hand to test
 # Sources: upower (laptop + HID devices) and bt.sh (BLE devices via bluez; needs Experimental=true).
-# Low-battery warning: a critical notification once per threshold crossed while discharging
-# ($warn_levels, highest first); the level last warned about is kept in $cache_dir/battery.warned
-# and cleared as soon as the battery charges. upower's own HybridSleep at 2 % is the last resort
-# (modules/mango.nix). waybar polls `bar` every 30 s.
+# Low-battery warning: one critical notification per $warn_levels threshold crossed while
+# discharging, last level in $cache_dir/battery.warned (cleared when charging). waybar polls `bar`
+# every 30 s; upower hybrid-sleeps at 2 % as the last resort (modules/mango.nix).
 # shellcheck source=lib.sh
 . "$HOME/.config/mango/lib.sh"
 warn_levels="20 10"

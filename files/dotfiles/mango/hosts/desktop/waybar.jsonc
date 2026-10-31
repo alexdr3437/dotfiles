@@ -1,5 +1,4 @@
 // Desktop: merged into waybar.jsonc through its "include" (nested objects merge;
 // a key set in waybar.jsonc itself wins, so only put host-specific keys here).
-// Nothing host-specific at the moment: the network module (network.sh) picks the
-// connected device itself, so the old "interface" filter is gone.
+// Nothing host-specific at the moment.
 {}

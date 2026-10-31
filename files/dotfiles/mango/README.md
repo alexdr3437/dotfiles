@@ -25,7 +25,7 @@ consumer:
 | --- | --- | --- |
 | mango.conf | `source_optional=~/.config/mango-host/mango.conf` at the end of config.conf | monitor rules, lid `switchbind`s |
 | env.sh | sourced by lib.sh; scripts keep their own `${var:-default}` | `internal_monitor` (monitors.sh), `lock_monitor` (lock.sh), idle timer overrides (idle.sh) |
-| waybar.jsonc | `"include"` in waybar.jsonc; nested objects merge, keys set in the main file win | nothing yet (`{}`); was the network interface filter |
+| waybar.jsonc | `"include"` in waybar.jsonc; nested objects merge, keys set in the main file win | nothing at the moment (`{}`) |
 
 Every include is optional so a missing link only means desktop-ish defaults
 and mango's automatic monitor layout; `check.sh` fails when the link or one of
@@ -119,8 +119,9 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
 | history.sh | history | custom/history | reads run.sh's log |
 | idle.sh | idle | | swayidle wrapper; timers by power source (/sys Mains supply; none → AC); `on-battery` for other scripts |
-| monitors.sh | | | `names` (enabled monitors), `taskbars` (one eww taskbar per monitor), internal panel vs externals (`status`, `apply`, `watch`) and lid (`fold`, `unfold`). Disabled monitors stay in `all-monitors` with width 0 |
 | media.sh | media | custom/media (bar-stream) | MPRIS via busctl, no playerctl |
+| monitors.sh | | | `names` (enabled monitors), `taskbars` (one eww taskbar per monitor), internal panel vs externals (`status`, `apply`, `watch`) and lid (`fold`, `unfold`). Disabled monitors stay in `all-monitors` with width 0 |
+| network.sh | | custom/network | first connected ethernet or wifi device, tunnels ignored; `pick` reads nmcli lines from stdin for tests |
 | nightlight.sh | (via settings) | | wlsunset; sun times from `weather.sh cached`, never the network |
 | settings.sh | settings | custom/settings | theme / dnd / nightlight / restart |
 | sys.sh | sys (deflisten) | custom/sys (bar-stream), custom/net (`bar-stream net`, 1s) | /proc only, no forks per tick; net rates over the physical interfaces every 1s; `top` padded to exactly 5 so the popup uses fixed rows (a `for` rebuilt its children every 2s and flickered) |
@@ -129,7 +130,6 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | vpn.sh | vpn | custom/proton (`bar proton`), custom/tailscale (`bar ts`) | NetworkManager + tailscale |
 | weather.sh | weather | custom/weather | Open-Meteo, cached 15 min; location from ipinfo.io (https, ip-api.com fallback), pinned while a VPN is up |
 | wifi.sh | wifi | | nmcli (the popup) |
-| network.sh | | custom/network | first connected ethernet or wifi device, tunnels ignored; `pick` reads nmcli lines from stdin for tests |
 
 Other scripts: `popup.sh` (window toggling), `theme.sh`, `lock.sh`,
 `wallpaper.sh`, `autostart.sh`, `check.sh` (lint, see below).
@@ -140,9 +140,9 @@ Other scripts: `popup.sh` (window toggling), `theme.sh`, `lock.sh`,
 which `wallpaper.sh` regenerates (blurred, dimmed, 1080p) every time it picks
 a wallpaper. Only the clock shows until a key press or mouse move; the form
 goes on the monitor named by `lock_monitor` in `hosts/<host>/env.sh`
-(desktop: HDMI-A-1; empty lets gtklock pick). Falls back to plain swaylock. Both lockers need their PAM service
-from `modules/mango.nix`; a locker without one cannot verify the password
-and must be killed from a TTY.
+(desktop: HDMI-A-1; empty lets gtklock pick). Falls back to plain swaylock.
+Both lockers need their PAM service from `modules/mango.nix`; a locker without
+one cannot verify the password and must be killed from a TTY.
 
 ## Invariants (do not break these)
 
@@ -184,7 +184,7 @@ and must be killed from a TTY.
     (`tick` in sys.sh, timers in idle.sh and nightlight.sh) or in lib.sh
     when shared (`dbl_ms`). Ones that differ per machine are set in
     `hosts/<host>/env.sh` and the script keeps the fallback
-    (`lock_min=${lock_min:-10}`).
+    (`ac_lock_min=${ac_lock_min:-5}`).
 11. **Nothing machine-specific outside `hosts/`.** No monitor names, interface
     patterns or per-machine timers in config.conf, the scripts or
     waybar.jsonc; add a key to the host files instead (see "Per-host settings").
@@ -214,11 +214,27 @@ and must be killed from a TTY.
 eww -c ~/.config/mango/eww logs              # eww parse errors land here
 ~/.config/mango/ewwc.sh active-windows
 ~/.config/mango/<name>.sh status | jq .      # check a backend by hand
-export MANGO_INSTANCE_SIGNATURE=$(ls $XDG_RUNTIME_DIR/mango-*.sock)   # mmsg from a non-mango shell
+export MANGO_INSTANCE_SIGNATURE=$(echo $XDG_RUNTIME_DIR/mango-*.sock)   # mmsg from a non-mango shell (not ls: an -F alias appends =)
 ```
 
 ## Known gaps / todo
 
-- The laptop-side behaviour (panel off while the HDMI monitor is connected, lid,
-  timers, keys, battery warning) has not been seen running yet; the panel name
-  eDP-1 is confirmed from sysfs. See `docs/mango-laptop-handoff.md`.
+The laptop has been rebuilt and checked over ssh (link, logind, binaries,
+`idle.sh status`), but nothing has run in a Mango session there yet. To check,
+in a Mango session on the laptop:
+
+- Plug the HDMI monitor in and out: `monitors.sh status`, the panel goes
+  black and comes back, the taskbar follows.
+- Lid close on battery → suspend; on wall power → lock, panel asleep; open →
+  panel back if in use.
+- Unplug: `idle.sh status` says battery and `pgrep -af swayidle` shows
+  120/300 s; plug back → 300/3600 s.
+- Brightness and media keys; `wev` names a key that does nothing.
+- Battery past 20 % once for the notification, or
+  `battery.sh warn 19 discharging test`.
+- If ethernet is ever plugged in on either machine, the bar should switch to
+  the wired glyph within 5 s.
+
+Optional: give the laptop a store copy of this directory instead of the live
+symlink (one condition on `host` in home/mango.nix) so it cannot drift from
+what was built.

@@ -1,19 +1,16 @@
 #!/usr/bin/env sh
-# System stats backend.
-#   sys.sh stream      → eww JSON every $tick (top processes every 2s); deflisten runs it while the popup is open
-#   sys.sh bar-stream  → waybar JSON every $tick; waybar keeps it running (no "interval" in the module)
-#   sys.sh bar-stream net → waybar JSON every 1s with the down/up rates (custom/net)
-#   sys.sh status|bar  → one-shot versions of the above
-# Each tick only reads /proc files with shell builtins — no subprocesses — so 0.5s is cheap.
-# JSON: {cpu, load, cores, temp, mem:{used,total,pct}, swap:{used,total,pct},
-#        net:{iface, down, up, down_bps, up_bps}, top:[{name, cpu:" 37.8", mem:" 950 MiB"} x5]}
-# Numbers that sit in labels are padded with U+2007 figure spaces to a fixed width (cpu_pad 3,
-# mem/swap used 4, top cpu 5, top mem 4, rates 3) so changing digits never move the text.
-# top always has exactly 5 entries (padded with name "") and net is refreshed every 1s,
-# so the popup renders fixed rows whose text changes instead of rebuilding widgets.
-# net sums the physical interfaces (those with a /sys/class/net/*/device), which leaves
-# out lo, docker, tailscale and VPN tunnels and so does not count tunnelled bytes twice.
-# (the one script that does not source lib.sh: it needs no paths and nothing from it)
+# System stats backend. Reads /proc with shell builtins only, so a 0.5 s tick costs nothing.
+#   sys.sh stream          → eww JSON every $tick (top processes every 2 s, net every 1 s); deflisten
+#   sys.sh bar-stream      → waybar JSON every $tick (custom/sys)
+#   sys.sh bar-stream net  → waybar JSON every 1 s with the down/up rates (custom/net)
+#   sys.sh status | bar    → one-shot forms
+# JSON: {cpu, cpu_pad, load, cores, temp, mem:{used,total,pct}, swap:{used,total,pct},
+#        net:{iface, down, up, down_bps, up_bps}, top:[{name, cpu, mem} x5]}
+# Label text is padded with U+2007 figure spaces to a fixed width (cpu_pad 3, used 4, rates 3,
+# top cpu 5, top mem 4) and top always has 5 entries (blank name = hidden row), so the popup
+# never re-lays out. net sums the physical interfaces (/sys/class/net/*/device exists), which
+# skips lo, docker and tunnels and so does not count VPN traffic twice.
+# (does not source lib.sh: needs no paths and nothing from it)
 
 tick=0.5
 cores=$(nproc)
@@ -27,8 +24,11 @@ prev_total=0; prev_idle=0
 net_ifaces=""; for d in /sys/class/net/*; do [ -e "$d/device" ] && net_ifaces="$net_ifaces ${d##*/}"; done
 prev_rx=0; prev_tx=0; down=0; up=0
 gib() { v=$(( $1 * 10 / 1048576 )); gib_out="$((v / 10)).$((v % 10))"; }   # kB → "x.y" GiB, no forks
-fs=$(printf "\342\200\207")   # U+2007 figure space: digit-wide, so padded numbers do not shift the text around them
-pad() { pad_out=$1; k=$(( $2 - ${#1} )); while [ $k -gt 0 ]; do pad_out="$fs$pad_out"; k=$((k - 1)); done; }
+fs=$(printf "\342\200\207")   # U+2007 figure space, one digit wide
+pad() {   # pad STRING WIDTH → $pad_out, left-padded with figure spaces
+  pad_out=$1; k=$(( $2 - ${#1} ))
+  while [ $k -gt 0 ]; do pad_out="$fs$pad_out"; k=$((k - 1)); done
+}
 
 # rate3 BYTES/S → always 3 characters + one unit letter: "792B" " 16K" "128K" "1.2M" " 12M" "1.2G"
 rate3() {
@@ -82,9 +82,8 @@ sample() {
 }
 
 top() {
-  # fresh processes (ps itself, this script) report inflated cpu, so drop them; names may contain spaces
-  # rss is KiB → "340 MiB" / "1.2 GiB"
-  # pad(n): left-pad with figure spaces (same as pad() above) so the columns stay put
+  # drop ps and this script (fresh processes report inflated cpu); names may contain spaces;
+  # rss (KiB) → "340 MiB" / "1.2 GiB"; jq pad(n) mirrors pad() above
   top_json=$(ps -eo pid,pcpu,rss,comm --sort=-pcpu --no-headers | head -8 \
     | awk -v me="$$" '$1 != me && $4 != "ps" {c=$2; m=$3; $1=""; $2=""; $3=""; sub(/^ +/, ""); printf "%s\t%s\t%s\n", $0, c, m}' \
     | jq -R -s -c --arg fs "$fs" 'def pad(n): tostring | (n - length) as $k | if $k > 0 then ($fs * $k) + . else . end;
@@ -96,7 +95,7 @@ top() {
 
 emit_status() {
   rate "$down"; down_h=$rate_out; rate "$up"; up_h=$rate_out
-  # cpu_pad and the "used" fields are padded strings for the labels; cpu and pct stay numbers for the meters
+  # padded strings for labels; cpu and pct stay numbers for the meters
   pad "$cpu" 3; cpu_p=$pad_out; pad "$mem_used" 4; mem_p=$pad_out; pad "$swap_used" 4; swap_p=$pad_out
   printf '{"cpu":%d,"cpu_pad":"%s","load":"%s","cores":%d,"temp":%d,"mem":{"used":"%s","total":%s,"pct":%d},"swap":{"used":"%s","total":%s,"pct":%d},"net":{"iface":"%s","down":"%s","up":"%s","down_bps":%d,"up_bps":%d},"top":%s}\n' \
     "$cpu" "$cpu_p" "$load" "$cores" "$temp" "$mem_p" "$mem_total" "$mem_pct" "$swap_p" "$swap_total" "$swap_pct" \
