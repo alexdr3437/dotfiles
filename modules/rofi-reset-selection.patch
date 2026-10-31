@@ -1,0 +1,40 @@
+--- a/source/view.c
++++ b/source/view.c
+@@ -754,6 +754,10 @@
+   rofi_view_reload_message_bar(state);
+ }
+ 
++/* Set when the user edits the entry text; the next refilter then moves the
++ * selection back to the first row instead of keeping the old row index. */
++static gboolean reset_selection_on_refilter = FALSE;
++
+ static gboolean rofi_view_refilter_real(RofiViewState *state) {
+   CacheState.refilter_timeout = 0;
+   CacheState.refilter_timeout_count = 0;
+@@ -859,6 +863,10 @@
+   }
+   TICK_N("Filter matching done");
+   listview_set_num_elements(state->list_view, state->filtered_lines);
++  if (reset_selection_on_refilter) {
++    listview_set_selected(state->list_view, 0);
++    reset_selection_on_refilter = FALSE;
++  }
+ 
+   if (state->tb_filtered_rows) {
+     char *r = g_strdup_printf("%u", state->filtered_lines);
+@@ -1208,6 +1216,7 @@
+     if (rc == 1) {
+       // Entry changed.
+       state->refilter = TRUE;
++      reset_selection_on_refilter = TRUE;
+       rofi_view_input_changed();
+     } else if (rc == 2) {
+       // Movement.
+@@ -1401,6 +1410,7 @@
+ void rofi_view_handle_text(RofiViewState *state, char *text) {
+   if (textbox_append_text(state->text, text, strlen(text))) {
+     state->refilter = TRUE;
++    reset_selection_on_refilter = TRUE;
+     rofi_view_input_changed();
+   }
+ }

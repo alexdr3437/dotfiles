@@ -6,6 +6,15 @@ let
   waybar = inputs.waybar.packages.${pkgs.stdenv.hostPlatform.system}.waybar.overrideAttrs (old: {
     mesonFlags = (pkgs.lib.remove "-Dcava=enabled" old.mesonFlags) ++ [ "-Dcava=disabled" ];
   });
+  # rofi keeps the highlighted row (as an index) across refilters, so after
+  # arrowing down and typing on, Enter runs whatever landed on that row. The
+  # patch moves the highlight back to the first result whenever the entry text
+  # changes; upstream has no option for it (view.c, rofi 2.0.0).
+  rofi = pkgs.rofi.override {
+    rofi-unwrapped = pkgs.rofi-unwrapped.overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [ ./rofi-reset-selection.patch ];
+    });
+  };
 in
 {
   # mango.nixosModules.mango is imported in flake.nix
