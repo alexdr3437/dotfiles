@@ -12,5 +12,6 @@ in
     okular # document viewer / pdf reader
     konsole # terminal emulator
     kcalc # calculator
+    spectacle # screenshots; its region picker needs KWin, mango uses screenshot.sh (Super+t)
   ];
 }
