@@ -18,7 +18,7 @@ mount_dev() {
   out=$(run udisksctl mount -b "/dev/$1" 2>&1) || { notify "Could not mount /dev/$1" "$out"; exit 1; }
   mp=$(lsblk -no MOUNTPOINT "/dev/$1" | head -1)
   echo "$mp"
-  [ "$2" = open ] && [ -n "$mp" ] && "$dir/async.sh" dolphin "$mp"
+  [ "$2" = open ] && [ -n "$mp" ] && "$dir/async.sh" "$dir/ephemeral.sh" run dolphin "$mp"   # floating, closes on focus loss unless promoted
 }
 
 # added NAME: decide whether /dev/NAME is worth a notification, then wait for the answer

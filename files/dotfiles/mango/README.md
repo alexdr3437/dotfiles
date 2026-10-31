@@ -24,7 +24,7 @@ consumer:
 | file | consumer | holds |
 | --- | --- | --- |
 | mango.conf | `source_optional=~/.config/mango-host/mango.conf` at the end of config.conf | monitor rules, lid `switchbind`s |
-| env.sh | sourced by lib.sh; scripts keep their own `${var:-default}` | `internal_monitor` (monitors.sh), `lock_monitor` (lock.sh), `screenshot_dir` (screenshot.sh), idle timer overrides (idle.sh) |
+| env.sh | sourced by lib.sh; scripts keep their own `${var:-default}` | `internal_monitor` (monitors.sh), `lock_monitor` (lock.sh), `screenshot_dir` (screenshot.sh), `ephemeral_w`/`ephemeral_h` (ephemeral.sh), idle timer overrides (idle.sh) |
 | waybar.jsonc | `"include"` in waybar.jsonc; nested objects merge, keys set in the main file win | nothing at the moment (`{}`) |
 
 Every include is optional so a missing link only means desktop-ish defaults
@@ -53,7 +53,7 @@ popup's "Restart bar & popups" runs.
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
 | soteria (polkit agent), nm-applet, blueman-applet | autostart.sh | | |
 | drives.sh watch | autostart.sh | udev block add → notification with "Mount and open" / "Mount" (udisksctl, then Dolphin) | |
-| rofi | Super+r bind in config.conf | rofi.rasi | |
+| rofi (app launcher) | Super+r → launcher.sh pick | rofi.rasi | |
 | grim + slurp + satty (screenshots) | Super+t → screenshot.sh | | |
 
 ## Data flow
@@ -120,6 +120,8 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | bt.sh | bt | | the only script that parses bluetoothctl (BLE battery needs bluez Experimental) |
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
 | drives.sh | | | removable drives: `watch` runs `added NAME` per udev add event → notify-send with action buttons; `mount NAME [open]` via udisksctl, `open` shows it in Dolphin. Nothing auto-mounts |
+| ephemeral.sh | | | `run [--stash] CMD…`: float + centre the command's first window (two mmsg streams on one fifo: all-clients for map/float/unmap, focusing-client for the global focus; events are logged to $cache_dir/ephemeral.log), then close it — or `--stash` minimize it — when another app's window takes focus, unless it was promoted: tiled (Alt+t) or `keep` (Alt+p); fullscreen is not a promotion, but nothing closes it while fullscreen. Used by drives.sh, popup.sh double-clicks and launcher.sh Shift+Enter |
+| launcher.sh | | | app launcher (Super+r): .desktop entries in rofi dmenu mode (icons, usage-sorted via $cache_dir/launcher.tsv, keywords searchable); Enter launches, Shift+Enter ephemeral --stash, Ctrl+t in ghostty. Replaces `rofi -show drun`, whose Shift+Enter is just Enter |
 | history.sh | history | custom/history | reads run.sh's log |
 | palette.sh | | | command palette: every `bind=` in config.conf plus a few unbound actions, in rofi with label · description · keys; descriptions in `describe()`; Super+Shift+p |
 | layout.sh | | | rofi dmenu of `mmsg get layouts` with a description per row, current one preselected; Super+Shift+n |

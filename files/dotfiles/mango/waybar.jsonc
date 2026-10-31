@@ -63,7 +63,7 @@
       "exec": "~/.config/mango/sys.sh bar-stream",
       "return-type": "json",
       "format": "{}",
-      "on-click": "~/.config/mango/popup.sh system 'ghostty -e btop'",
+      "on-click": "~/.config/mango/popup.sh system 'ghostty --confirm-close-surface=false -e btop'",
       "on-click-right": "ghostty -e btop"
     },
 

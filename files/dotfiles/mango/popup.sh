@@ -44,7 +44,7 @@ if [ -n "$app" ]; then
     echo "$now" > "$cancel"
     ewwc close "$win" >/dev/null 2>&1
     close_backdrops
-    exec sh -c "$app >/dev/null 2>&1 &"
+    exec "$dir/async.sh" "$dir/ephemeral.sh" run sh -c "$app"   # floating, closes on focus loss unless promoted
   fi
 fi
 

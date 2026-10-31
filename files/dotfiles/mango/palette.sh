@@ -69,7 +69,8 @@ describe() {
 # spawn command → "label|description"
 describe_spawn() {
   case "$1" in
-    *rofi*drun*) echo "launch app|rofi app launcher" ;;
+    */launcher.sh*) echo "launch app|app launcher: Enter, Shift+Enter floating (ephemeral), Ctrl+t in a terminal" ;;
+    */ephemeral.sh\ keep*) echo "keep floating window|promote the focused ephemeral window: it stays, floating" ;;
     ghostty) echo "terminal|open a new ghostty window" ;;
     */lock.sh*) echo "lock screen|lock now" ;;
     */screenshot.sh*) echo "screenshot|drag a region, annotate in satty, Enter copies it" ;;
