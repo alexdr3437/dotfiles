@@ -118,6 +118,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | bt.sh | bt | | the only script that parses bluetoothctl (BLE battery needs bluez Experimental) |
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
 | history.sh | history | custom/history | reads run.sh's log |
+| palette.sh | | | command palette: every `bind=` in config.conf plus a few unbound actions, in rofi with label · description · keys; descriptions in `describe()`; Super+Shift+p |
 | layout.sh | | | rofi dmenu of `mmsg get layouts` with a description per row, current one preselected; Super+Shift+n |
 | idle.sh | idle | | swayidle wrapper; timers by power source (/sys Mains supply; none → AC); `on-battery` for other scripts |
 | media.sh | media | custom/media (bar-stream) | MPRIS via busctl, no playerctl |
