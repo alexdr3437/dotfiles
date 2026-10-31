@@ -47,6 +47,10 @@ pkill -f '^mmsg watch all-monitors'; pkill -f "$dir/monitors.sh watch"
 pkill -f "$dir/drives.sh watch"; pkill -f "^udevadm monitor --udev -s block"
 "$dir/drives.sh" watch >/dev/null 2>&1 &
 
+# clipboard history (cliphist): every copy is recorded, Super+v picks from it (clip.sh)
+pkill -f "$dir/clip.sh watch"
+"$dir/clip.sh" watch >/dev/null 2>&1 &
+
 # bars (needs swaync running first for the notification module)
 pkill -f '^waybar '
 waybar -c "$dir/waybar.jsonc" -s "$dir/waybar.css" >"$log/waybar.log" 2>&1 &

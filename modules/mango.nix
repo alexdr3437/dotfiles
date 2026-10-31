@@ -62,5 +62,17 @@ in
     slurp
     satty
     soteria # polkit agent (GTK), started by autostart.sh; was Plasma's polkit-kde-agent
+    imv # image viewer (default for image/* below); gwenview went with Plasma
+    cliphist # clipboard history: clip.sh watch (autostart.sh) records, Super+v picks
+    rofimoji # emoji picker on Super+period, types with wtype (falls back to the clipboard)
+    wtype
   ];
+
+  # xdg-open on an image: imv. The user's ~/.config/mimeapps.list still names gwenview first;
+  # a missing entry is skipped and this system default is next.
+  xdg.mime.defaultApplications = builtins.listToAttrs (
+    map (t: { name = "image/${t}"; value = "imv.desktop"; }) [
+      "png" "jpeg" "gif" "webp" "bmp" "svg+xml" "tiff" "avif" "heif" "x-icns"
+    ]
+  );
 }

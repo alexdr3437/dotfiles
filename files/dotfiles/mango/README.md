@@ -53,7 +53,8 @@ popup's "Restart bar & popups" runs.
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
 | soteria (polkit agent), nm-applet, blueman-applet | autostart.sh | | |
 | drives.sh watch | autostart.sh | udev block add → notification with "Mount and open" / "Mount" (udisksctl, then Dolphin) | |
-| rofi (app launcher) | Super+r → launcher.sh pick | rofi.rasi | |
+| rofi (app launcher, clipboard history, emoji picker) | Super+r → launcher.sh pick, Super+v → clip.sh pick, Super+period → rofimoji | rofi.rasi | |
+| clip.sh watch | autostart.sh | `wl-paste --watch cliphist store` for text and images | |
 | grim + slurp + satty (screenshots) | Super+t → screenshot.sh | | |
 
 ## Data flow
@@ -119,6 +120,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | battery.sh | bat | custom/battery | upower, plus BLE batteries taken from `bt.sh status`; `bar` fires the low-battery notification at 20 and 10 % (`warn`) |
 | bt.sh | bt | | the only script that parses bluetoothctl (BLE battery needs bluez Experimental) |
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
+| clip.sh | | | clipboard history: `watch` records every copy into cliphist, `pick` is a rofi over it (Super+v), `wipe` forgets it |
 | drives.sh | | | removable drives: `watch` runs `added NAME` per udev add event → notify-send with action buttons; `mount NAME [open]` via udisksctl, `open` shows it in Dolphin. Nothing auto-mounts |
 | ephemeral.sh | | | `run [--stash] CMD…`: float + centre the command's first window (two mmsg streams on one fifo: all-clients for map/float/unmap, focusing-client for the global focus; events are logged to $cache_dir/ephemeral.log), then close it — or `--stash` minimize it — when another app's window takes focus, unless it was promoted: tiled (Alt+t) or `keep` (Alt+p); fullscreen is not a promotion, but nothing closes it while fullscreen. Used by drives.sh, popup.sh double-clicks and launcher.sh Shift+Enter |
 | launcher.sh | | | app launcher (Super+r): .desktop entries in rofi dmenu mode (icons, usage-sorted via $cache_dir/launcher.tsv, keywords searchable); Enter launches, Shift+Enter ephemeral --stash, Ctrl+t in ghostty. Replaces `rofi -show drun`, whose Shift+Enter is just Enter |
