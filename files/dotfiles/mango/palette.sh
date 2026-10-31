@@ -75,7 +75,7 @@ describe_spawn() {
     */lock.sh*) echo "lock screen|lock now" ;;
     */screenshot.sh*) echo "screenshot|drag a region, annotate in satty, Enter copies it" ;;
     */clip.sh\ pick*) echo "clipboard history|pick an earlier copy, it becomes the clipboard" ;;
-    rofimoji*) echo "emoji picker|types the emoji into the focused window, copies it too" ;;
+    */emoji.sh*) echo "emoji picker|types the emoji into the focused window, copies it too; Super+1… picks a recent one" ;;
     */vol.sh\ up) echo "volume up|" ;;
     */vol.sh\ down) echo "volume down|" ;;
     */vol.sh\ mute) echo "mute|toggle speaker mute" ;;
