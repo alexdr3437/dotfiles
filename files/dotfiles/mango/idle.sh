@@ -3,7 +3,8 @@
 # lock before sleep. Needs swayidle + wlopm (modules/mango.nix).
 #   idle.sh status → eww JSON {available, active, lock_min, off_min}
 #   idle.sh start | stop | toggle
-dir="$HOME/.config/mango"
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
 lock_min=10
 off_min=15
 
@@ -27,7 +28,7 @@ case "$1" in
     printf '{"available":%s,"active":%s,"lock_min":%d,"off_min":%d}\n' "$a" "$r" "$lock_min" "$off_min" ;;
   start) start ;;
   stop) stop ;;
-  toggle) if active; then "$dir/run.sh" "$0" stop; else "$dir/run.sh" "$0" start; fi; sleep 0.3
-          "$dir/ewwc.sh" update "idle=$("$0" status)" >/dev/null 2>&1 ;;
-  *) echo "usage: idle.sh status|start|stop|toggle" >&2; exit 1 ;;
+  toggle) if active; then run "$0" stop; else run "$0" start; fi; sleep 0.3
+          refresh idle "$("$0" status)" ;;
+  *) usage "status|start|stop|toggle" ;;
 esac

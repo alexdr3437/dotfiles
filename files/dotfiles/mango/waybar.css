@@ -1,4 +1,5 @@
-@import "theme.css";
+/* colours: theme.css is the symlink theme.sh maintains in ~/.local/state/mango */
+@import url("file:///home/alex/.local/state/mango/theme.css");
 
 * {
   font-family: "FiraCode Nerd Font", "Symbols Nerd Font", sans-serif;
@@ -14,7 +15,7 @@ window#waybar {
   background: transparent;
   color: @text;
 }
-/* top bar: one floating strip (margins set in waybar.jsonc); bottom bar keeps its pill */
+/* one floating strip (margins set in waybar.jsonc); the bottom taskbar is an eww window */
 window#waybar.top {
   background: alpha(@base, 0.78);
   border: 1px solid @surface0;
@@ -36,12 +37,6 @@ tooltip label {
 .modules-center,
 .modules-right {
   padding: 0 6px;
-}
-/* the bottom taskbar is still a floating pill */
-window#waybar.bottom .modules-center {
-  background: alpha(@base, 0.78);
-  border: 1px solid @surface0;
-  border-radius: 14px;
 }
 
 #workspaces, #layout, #custom-clock, #tray, #pulseaudio, #bluetooth, #network,
@@ -102,7 +97,7 @@ window#waybar.bottom .modules-center {
 }
 
 /* ---- right side ----------------------------------------------------- */
-#pulveaudio, #bluetooth, #network, #custom-notification, #custom-power {
+#pulseaudio, #bluetooth, #network, #custom-notification, #custom-power {
   transition: background 150ms ease;
 }
 #pulseaudio:hover, #bluetooth:hover, #network:hover,
@@ -127,9 +122,14 @@ window#waybar.bottom .modules-center {
 #network { color: @green; }
 #network.disconnected, #network.linked { color: @urgent; }
 
+/* class comes from swaync-client -swb: none / notification / dnd-* / inhibited-* */
 #custom-notification { color: @yellow; font-size: 18px; }
+#custom-notification.notification,
+#custom-notification.inhibited-notification { color: @urgent; }
 #custom-notification.dnd-none,
-#custom-notification.dnd-notification { color: @subtext0; }
+#custom-notification.dnd-notification,
+#custom-notification.dnd-inhibited-none,
+#custom-notification.dnd-inhibited-notification { color: @subtext0; }
 
 #custom-power {
   color: @red;
@@ -146,33 +146,6 @@ window#waybar.bottom .modules-center {
 }
 #tray > .passive { -gtk-icon-effect: dim; }
 #tray > .needs-attention { -gtk-icon-effect: highlight; }
-
-/* ---- bottom bar: taskbar -------------------------------------------- */
-#taskbar {
-  padding: 0 4px;
-}
-#taskbar.empty {
-  background: transparent;
-  border: none;
-}
-#taskbar button {
-  padding: 4px 8px;
-  margin: 3px 2px;
-  border-radius: 10px;
-  background: transparent;
-  border-bottom: 2px solid transparent;
-  transition: all 150ms ease;
-}
-#taskbar button:hover {
-  background: @surface0;
-}
-#taskbar button.active {
-  background: @surface0;
-  border-bottom: 2px solid @accent;
-}
-#taskbar button.minimized {
-  opacity: 0.5;
-}
 
 #custom-settings { color: @subtext1; font-size: 18px; }
 

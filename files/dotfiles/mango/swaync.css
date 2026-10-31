@@ -1,5 +1,6 @@
-/* Loaded on top of swaync's default style; only colours/shapes are overridden. */
-@import "theme.css";
+/* Loaded on top of swaync's default style; only colours/shapes are overridden.
+ * colours: theme.css is the symlink theme.sh maintains in ~/.local/state/mango */
+@import url("file:///home/alex/.local/state/mango/theme.css");
 
 * {
   font-family: "FiraCode Nerd Font", sans-serif;

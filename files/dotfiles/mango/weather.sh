@@ -3,9 +3,14 @@
 # Cached in ~/.cache/mango/weather.json and refreshed at most every 15 min.
 # The location is PINNED: it is only re-geolocated while no VPN is active (Proton via
 # NetworkManager, or a Tailscale exit node), otherwise the weather would follow the VPN exit.
-#   weather.sh status  → eww JSON    weather.sh bar → waybar JSON    weather.sh refresh → force fetch
-cache="$HOME/.cache/mango/weather.json"
-geofile="$HOME/.cache/mango/geo.json"
+#   weather.sh status   → eww JSON (fetches first if the cache is stale)
+#   weather.sh cached   → eww JSON from the cache only, never touches the network (nightlight.sh)
+#   weather.sh bar      → waybar JSON
+#   weather.sh refresh  → force a fetch and push it to eww
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
+wfile="$cache_dir/weather.json"
+geofile="$cache_dir/geo.json"
 maxage=900
 empty='{"error":true,"city":"","updated":0,"temp":0,"feels":0,"icon":"󰼯","desc":"no data","humidity":0,"wind":0,"sunrise":"","sunset":"","sunrise24":"","sunset24":"","hourly":[],"daily":[]}'
 
@@ -19,7 +24,7 @@ geolocate() {   # → JSON {city,lat,lon}
   geo=$(curl -sf --max-time 5 'http://ip-api.com/json/?fields=status,city,lat,lon') \
     && [ "$(printf '%s' "$geo" | jq -r .status)" = success ] \
     || { [ -s "$geofile" ] && cat "$geofile"; return; }
-  if ! vpn_active; then mkdir -p "$(dirname "$geofile")"; printf '%s' "$geo" > "$geofile"; fi
+  vpn_active || printf '%s' "$geo" > "$geofile"
   printf '%s' "$geo"
 }
 
@@ -29,7 +34,7 @@ fetch() {
   city=$(printf '%s' "$geo" | jq -r .city)
   [ "$lat" != null ] || return 1
   raw=$(curl -sf --max-time 10 "https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m,is_day&hourly=temperature_2m,weather_code,precipitation_probability,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset&timezone=auto&forecast_days=4") || return 1
-  mkdir -p "$(dirname "$cache")"
+  tmp=$(mktemp "$cache_dir/weather.XXXXXX") || return 1   # private temp file: several callers may fetch at once
   printf '%s' "$raw" | jq -c --arg city "$city" --arg now "$(date +%s)" '
     # WMO weather codes → nerd-font glyph (day/night) and a short description
     def ic(c; d): if c == 0 then (if d == 1 then "󰖙" else "󰖔" end)
@@ -59,19 +64,22 @@ fetch() {
                 | {day: (if $i == 0 then "Today" else (.daily.time[$i] | strptime("%Y-%m-%d") | strftime("%a")) end),
                    icon: ic(.daily.weather_code[$i]; 1), max: (.daily.temperature_2m_max[$i] | round),
                    min: (.daily.temperature_2m_min[$i] | round), pop: .daily.precipitation_probability_max[$i]}]}' \
-    > "$cache.tmp" && mv "$cache.tmp" "$cache"
+    > "$tmp" && [ -s "$tmp" ] && mv "$tmp" "$wfile" || { rm -f "$tmp"; return 1; }
 }
 
+cached() { if [ -s "$wfile" ]; then cat "$wfile"; else echo "$empty"; fi; }
+
 status() {
-  age=$(( $(date +%s) - $(stat -c %Y "$cache" 2>/dev/null || echo 0) ))
+  age=$(( $(date +%s) - $(stat -c %Y "$wfile" 2>/dev/null || echo 0) ))
   [ "$age" -gt "$maxage" ] && fetch
-  [ -s "$cache" ] && cat "$cache" || echo "$empty"
+  cached
 }
 
 case "$1" in
   status) status ;;
-  refresh) fetch; "$HOME/.config/mango/ewwc.sh" update "weather=$(status)" >/dev/null 2>&1 ;;
+  cached) cached ;;
+  refresh) fetch; refresh weather "$(status)" ;;
   bar) status | jq -c 'if .error then {text: "󰼯", tooltip: "weather unavailable", class: "error"}
          else {text: "\(.icon) \(.temp)°", tooltip: "\(.city) · \(.desc)\nfeels \(.feels)° · humidity \(.humidity)% · wind \(.wind) km/h", class: "ok"} end' ;;
-  *) echo "usage: weather.sh status|bar|refresh" >&2; exit 1 ;;
+  *) usage "status|cached|bar|refresh" ;;
 esac

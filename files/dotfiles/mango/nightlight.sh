@@ -1,16 +1,17 @@
 #!/usr/bin/env sh
 # Night light (wlsunset), scheduled from today's real sunrise/sunset (via weather.sh / Open-Meteo):
-# warm from $after minutes after sunset until sunrise. The daemon re-reads the suntimes every 6h and
-# only restarts wlsunset when they change.
+# warm from $after minutes after sunset until sunrise. The daemon re-reads the sun times every 6h
+# of wall-clock time and only restarts wlsunset when they change.
 #   nightlight.sh auto    → start unless the user turned it off (autostart.sh)
 #   nightlight.sh start | stop | toggle | status | daemon
-dir="$HOME/.config/mango"
-off_flag="$dir/nightlight.off"   # exists → user turned it off; survives logins
-after=30                         # minutes after sunset
-temp=4000                        # night colour temperature (K)
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
+off_flag="$state_dir/nightlight.off"   # exists → user turned it off; survives logins
+after=30                               # minutes after sunset
+temp=4000                              # night colour temperature (K)
 
-suntimes() {   # → $start (go warm) $stop (back to normal), HH:MM
-  w=$("$dir/weather.sh" status 2>/dev/null)
+suntimes() {   # → $start (go warm) $stop (back to normal), HH:MM. Cached weather only: never hits the network.
+  w=$("$dir/weather.sh" cached 2>/dev/null)
   sunset=$(printf '%s' "$w" | jq -r '.sunset24 // empty')
   sunrise=$(printf '%s' "$w" | jq -r '.sunrise24 // empty')
   if [ -n "$sunset" ] && [ -n "$sunrise" ]; then
@@ -21,15 +22,19 @@ suntimes() {   # → $start (go warm) $stop (back to normal), HH:MM
 }
 
 daemon() {
-  last=""
+  last=""; next=0
   while :; do
-    suntimes
-    if [ "$start $stop" != "$last" ]; then
-      pkill -f '^wlsunset' 2>/dev/null
-      setsid -f wlsunset -t $temp -T 6500 -s "$start" -S "$stop" >/dev/null 2>&1 </dev/null
-      last="$start $stop"
+    if [ "$(date +%s)" -ge "$next" ]; then
+      "$dir/weather.sh" status >/dev/null 2>&1   # refresh the cache (network) before reading it
+      suntimes
+      if [ "$start $stop" != "$last" ]; then
+        pkill -f '^wlsunset' 2>/dev/null
+        setsid -f wlsunset -t "$temp" -T 6500 -s "$start" -S "$stop" >/dev/null 2>&1 </dev/null
+        last="$start $stop"
+      fi
+      next=$(( $(date +%s) + 21600 ))
     fi
-    sleep 21600
+    sleep 600   # short naps: one long sleep would not notice the hours that pass during suspend
   done
 }
 
@@ -45,5 +50,5 @@ case "$1" in
     a=false; running && a=true
     suntimes
     printf '{"active":%s,"start":"%s","stop":"%s","after":%d}\n' "$a" "$(date -d "$start" '+%-I:%M %p')" "$(date -d "$stop" '+%-I:%M %p')" "$after" ;;
-  *) echo "usage: nightlight.sh auto|start|stop|toggle|status" >&2; exit 1 ;;
+  *) usage "auto|start|stop|toggle|status|daemon" ;;
 esac

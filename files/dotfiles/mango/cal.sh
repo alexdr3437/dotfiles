@@ -1,15 +1,14 @@
 #!/usr/bin/env sh
 # Calendar backend for the eww popup (a hand-built month grid; GTK's calendar can't centre its highlight).
 #   cal.sh show [offset]   → build the grid for today's month + offset months and push it to eww (var "cal")
-#   cal.sh click DATE      → select DATE (YYYY-MM-DD); a 2nd click on the same day within $dbl ms
+#   cal.sh click DATE      → select DATE (YYYY-MM-DD); a 2nd click on the same day within $dbl_ms
 #                            opens it in Google Calendar's month view in the default browser
 # State (month offset + selection) lives in a file so a click never has to read back from eww:
 # one small IPC call per click keeps the daemon responsive.
-ewwc="$HOME/.config/mango/ewwc.sh"
-dbl=400
-run="${XDG_RUNTIME_DIR:-/tmp}"
-state="$run/mango-cal-state"     # "<offset> <selected date>"
-stamp="$run/mango-cal-click"     # "<date> <ms>" of the last click
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
+cal_state="$runtime_dir/mango-cal-state"   # "<offset> <selected date>"
+stamp="$runtime_dir/mango-cal-click"       # "<date> <ms>" of the last click
 
 build() {   # offset, selected
   ofs=${1:-0}; sel=${2:-}
@@ -31,25 +30,25 @@ build() {   # offset, selected
 }
 
 push() {   # offset, selected
-  echo "$1 $2" > "$state"
-  "$ewwc" update "cal=$(build "$1" "$2")"
+  echo "$1 $2" > "$cal_state"
+  refresh cal "$(build "$1" "$2")"
 }
 
 case "$1" in
   show) push "${2:-0}" "" ;;
   click)
     date=${2:?date}
-    now=$(date +%s%3N)
+    now=$(now_ms)
     last_date=""; last_time=0
     [ -f "$stamp" ] && read -r last_date last_time < "$stamp"
     echo "$date $now" > "$stamp"
-    if [ "$last_date" = "$date" ] && [ $((now - ${last_time:-0})) -lt $dbl ]; then
+    if [ "$last_date" = "$date" ] && [ $((now - ${last_time:-0})) -lt "$dbl_ms" ]; then
       rm -f "$stamp"
       y=${date%%-*}; m=${date#*-}; m=${m%-*}; d=${date##*-}
-      "$HOME/.config/mango/popup.sh" close
-      exec "$HOME/.config/mango/run.sh" xdg-open "https://calendar.google.com/calendar/r/month/$y/${m#0}/${d#0}"
+      "$dir/popup.sh" close
+      exec "$dir/run.sh" xdg-open "https://calendar.google.com/calendar/r/month/$y/${m#0}/${d#0}"
     fi
-    ofs=0; [ -f "$state" ] && read -r ofs _ < "$state"
+    ofs=0; [ -f "$cal_state" ] && read -r ofs _ < "$cal_state"
     push "${ofs:-0}" "$date" ;;
-  *) echo "usage: cal.sh show [offset] | click YYYY-MM-DD" >&2; exit 1 ;;
+  *) usage "show [offset] | click YYYY-MM-DD" ;;
 esac

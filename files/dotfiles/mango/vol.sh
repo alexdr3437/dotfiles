@@ -2,7 +2,8 @@
 # Volume backend for the eww popup (pipewire via pactl/wpctl).
 #   vol.sh status             → JSON {volume, muted, name, sinks:[{name,desc,default}]}
 #   vol.sh set N | mute | sink NAME
-cfg="$HOME/.config/mango/eww"
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
 
 status() {
   default=$(pactl get-default-sink)
@@ -14,8 +15,6 @@ status() {
        sinks: map({name, desc, default})}'
 }
 
-refresh() { "$HOME/.config/mango/ewwc.sh" update "vol=$(status)" >/dev/null 2>&1; }
-
 case "$1" in
   status) status ;;
   set)
@@ -25,7 +24,7 @@ case "$1" in
     want=${2%.*}
     cur=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{printf "%d", $2*100+0.5}')
     [ "$want" = "$cur" ] || wpctl set-volume @DEFAULT_AUDIO_SINK@ "${want}%" ;;
-  mute) "$HOME/.config/mango/run.sh" wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; refresh ;;
-  sink) "$HOME/.config/mango/run.sh" pactl set-default-sink "$2"; refresh ;;
-  *) echo "usage: vol.sh status|set N|mute|sink NAME" >&2; exit 1 ;;
+  mute) run wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; refresh vol "$(status)" ;;
+  sink) run pactl set-default-sink "$2"; refresh vol "$(status)" ;;
+  *) usage "status|set N|mute|sink NAME" ;;
 esac

@@ -2,12 +2,12 @@
 # Started once per session by `exec_once` in config.conf.
 # Safe to re-run by hand: each component is killed before it's restarted.
 # (pkill -f on the command line: NixOS wraps binaries so -x name never matches)
-dir="$HOME/.config/mango"
-log="$HOME/.cache/mango"
-mkdir -p "$log"
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
+log="$cache_dir"
 
-# fresh checkout: theme.css and the files theme.sh derives from it are gitignored
-[ -e "$dir/theme.css" ] || "$dir/theme.sh" catppuccin-mocha >/dev/null 2>&1
+# first login on a machine: theme.css and the files theme.sh derives from it don't exist yet
+[ -e "$state_dir/theme.css" ] || "$dir/theme.sh" catppuccin-mocha >/dev/null 2>&1
 
 # idle lock / screen off (no-op until swayidle + wlopm are installed)
 "$dir/idle.sh" start
@@ -30,7 +30,7 @@ nm-applet --indicator >/dev/null 2>&1 &
 pkill -f '^[^ ]*python[^ ]* [^ ]*blueman-applet'  # it's a python script
 blueman-applet >/dev/null 2>&1 &
 
-# calendar popup daemon
+# popups + taskbar daemon
 for p in $(pgrep -x .eww-wrapped); do kill "$p"; done   # eww kill misses orphaned daemons
 eww -c "$dir/eww" daemon >"$log/eww.log" 2>&1 &
 sleep 1.5

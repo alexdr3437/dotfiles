@@ -2,9 +2,12 @@
 # run.sh <command...> — run it and record it for the History popup:
 #   actions.log line:  <epoch> TAB <command> TAB <exit code> TAB <first line of output> TAB <output file>
 #   actions/<id>.log:  the full command, exit code and complete output (opened by clicking the row)
-# Exit code and output are passed through. Every widget action goes through here.
-log="$HOME/.cache/mango/actions.log"
-outdir="$HOME/.cache/mango/actions"
+# Exit code and output are passed through. Every widget action goes through here
+# (scripts call it through the run() wrapper in lib.sh).
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
+log="$cache_dir/actions.log"
+outdir="$cache_dir/actions"
 mkdir -p "$outdir"
 
 out=$("$@" 2>&1); rc=$?

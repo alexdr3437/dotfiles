@@ -1,6 +1,0 @@
-# written by theme.sh (autostart.sh regenerates them on a fresh checkout)
-theme.css
-eww/_colors.scss
-rofi-colors.rasi
-# user state
-nightlight.off

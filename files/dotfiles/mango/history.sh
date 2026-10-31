@@ -3,9 +3,10 @@
 #   history.sh status      → eww JSON [{t, cmd, rc, out, file}] newest first (last 30)
 #   history.sh open FILE   → show a command's full output in the editor (ghostty + $EDITOR)
 #   history.sh clear
-log="$HOME/.cache/mango/actions.log"
-outdir="$HOME/.cache/mango/actions"
-ewwc="$HOME/.config/mango/ewwc.sh"
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
+log="$cache_dir/actions.log"
+outdir="$cache_dir/actions"
 
 status() {
   [ -s "$log" ] || { echo "[]"; return; }
@@ -19,9 +20,9 @@ status() {
 case "$1" in
   status) status ;;
   open)
-    "$ewwc" close history >/dev/null 2>&1
+    ewwc close history >/dev/null 2>&1
     f=${2:-}; [ -s "$f" ] || f=$log
     exec ghostty --title="history: $(basename "$f")" -e "${EDITOR:-nvim}" -R "$f" ;;
-  clear) : > "$log"; rm -f "$outdir"/*.log; "$ewwc" update "history=[]" >/dev/null 2>&1 ;;
-  *) echo "usage: history.sh status|open FILE|clear" >&2; exit 1 ;;
+  clear) : > "$log"; rm -f "$outdir"/*.log; refresh history "[]" ;;
+  *) usage "status|open FILE|clear" ;;
 esac

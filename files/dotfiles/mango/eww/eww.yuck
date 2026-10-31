@@ -1,5 +1,6 @@
 ;; Popups toggled by popup.sh from bar clicks. Data comes from the *.sh scripts
 ;; next to this dir; polls only run while a window that uses them is open.
+;; Each :initial must have the same keys as the script's output (../check.sh verifies).
 ;; Style notes: one class name per widget (multi-class strings didn't match reliably);
 ;; custom-widget params can't be called "visible" (built-in attribute), hence "show".
 ;; Window :y is measured below the bar's reserved strip — 8px matches swaync's panel.
@@ -9,7 +10,7 @@
 (defpoll vol  :interval "2s"  :initial '{"volume":0,"muted":false,"name":"","sinks":[]}' "~/.config/mango/vol.sh status")
 (defpoll bat  :interval "30s" :initial '{"laptop":{"present":false,"percent":0,"glyph":"","detail":""},"devices":[]}' "~/.config/mango/battery.sh status")
 (defpoll idle :interval "5s" :initial '{"available":false,"active":false,"lock_min":10,"off_min":15}' "~/.config/mango/idle.sh status")
-(defpoll weather :interval "10m" :initial '{"error":true,"city":"","updated":0,"temp":0,"feels":0,"icon":"󰼯","desc":"loading…","humidity":0,"wind":0,"sunrise":"","sunset":"","hourly":[],"daily":[]}' "~/.config/mango/weather.sh status")
+(defpoll weather :interval "10m" :initial '{"error":true,"city":"","updated":0,"temp":0,"feels":0,"icon":"󰼯","desc":"loading…","humidity":0,"wind":0,"sunrise":"","sunset":"","sunrise24":"","sunset24":"","hourly":[],"daily":[]}' "~/.config/mango/weather.sh status")
 (defpoll media :interval "2s" :initial '{"player":"","status":"","title":"","artist":"","art":"","length":0,"pos":0,"pct":0}' "~/.config/mango/media.sh status")
 (defpoll vpn :interval "5s" :initial '{"proton":[],"ts":{"online":false,"ip":"","exit_active":false,"exit_name":"","exit_options":[],"peers_online":0,"peers":0}}' "~/.config/mango/vpn.sh status")
 (defpoll history :interval "3s" :initial '[]' "~/.config/mango/history.sh status")
@@ -374,7 +375,7 @@
 
 ;; ---------------------------------------------------------------- taskbar (bottom bar)
 ;; one window per monitor:  eww open taskbar --id taskbar-<mon> --screen <mon> --arg mon=<mon>
-;; apps are grouped; the badge is the window count. click: cycle through them, middle: close, right: cycle back... no — right: close
+;; apps are grouped; the badge is the window count. click: cycle through the app's windows, middle-click: close one
 (defwindow taskbar [mon]
   :monitor 0 :stacking "fg" :exclusive true :focusable false :namespace "eww-taskbar"
   :geometry (geometry :x "0px" :y "6px" :anchor "bottom center")

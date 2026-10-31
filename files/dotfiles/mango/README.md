@@ -2,15 +2,15 @@
 
 Everything for the mango desktop session: compositor config, the top bar
 (waybar), the bottom taskbar + click popups (eww), notifications (swaync),
-launcher (rofi) and the shell scripts that feed them. Packages come from
-`~/.dotfiles/modules/mango.nix`. The directory itself lives in the dotfiles
-repo at `files/dotfiles/mango` and `home/mango.nix` links `~/.config/mango`
-to it (a live symlink into the checkout, not a store copy, so edits apply
-without a rebuild and `theme.sh` can write its generated files here; those are
-gitignored and `autostart.sh` regenerates them on a fresh checkout).
+launcher (rofi), lock screen (gtklock) and the shell scripts that feed them.
+Packages come from `~/.dotfiles/modules/mango.nix`. The directory lives in the
+dotfiles repo at `files/dotfiles/mango`; `home/mango.nix` links
+`~/.config/mango` to it as a live symlink into the checkout, so edits apply
+without a rebuild. Nothing is ever written into this directory at runtime:
+generated files go to `~/.local/state/mango`, caches to `~/.cache/mango`.
 
-Read this before changing anything. The rules below were each learned the
-hard way and are easy to break without noticing.
+Read this before changing anything, and run `check.sh` after. The rules
+below were each learned the hard way and are easy to break without noticing.
 
 ## Process tree
 
@@ -24,11 +24,11 @@ popup's "Restart bar & popups" runs.
 | eww daemon (popups, taskbar, backdrop) | autostart.sh | eww/eww.yuck, eww/eww.scss | ~/.cache/mango/eww.log |
 | swaync | autostart.sh | swaync.json, swaync.css | ~/.cache/mango/swaync.log |
 | swaybg | wallpaper.sh | random file in ~/.dotfiles/files/wallpapers | |
-| swayidle | idle.sh start | timers hard-coded in idle.sh | |
-| gtklock (lock screen) | lock.sh (idle.sh, power popup) | gtklock.css + ~/.cache/mango/lock.png | |
+| swayidle | idle.sh start | timers at the top of idle.sh | |
+| gtklock (lock screen) | lock.sh (idle.sh, power popup, Alt+l) | gtklock.css + ~/.cache/mango/lock.png | |
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
 | polkit-kde agent, nm-applet, blueman-applet | autostart.sh | | |
-| rofi | Super+r bind in config.conf | rofi.rasi, rofi-colors.rasi | |
+| rofi | Super+r bind in config.conf | rofi.rasi | |
 
 ## Data flow
 
@@ -43,49 +43,79 @@ eww window (eww.yuck)
                                  └─ run.sh <real command>      logged for the History popup
                                  └─ ewwc.sh update <var>=...   push fresh state without waiting for the poll
 waybar custom module (waybar.jsonc)
-  └─ exec "<name>.sh bar"        (JSON {text, tooltip, class}; "bar-stream" variants loop forever)
+  └─ exec "<name>.sh bar"        (JSON {text, tooltip, class}; "bar-stream" loops forever)
 ```
 
-### Backend script contract
+## Scripts
 
-One script per concern, POSIX sh, no bashisms. Each one is a `case "$1"`:
+### lib.sh (sourced by every script)
 
-- `status` → one JSON object for eww (shape documented in the script header
-  and mirrored in the defpoll `:initial` in eww.yuck; keep them in sync or
-  eww fails to parse while the first poll is pending)
-- `bar` → waybar JSON `{text, tooltip, class}`; `bar-stream` loops for
-  modules without an `interval`
-- actions (`toggle`, `connect MAC`, …) → do the thing via `run.sh`, then
-  `refresh` (push new status to eww)
+```sh
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
+```
+
+Defines the paths and the only way scripts talk to the primitives:
+
+| name | meaning |
+| --- | --- |
+| `$dir` | this directory |
+| `$cache_dir` | `~/.cache/mango`: logs, weather/geo cache, album art, icon cache, lock.png |
+| `$state_dir` | `~/.local/state/mango`: theme.css link, colors.scss, rofi-colors.rasi, nightlight.off |
+| `$runtime_dir` | `$XDG_RUNTIME_DIR`: click timestamps |
+| `$dbl_ms` | double-click window (popup.sh, cal.sh) |
+| `run CMD...` | run.sh: execute and record for the History popup |
+| `ewwc ARGS...` | ewwc.sh: the eww client |
+| `refresh VAR JSON` | push new state to eww now instead of waiting for the poll |
+| `now_ms`, `usage`, `device_glyph KIND` | helpers |
+
+Primitives (standalone, called through the wrappers above): `async.sh`
+(detach a click handler), `run.sh` (log + passthrough), `ewwc.sh` (eww client).
+
+### Backend contract
+
+One script per concern, POSIX sh, no bashisms, a `case "$1"` at the bottom:
+
+| subcommand | output | used by |
+| --- | --- | --- |
+| `status` | one JSON object for eww | defpoll in eww.yuck |
+| `stream` | `status` repeated forever | deflisten in eww.yuck (sys only) |
+| `bar [variant]` | waybar JSON `{text, tooltip, class}` | waybar.jsonc exec |
+| `bar-stream` | `bar` repeated forever | modules without an `interval` |
+| actions (`toggle`, `connect MAC`, …) | runs the thing via `run`, then `refresh VAR "$(status)"` | eww click handlers |
+
+The defpoll `:initial` in eww.yuck must have the same keys as `status`
+(`check.sh` verifies this against the live output).
 
 | script | eww var | bar module | notes |
 | --- | --- | --- | --- |
 | battery.sh | bat | custom/battery | upower + bluetoothctl (BLE needs bluez Experimental) |
 | bt.sh | bt | | bluetooth module is waybar built-in |
-| cal.sh | cal | | hand-built month grid; state file in $XDG_RUNTIME_DIR |
+| cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
 | history.sh | history | custom/history | reads run.sh's log |
 | idle.sh | idle | | swayidle wrapper |
-| media.sh | media | custom/media | MPRIS via busctl, no playerctl |
-| nightlight.sh | (via settings) | | wlsunset, schedule from weather.sh sun times |
+| media.sh | media | custom/media (bar-stream) | MPRIS via busctl, no playerctl |
+| nightlight.sh | (via settings) | | wlsunset; sun times from `weather.sh cached`, never the network |
 | settings.sh | settings | custom/settings | theme / dnd / nightlight / restart |
-| sys.sh | sys (deflisten) | custom/sys | /proc only, no forks per tick |
-| taskbar.sh | taskbar | | one eww window per monitor |
+| sys.sh | sys (deflisten) | custom/sys (bar-stream) | /proc only, no forks per tick |
+| taskbar.sh | taskbar | | one eww window per monitor; `.desktop` icon lookups cached in icons.tsv (hits only) |
 | vol.sh | vol | pulseaudio (built-in) | pactl + wpctl |
-| vpn.sh | vpn | custom/proton, custom/tailscale | NetworkManager + tailscale |
+| vpn.sh | vpn | custom/proton (`bar proton`), custom/tailscale (`bar ts`) | NetworkManager + tailscale |
 | weather.sh | weather | custom/weather | Open-Meteo, cached 15 min, location pinned while a VPN is up |
 | wifi.sh | wifi | network (built-in) | nmcli |
 
-Helpers: `async.sh` (detach), `run.sh` (log + passthrough), `ewwc.sh` (eww
-client), `popup.sh` (window toggling), `theme.sh`, `lock.sh`, `wallpaper.sh`.
+Other scripts: `popup.sh` (window toggling), `theme.sh`, `lock.sh`,
+`wallpaper.sh`, `autostart.sh`, `check.sh` (lint, see below).
 
-Lock screen: `lock.sh` runs gtklock with `gtklock.css` (imports theme.css)
-over `~/.cache/mango/lock.png`, which `wallpaper.sh` regenerates (blurred,
-dimmed, 1080p) every time it picks a wallpaper. Only the clock shows until a
-key press or mouse move; the form goes on the monitor named by
-`--monitor-priority` in lock.sh (desktop: HDMI-A-1). Alt+l locks. Falls back
-to plain swaylock.
-Both lockers need their PAM service from `modules/mango.nix`; a locker without
-one cannot verify the password and must be killed from a TTY.
+### Lock screen
+
+`lock.sh` runs gtklock with `gtklock.css` over `~/.cache/mango/lock.png`,
+which `wallpaper.sh` regenerates (blurred, dimmed, 1080p) every time it picks
+a wallpaper. Only the clock shows until a key press or mouse move; the form
+goes on the monitor named by `--monitor-priority` in lock.sh (desktop:
+HDMI-A-1). Falls back to plain swaylock. Both lockers need their PAM service
+from `modules/mango.nix`; a locker without one cannot verify the password
+and must be killed from a TTY.
 
 ## Invariants (do not break these)
 
@@ -93,9 +123,9 @@ one cannot verify the password and must be killed from a TTY.
    the handler exits, and a handler that calls `eww update`/`eww close`
    deadlocks with the daemon until eww's timeout kills it. `:timeout` on
    every eventbox is set generously for the same reason (default is 200 ms).
-2. **Every real action goes through `run.sh`.** That is what makes the
+2. **Every real action goes through `run`** (run.sh). That is what makes the
    History popup work and what records exit codes for debugging.
-3. **Talk to eww only via `ewwc.sh`, never bare `eww`.** eww's client
+3. **Talk to eww only via `ewwc`** (ewwc.sh), never bare `eww`. eww's client
    auto-starts a second daemon when an IPC call fails; ewwc.sh detects and
    heals that. autostart.sh kills by process name `.eww-wrapped` for the same
    reason (eww's own `kill` misses orphaned daemons).
@@ -107,38 +137,49 @@ one cannot verify the password and must be killed from a TTY.
    scrolling it closes everything. `Super+Escape` is the escape hatch.
 6. **One CSS class per widget in eww.yuck.** Multi-class strings did not
    match reliably. Custom widget params cannot be named `visible`.
-7. **Themes only define colours.** `themes/<name>.css` uses GTK
-   `@define-color` with catppuccin names. `theme.sh` relinks `theme.css` and
-   regenerates `eww/_colors.scss` and `rofi-colors.rasi`; never edit those
-   three by hand. Nothing outside `themes/` may contain a literal hex colour
-   (known exception: the notification badge in waybar.jsonc).
-8. **Scripts find the config dir via `$HOME/.config/mango`**, because eww
-   and waybar run them with an arbitrary cwd. `~` is fine inside eww.yuck
-   and waybar.jsonc, which shell-expand.
-9. **Timing constants** live at the top of the script that uses them
-   (`dbl` double-click windows in popup.sh and cal.sh, `tick` in sys.sh,
-   timers in idle.sh and nightlight.sh).
+7. **Themes only define colours, and nothing else contains one.**
+   `themes/<name>.css` uses GTK `@define-color` with catppuccin names.
+   `theme.sh` links `$state_dir/theme.css` to it and derives `colors.scss`
+   (eww) and `rofi-colors.rasi` (rofi) next to it; never edit those by hand.
+   waybar.css, swaync.css, gtklock.css, eww.scss and rofi.rasi import them
+   by the literal path `/home/alex/.local/state/mango/…` (CSS cannot expand
+   `~`). No literal hex colour outside `themes/`; waybar colours state via
+   the module's `class` and a rule in waybar.css.
+8. **Scripts find everything through lib.sh** (`$dir`, `$cache_dir`,
+   `$state_dir`), never a hard-coded path; eww and waybar run them with an
+   arbitrary cwd. `~` is fine inside eww.yuck and waybar.jsonc, which
+   shell-expand.
+9. **This directory is read-only at runtime.** Anything a script writes goes
+   to `$state_dir` (survives logins, user choices) or `$cache_dir`
+   (regenerable). That keeps the git tree clean and will let the directory
+   become a store copy later.
+10. **Timing constants** live at the top of the script that uses them
+    (`tick` in sys.sh, timers in idle.sh and nightlight.sh) or in lib.sh
+    when shared (`dbl_ms`).
 
-## Generated and state files
+## State and cache files
 
 | path | written by | purpose |
 | --- | --- | --- |
-| theme.css (symlink) | theme.sh | current theme |
-| eww/_colors.scss, rofi-colors.rasi | theme.sh | theme in scss / rasi syntax |
-| nightlight.off | nightlight.sh | exists → user turned night light off |
-| ~/.cache/mango/{actions.log,actions/} | run.sh | History popup data |
-| ~/.cache/mango/{weather,geo}.json | weather.sh | forecast cache, pinned location |
-| ~/.cache/mango/icons.tsv | taskbar.sh | appid → icon name (never invalidated) |
-| ~/.cache/mango/wallpaper, lock.png | wallpaper.sh | current wallpaper path; blurred copy for the lock screen |
-| ~/.cache/mango/art/ | media.sh | downloaded album art |
-| $XDG_RUNTIME_DIR/mango-* | popup.sh, cal.sh | click timestamps, calendar state |
+| $state_dir/theme.css (symlink) | theme.sh | current theme; autostart.sh creates it on first login |
+| $state_dir/colors.scss, rofi-colors.rasi | theme.sh | theme in scss / rasi syntax |
+| $state_dir/nightlight.off | nightlight.sh | exists → user turned night light off |
+| $cache_dir/{actions.log,actions/} | run.sh | History popup data |
+| $cache_dir/{weather,geo}.json | weather.sh | forecast cache, pinned location |
+| $cache_dir/icons.tsv | taskbar.sh | appid → icon name (only successful lookups) |
+| $cache_dir/wallpaper, lock.png | wallpaper.sh | current wallpaper path; blurred copy for the lock screen |
+| $cache_dir/art/ | media.sh | downloaded album art |
+| $cache_dir/*.log | autostart.sh | waybar, eww, swaync output |
+| $runtime_dir/mango-* | popup.sh, cal.sh | click timestamps, calendar state |
 
-## Debugging
+## Checking and debugging
 
 ```sh
+~/.config/mango/check.sh                     # shellcheck + eww :initial drift; run after every edit
 ~/.config/mango/autostart.sh                 # restart everything
+~/.config/mango/theme.sh <name>              # also what regenerates $state_dir after a wipe
 eww -c ~/.config/mango/eww logs              # eww parse errors land here
-eww -c ~/.config/mango/eww active-windows
+~/.config/mango/ewwc.sh active-windows
 ~/.config/mango/<name>.sh status | jq .      # check a backend by hand
 export MANGO_INSTANCE_SIGNATURE=$(ls $XDG_RUNTIME_DIR/mango-*.sock)   # mmsg from a non-mango shell
 ```
@@ -153,6 +194,4 @@ export MANGO_INSTANCE_SIGNATURE=$(ls $XDG_RUNTIME_DIR/mango-*.sock)   # mmsg fro
   hotplug is not handled (`mmsg watch all-monitors` could drive it).
 - waybar's network module is filtered to `wl*`; wired dock connections show
   as offline.
-- Generated files above live inside the config dir, which blocks managing
-  it from the dotfiles repo. Moving them to ~/.cache or ~/.local/state is
-  the prerequisite.
+- Super+m quits the session with no confirmation.

@@ -1,12 +1,12 @@
 #!/usr/bin/env sh
 # Settings backend for the eww popup.
-#   settings.sh status                → JSON {theme, themes:[..], dnd, nightlight, nightlight_available}
+#   settings.sh status                → JSON {theme, themes:[..], dnd, nl:{active,start,stop,after}}
 #   settings.sh theme NAME | dnd | nightlight | restart
-dir="$HOME/.config/mango"
-ewwc="$dir/ewwc.sh"
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
 
 status() {
-  theme=$(readlink "$dir/theme.css" | sed 's|themes/||; s/\.css$//')
+  theme=$(basename "$(readlink "$state_dir/theme.css")" .css)
   themes=$(ls "$dir/themes" | sed 's/\.css$//' | jq -R -s -c 'split("\n") | map(select(length > 0))')
   dnd=$(swaync-client -D 2>/dev/null); [ "$dnd" = true ] || dnd=false
   nl=$("$dir/nightlight.sh" status)
@@ -14,13 +14,11 @@ status() {
     '{theme:$theme, themes:$themes, dnd:$dnd, nl:$nl}'
 }
 
-refresh() { "$ewwc" update "settings=$(status)" >/dev/null 2>&1; }
-
 case "$1" in
   status) status ;;
-  theme) "$dir/run.sh" "$dir/theme.sh" "$2" >/dev/null 2>&1; refresh ;;
-  dnd) "$dir/run.sh" swaync-client -d >/dev/null 2>&1; refresh ;;
-  nightlight) "$dir/run.sh" "$dir/nightlight.sh" toggle; sleep 0.5; refresh ;;
+  theme) run "$dir/theme.sh" "$2" >/dev/null 2>&1; refresh settings "$(status)" ;;
+  dnd) run swaync-client -d >/dev/null 2>&1; refresh settings "$(status)" ;;
+  nightlight) run "$dir/nightlight.sh" toggle; sleep 0.5; refresh settings "$(status)" ;;
   restart) exec "$dir/run.sh" "$dir/autostart.sh" ;;   # bar, notifications, popups, wallpaper — everything
-  *) echo "usage: settings.sh status|theme NAME|dnd|nightlight|restart" >&2; exit 1 ;;
+  *) usage "status|theme NAME|dnd|nightlight|restart" ;;
 esac

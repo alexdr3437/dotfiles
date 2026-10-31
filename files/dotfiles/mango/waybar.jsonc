@@ -91,7 +91,7 @@
 
 
     "custom/proton": {
-      "exec": "~/.config/mango/vpn.sh bar-proton",
+      "exec": "~/.config/mango/vpn.sh bar proton",
       "return-type": "json",
       "interval": 10,
       "format": "{}",
@@ -100,7 +100,7 @@
     },
 
     "custom/tailscale": {
-      "exec": "~/.config/mango/vpn.sh bar-ts",
+      "exec": "~/.config/mango/vpn.sh bar ts",
       "return-type": "json",
       "interval": 10,
       "format": "{}",
@@ -159,17 +159,18 @@
       "on-click-right": "nm-connection-editor"
     },
 
-    // swaync-client -swb streams JSON {text: count, alt: state, class: ...}
+    // swaync-client -swb streams JSON {text: count, alt: state, class: ...}; the class
+    // colours the module in waybar.css (unread → urgent), so no colours are hard-coded here
     "custom/notification": {
       "format": "{icon}",
       "format-icons": {
-        "notification": "󰂚<span foreground='#f38ba8'><sup></sup></span>",
+        "notification": "󰂚<sup></sup>",
         "none": "󰂚",
-        "dnd-notification": "󰂛<span foreground='#f38ba8'><sup></sup></span>",
+        "dnd-notification": "󰂛<sup></sup>",
         "dnd-none": "󰂛",
-        "inhibited-notification": "󰂚<span foreground='#f38ba8'><sup></sup></span>",
+        "inhibited-notification": "󰂚<sup></sup>",
         "inhibited-none": "󰂚",
-        "dnd-inhibited-notification": "󰂛<span foreground='#f38ba8'><sup></sup></span>",
+        "dnd-inhibited-notification": "󰂛<sup></sup>",
         "dnd-inhibited-none": "󰂛"
       },
       "return-type": "json",

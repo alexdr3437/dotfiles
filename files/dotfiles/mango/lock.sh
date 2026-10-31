@@ -2,8 +2,9 @@
 # Lock the screen. gtklock: clock + password box (gtklock.css, themed) over the
 # blurred wallpaper that wallpaper.sh keeps in ~/.cache/mango/lock.png.
 # Falls back to swaylock with the theme's base colour if gtklock isn't installed.
-dir="$HOME/.config/mango"
-bg="$HOME/.cache/mango/lock.png"
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
+bg="$cache_dir/lock.png"
 
 if command -v gtklock >/dev/null; then
   # long options only: -d is both --daemonize and --date-format
@@ -20,5 +21,5 @@ if command -v gtklock >/dev/null; then
     ${bg:+--background "$bg"}
 fi
 
-base=$(sed -n 's/^@define-color base *#\([0-9a-fA-F]*\);.*/\1/p' "$dir/theme.css")
+base=$(sed -n 's/^@define-color base *#\([0-9a-fA-F]*\);.*/\1/p' "$state_dir/theme.css" 2>/dev/null)
 exec swaylock -f -c "${base:-1e1e2e}"

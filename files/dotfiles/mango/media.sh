@@ -1,9 +1,11 @@
 #!/usr/bin/env sh
 # Now-playing backend over MPRIS D-Bus (busctl), so no playerctl needed.
-#   media.sh status → eww JSON {player, status, title, artist, art, length, pos, pct}
+#   media.sh status      → eww JSON {player, status, title, artist, art, length, pos, pct}
+#   media.sh bar         → waybar JSON (empty text hides the module);  bar-stream → the same every second
 #   media.sh playpause | next | prev
-ewwc="$HOME/.config/mango/ewwc.sh"
-artdir="$HOME/.cache/mango/art"
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
+artdir="$cache_dir/art"
 empty='{"player":"","status":"","title":"","artist":"","art":"","length":0,"pos":0,"pct":0}'
 
 players() { busctl --user list --json=short 2>/dev/null | jq -r '.[].name | select(startswith("org.mpris.MediaPlayer2."))'; }
@@ -38,10 +40,13 @@ status() {
     | .pct = (if .length > 0 then ((.pos * 100 / .length) | floor) else 0 end)'
 }
 
-refresh() { "$ewwc" update "media=$(status)" >/dev/null 2>&1; }
-call() { p=$(pick); [ -n "$p" ] && "$HOME/.config/mango/run.sh" busctl --user call "$p" /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player "$1" >/dev/null 2>&1; sleep 0.3; refresh; }
+call() {
+  p=$(pick)
+  [ -n "$p" ] && run busctl --user call "$p" /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player "$1" >/dev/null 2>&1
+  sleep 0.3; refresh media "$(status)"
+}
 
-bar_json() {   # waybar JSON from a status JSON on stdin; empty text hides the module
+bar_json() {   # waybar JSON from a status JSON on stdin
   jq -c '(if .player == "spotify" then "󰓇" elif .player == "firefox" then "󰈹" else "󰎆" end) as $pi
     | if .player == "" then {text: "", class: "none", tooltip: "nothing playing"}
       else {text: ((if .status == "Playing" then $pi else "󰏤" end) + "  " + ((.title + (if .artist != "" then " · " + .artist else "" end)) | .[0:48])),
@@ -55,5 +60,5 @@ case "$1" in
   playpause) call PlayPause ;;
   next) call Next ;;
   prev) call Previous ;;
-  *) echo "usage: media.sh status|playpause|next|prev" >&2; exit 1 ;;
+  *) usage "status|bar|bar-stream|playpause|next|prev" ;;
 esac

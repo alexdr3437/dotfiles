@@ -3,19 +3,14 @@
 #   battery.sh status → eww JSON   {laptop:{present,percent,glyph,detail}, devices:[{name,percent,glyph}]}
 #   battery.sh bar    → waybar JSON {text, tooltip, class}
 # Sources: upower (laptop + HID devices) and bluetoothctl (BLE devices; needs bluez Experimental=true).
+# shellcheck source=lib.sh
+. "$HOME/.config/mango/lib.sh"
 
 laptop_glyph() {  # percent, state
   if [ "$2" = "charging" ] || [ "$2" = "fully-charged" ]; then echo "󰂄"; return; fi
   case $(( $1 / 10 )) in
     0) echo "󰁺" ;; 1) echo "󰁻" ;; 2) echo "󰁼" ;; 3) echo "󰁽" ;; 4) echo "󰁾" ;;
     5) echo "󰁿" ;; 6) echo "󰂀" ;; 7) echo "󰂁" ;; 8) echo "󰂂" ;; *) echo "󰁹" ;;
-  esac
-}
-kind_glyph() {
-  case "$1" in
-    mouse|input-mouse) echo "󰍽" ;; keyboard|input-keyboard) echo "󰌌" ;;
-    headset|headphones|audio-headset|audio-headphones) echo "󰋋" ;;
-    phone) echo "󰏲" ;; gaming-input) echo "󰊗" ;; *) echo "󰂯" ;;
   esac
 }
 
@@ -26,15 +21,15 @@ status() {
     info=$(upower -i "$d")
     pct=$(printf '%s\n' "$info" | sed -n 's/^ *percentage: *\([0-9]*\)%.*/\1/p' | head -1)
     [ -n "$pct" ] || continue
-    state=$(printf '%s\n' "$info" | sed -n 's/^ *state: *//p' | head -1)
+    bstate=$(printf '%s\n' "$info" | sed -n 's/^ *state: *//p' | head -1)
     model=$(printf '%s\n' "$info" | sed -n 's/^ *model: *//p' | head -1)
     kind=$(printf '%s\n' "$info" | sed -n 's/^  \([a-z-]*\)$/\1/p' | head -1)
     if printf '%s\n' "$info" | grep -q "power supply: *yes"; then
       time=$(printf '%s\n' "$info" | sed -n 's/^ *time to \(empty\|full\): *\(.*\)/\2 to \1/p' | head -1)
-      laptop=$(jq -cn --argjson p "$pct" --arg g "$(laptop_glyph "$pct" "$state")" \
-        --arg d "${pct}% · ${state}${time:+ · $time}" '{present:true, percent:$p, glyph:$g, detail:$d}')
+      laptop=$(jq -cn --argjson p "$pct" --arg g "$(laptop_glyph "$pct" "$bstate")" \
+        --arg d "${pct}% · ${bstate}${time:+ · $time}" '{present:true, percent:$p, glyph:$g, detail:$d}')
     else
-      devices="$devices$(jq -cn --arg n "${model:-$kind}" --argjson p "$pct" --arg g "$(kind_glyph "$kind")" \
+      devices="$devices$(jq -cn --arg n "${model:-$kind}" --argjson p "$pct" --arg g "$(device_glyph "$kind")" \
         '{name:$n, percent:$p, glyph:$g}')
 "
     fi
@@ -46,7 +41,7 @@ status() {
     [ -n "$pct" ] || continue
     name=$(printf '%s\n' "$info" | sed -n 's/^\s*Name: //p' | head -1)
     icon=$(printf '%s\n' "$info" | sed -n 's/^\s*Icon: //p' | head -1)
-    devices="$devices$(jq -cn --arg n "$name" --argjson p "$pct" --arg g "$(kind_glyph "$icon")" '{name:$n, percent:$p, glyph:$g}')
+    devices="$devices$(jq -cn --arg n "$name" --argjson p "$pct" --arg g "$(device_glyph "$icon")" '{name:$n, percent:$p, glyph:$g}')
 "
   done
   printf '%s' "$devices" | jq -cs --argjson laptop "$laptop" \
@@ -67,5 +62,5 @@ bar() {
 case "$1" in
   status) status ;;
   bar) bar ;;
-  *) echo "usage: battery.sh status|bar" >&2; exit 1 ;;
+  *) usage "status|bar" ;;
 esac

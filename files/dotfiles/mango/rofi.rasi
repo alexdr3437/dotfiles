@@ -1,7 +1,7 @@
 /* rofi theme for the mango desktop.
- * Colours come from rofi-colors.rasi, generated from theme.css by theme.sh — don't edit that one.
+ * Colours come from rofi-colors.rasi, generated from the theme by theme.sh into ~/.local/state/mango.
  * Launched by config.conf:  rofi -show drun -theme ~/.config/mango/rofi.rasi */
-@import "rofi-colors.rasi"
+@import "/home/alex/.local/state/mango/rofi-colors.rasi"
 
 configuration {
   modi: "drun,run,window";

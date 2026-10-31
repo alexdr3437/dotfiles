@@ -1,6 +1,6 @@
 /* gtklock style (lock.sh). Colours come from theme.css like everything else;
  * the background image is passed on the command line, this only draws the card. */
-@import "theme.css";
+@import url("file:///home/alex/.local/state/mango/theme.css");
 
 * {
   font-family: "FiraCode Nerd Font", sans-serif;

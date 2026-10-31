@@ -5,6 +5,7 @@
 #   sys.sh status|bar  → one-shot versions of the above
 # Each tick only reads /proc files with shell builtins — no subprocesses — so 0.5s is cheap.
 # JSON: {cpu, load, cores, temp, mem:{used,total,pct}, swap:{used,total,pct}, top:[{name,cpu,mem}]}
+# (the one script that does not source lib.sh: it needs no paths and nothing from it)
 
 tick=0.5
 cores=$(nproc)
