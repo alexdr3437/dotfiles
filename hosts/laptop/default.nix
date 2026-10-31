@@ -28,9 +28,18 @@
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
+  # TLP instead of power-profiles-daemon, so Plasma's profile setting (powerdevilrc) is inert
+  # and the CPU policy lives here: balanced on wall power, power saver on battery. These are
+  # TLP's own defaults, spelled out. (The desktop has the same intent in hosts/desktop.)
   services.power-profiles-daemon.enable = false;
   services.tlp = {
     enable = true;
+    settings = {
+      CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
+      CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
+      PLATFORM_PROFILE_ON_AC = "balanced";
+      PLATFORM_PROFILE_ON_BAT = "low-power";
+    };
   };
 
   # The lid is mango's: files/dotfiles/mango/hosts/laptop/mango.conf binds fold/unfold

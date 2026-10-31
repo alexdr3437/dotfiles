@@ -49,6 +49,17 @@
     }
   ];
 
+  # CPU energy/performance preference, pinned here rather than by power-profiles-daemon.
+  # Plasma's powerdevil (~/.config/powerdevilrc) had set ppd to "power-saver", ppd remembers
+  # the last profile across reboots and nothing in the mango session ever changes it, so the
+  # desktop ran with EPP "power" for months: a fork cost ~10 ms and every popup ~0.5 s.
+  # With ppd gone intel_pstate keeps whatever EPP it is given; tmpfiles writes it at boot and
+  # on every switch. balance_performance is what ppd calls "balanced".
+  services.power-profiles-daemon.enable = false;
+  systemd.tmpfiles.rules = [
+    "w /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference - - - - balance_performance"
+  ];
+
   # attempt to fix desktop stuttering
   boot.kernelParams = [ "nvme_core.default_ps_max_latency_us=0" ];
   boot.extraModprobeConfig = ''
