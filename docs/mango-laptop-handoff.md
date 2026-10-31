@@ -27,8 +27,10 @@ runtime). Run `~/.config/mango/check.sh` after every edit.
 
 ## Target behaviour on the laptop
 
-Battery-powered, one external monitor, laptop screen disabled while docked.
-The user also wants it usable undocked, so "eDP always off" is wrong.
+Battery-powered, one external monitor over plain HDMI (no dock; the earlier
+"dock" wording was an unverified assumption), laptop screen disabled while
+that monitor is connected. The user also wants it usable on its own, so "eDP
+always off" is wrong.
 
 ## Issues, in the order to tackle them
 
@@ -170,14 +172,20 @@ XF86MonBrightnessUp/Down → `brightnessctl set 5%+/-` (`brightnessctl` added to
 per host, since desktop keyboards send the audio keys too. Verify brightness
 on the laptop; `wev` shows the names if a key does nothing.
 
-### 7. Waybar network module hides wired dock connections
+### 7. Network module picks the connected device itself (DONE 2026-10-31)
 
-`waybar.jsonc` sets `"interface": "wl*"` to avoid showing the Proton tunnel
-as the default route. On a USB-C dock with ethernet the bar says offline
-while online. Options: per-host interface pattern (host split), or drop the
-filter and instead exclude VPN interfaces (waybar has no exclude; a
-`custom/network` via `nmcli -t -f DEVICE,TYPE,STATE,CONNECTION dev status`
-picking the first non-vpn connected device is the robust route).
+`custom/network` (`network.sh bar`, every 5 s) replaces waybar's built-in module:
+the first connected ethernet or wifi device from `nmcli dev status`, ethernet
+preferred, tunnels (Proton, Tailscale), bridges and loopback ignored. The
+built-in module followed the default route (the VPN tunnel while Proton is up)
+or one fixed interface pattern, so it could not cover wifi at home and a
+future USB-C ethernet dock at once. Shows ssid + signal icon or "󰈀 ifname",
+tooltip with ip and gateway; `offline` class when nothing qualifies.
+`network.sh pick` takes the nmcli lines on stdin, which is how the ethernet,
+dock-plus-wifi, tunnels-only and connecting cases were tested; the live wifi
+case runs on the desktop. The per-host `waybar.jsonc` files are empty now.
+No ethernet exists to test for real yet: plugging the desktop's cable in is
+the first chance.
 
 ### 8. Super+m quits the session with no confirmation
 
@@ -209,4 +217,4 @@ or route it through a confirmation.
   `nix eval .#nixosConfigurations.laptop.config.<option>`.
 - Everything desktop-side can be tested live through the symlink; the
   laptop itself is not reachable from this session, so laptop-specific
-  behaviour (lid, eDP name, dock) must be verified by the user.
+  behaviour (lid, eDP name, external monitor hotplug) must be verified by the user.

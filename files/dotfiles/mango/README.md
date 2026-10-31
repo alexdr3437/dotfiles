@@ -25,7 +25,7 @@ consumer:
 | --- | --- | --- |
 | mango.conf | `source_optional=~/.config/mango-host/mango.conf` at the end of config.conf | monitor rules, lid `switchbind`s |
 | env.sh | sourced by lib.sh; scripts keep their own `${var:-default}` | `internal_monitor` (monitors.sh), `lock_monitor` (lock.sh), idle timer overrides (idle.sh) |
-| waybar.jsonc | `"include"` in waybar.jsonc; nested objects merge, keys set in the main file win | `network.interface` filter |
+| waybar.jsonc | `"include"` in waybar.jsonc; nested objects merge, keys set in the main file win | nothing yet (`{}`); was the network interface filter |
 
 Every include is optional so a missing link only means desktop-ish defaults
 and mango's automatic monitor layout; `check.sh` fails when the link or one of
@@ -128,7 +128,8 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | vol.sh | vol | pulseaudio (built-in) | pactl + wpctl |
 | vpn.sh | vpn | custom/proton (`bar proton`), custom/tailscale (`bar ts`) | NetworkManager + tailscale |
 | weather.sh | weather | custom/weather | Open-Meteo, cached 15 min, location pinned while a VPN is up |
-| wifi.sh | wifi | network (built-in) | nmcli |
+| wifi.sh | wifi | | nmcli (the popup) |
+| network.sh | | custom/network | first connected ethernet or wifi device, tunnels ignored; `pick` reads nmcli lines from stdin for tests |
 
 Other scripts: `popup.sh` (window toggling), `theme.sh`, `lock.sh`,
 `wallpaper.sh`, `autostart.sh`, `check.sh` (lint, see below).
@@ -221,7 +222,4 @@ export MANGO_INSTANCE_SIGNATURE=$(ls $XDG_RUNTIME_DIR/mango-*.sock)   # mmsg fro
 - `hosts/laptop/` assumes the panel is `eDP-1` (unverified); the laptop-side
   behaviour (dock, lid, timers, keys, battery warning) has not been seen running
   yet. See `docs/mango-laptop-handoff.md`.
-- waybar's network module is filtered to `wl*` on the desktop
-  (`hosts/desktop/waybar.jsonc`); the laptop has no filter, so the VPN
-  tunnel shows as the connection while Proton is up.
 - Super+m quits the session with no confirmation.

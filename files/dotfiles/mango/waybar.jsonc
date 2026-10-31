@@ -3,8 +3,8 @@
 [
   {
     "name": "top",
-    // per-host overrides (network interface filter): nested objects merge, keys set
-    // in this file win. A missing file is only a warning in waybar.log.
+    // per-host overrides (none at the moment): nested objects merge, keys set in this
+    // file win. A missing file is only a warning in waybar.log.
     "include": ["~/.config/mango-host/waybar.jsonc"],
     "layer": "top",
     "position": "top",
@@ -25,7 +25,7 @@
       "custom/tailscale",
       "pulseaudio",
       "bluetooth",
-      "network",
+      "custom/network",
       "custom/notification",
       "custom/history",
       "custom/settings",
@@ -157,17 +157,14 @@
       "on-click-right": "blueman-manager"
     },
 
-    "network": {
-      // "interface" is per host: hosts/<host>/waybar.jsonc, pulled in by "include" above
+    // first connected ethernet or wifi device, tunnels ignored (network.sh); click → wifi popup.
+    // Not the built-in module: that one follows the default route (the VPN tunnel when
+    // Proton is up) or one fixed interface pattern. Rates live in custom/net.
+    "custom/network": {
+      "exec": "~/.config/mango/network.sh bar",
+      "return-type": "json",
       "interval": 5,
-      "format-wifi": "{icon}  {essid}",
-      "format-ethernet": "󰈀  {ifname}",
-      "format-linked": "󰈀  no ip",
-      "format-disconnected": "󰖪  offline",
-      "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
-      "tooltip-format": "{ifname}  {ipaddr}/{cidr}\ngw {gwaddr}\n⇡ {bandwidthUpBytes}   ⇣ {bandwidthDownBytes}",
-      "tooltip-format-wifi": "{essid}  {signalStrength}%  {frequency} GHz\n{ifname}  {ipaddr}/{cidr}\ngw {gwaddr}\n⇡ {bandwidthUpBytes}   ⇣ {bandwidthDownBytes}",
-      "tooltip-format-disconnected": "disconnected",
+      "format": "{}",
       "on-click": "~/.config/mango/popup.sh wifi nm-connection-editor",
       "on-click-right": "nm-connection-editor"
     },

@@ -39,7 +39,7 @@ tooltip label {
   padding: 0 6px;
 }
 
-#workspaces, #layout, #custom-clock, #tray, #pulseaudio, #bluetooth, #network,
+#workspaces, #layout, #custom-clock, #tray, #pulseaudio, #bluetooth, #custom-network,
 #custom-notification, #custom-power, #custom-sys, #custom-net, #custom-battery, #custom-settings, #custom-history, #custom-media, #custom-weather, #custom-proton, #custom-tailscale {
   padding: 0 10px;
   margin: 3px 2px;
@@ -97,10 +97,10 @@ tooltip label {
 }
 
 /* ---- right side ----------------------------------------------------- */
-#pulseaudio, #bluetooth, #network, #custom-notification, #custom-power {
+#pulseaudio, #bluetooth, #custom-network, #custom-notification, #custom-power {
   transition: background 150ms ease;
 }
-#pulseaudio:hover, #bluetooth:hover, #network:hover,
+#pulseaudio:hover, #bluetooth:hover, #custom-network:hover,
 #custom-notification:hover, #custom-power:hover, #custom-sys:hover, #custom-net:hover, #custom-battery:hover, #custom-settings:hover, #custom-media:hover, #custom-weather:hover, #custom-proton:hover, #custom-tailscale:hover {
   background: @surface0;
   color: @text;
@@ -121,8 +121,8 @@ tooltip label {
 #bluetooth.off, #bluetooth.disabled { color: @subtext0; }
 #bluetooth.connected { color: @sky; }
 
-#network { color: @green; }
-#network.disconnected, #network.linked { color: @urgent; }
+#custom-network { color: @green; }
+#custom-network.offline { color: @urgent; }
 
 /* class comes from swaync-client -swb: none / notification / dnd-* / inhibited-* */
 #custom-notification { color: @yellow; font-size: 18px; }
