@@ -18,6 +18,22 @@
 
   services.printing.enable = true;
 
+  # wireshark through its module, not just the package: this creates the wireshark group (the
+  # hosts put alex in it) and the dumpcap capture wrapper. Without it the group did not exist.
+  programs.wireshark.enable = true;
+
+  # sniffnet (home/default.nix) captures with libpcap itself, so unlike wireshark (dumpcap) it
+  # needs the capabilities on its own binary: "Attempt to create packet socket failed -
+  # CAP_NET_RAW may be required" otherwise. /run/wrappers/bin is ahead of the user profile on
+  # PATH, so a plain `sniffnet` (the bar's network widget) gets this wrapper. wireshark group only.
+  security.wrappers.sniffnet = {
+    owner = "root";
+    group = "wireshark";
+    permissions = "u+rx,g+rx";
+    capabilities = "cap_net_raw,cap_net_admin+eip";
+    source = "${pkgs.sniffnet}/bin/sniffnet";
+  };
+
   services.xserver = {
     enable = true;
     xkb.layout = "us";
@@ -29,7 +45,6 @@
   };
 
   environment.systemPackages = with pkgs; [
-    wireshark
     parted
     gptfdisk
     e2fsprogs
