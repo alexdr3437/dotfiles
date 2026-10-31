@@ -39,11 +39,15 @@ case "$1" in
   show)
     # already showing month $ofs of today with no selection → nothing to do. Only trusted
     # while the daemon that received it is still the one running: a fresh daemon starts from
-    # the empty defvar, so the state file must be newer than the daemon's socket.
+    # the empty defvar, so the state file must be newer than the daemon's socket. `eww reload`
+    # also resets the defvar without a new socket, so the cheap checks pass and one `get`
+    # confirms the grid is still there (a few ms; the rebuild is what was slow).
     ofs=${2:-0}
     set -- "$runtime_dir"/eww-server_*
     # shellcheck disable=SC3013  # -nt: fine in dash and bash, saves a stat fork per click
-    [ "$cal_state" -nt "$1" ] && [ "$(cat "$cal_state" 2>/dev/null)" = "$ofs||$(date +%Y-%m-%d)" ] && exit 0
+    if [ "$cal_state" -nt "$1" ] && [ "$(cat "$cal_state" 2>/dev/null)" = "$ofs||$(date +%Y-%m-%d)" ]; then
+      case "$(ewwc get cal 2>/dev/null)" in *'"weeks":[]'*) ;; *) exit 0 ;; esac
+    fi
     push "$ofs" "" ;;
   click)
     date=${2:?date}
