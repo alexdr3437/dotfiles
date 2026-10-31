@@ -52,5 +52,10 @@ in
     swayidle # idle lock / screen off (idle.sh)
     wlopm # screen power control for idle.sh
     brightnessctl # XF86MonBrightness* binds in config.conf (laptop panel)
+    # screenshots (screenshot.sh, Super+t): slurp picks the region, grim grabs
+    # it, satty annotates and copies. spectacle's region picker needs KWin.
+    grim
+    slurp
+    satty
   ];
 }

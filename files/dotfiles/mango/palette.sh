@@ -72,6 +72,7 @@ describe_spawn() {
     *rofi*drun*) echo "launch app|rofi app launcher" ;;
     ghostty) echo "terminal|open a new ghostty window" ;;
     */lock.sh*) echo "lock screen|lock now" ;;
+    */screenshot.sh*) echo "screenshot|drag a region, annotate in satty, Enter copies it" ;;
     */vol.sh\ up) echo "volume up|" ;;
     */vol.sh\ down) echo "volume down|" ;;
     */vol.sh\ mute) echo "mute|toggle speaker mute" ;;

@@ -24,7 +24,7 @@ consumer:
 | file | consumer | holds |
 | --- | --- | --- |
 | mango.conf | `source_optional=~/.config/mango-host/mango.conf` at the end of config.conf | monitor rules, lid `switchbind`s |
-| env.sh | sourced by lib.sh; scripts keep their own `${var:-default}` | `internal_monitor` (monitors.sh), `lock_monitor` (lock.sh), idle timer overrides (idle.sh) |
+| env.sh | sourced by lib.sh; scripts keep their own `${var:-default}` | `internal_monitor` (monitors.sh), `lock_monitor` (lock.sh), `screenshot_dir` (screenshot.sh), idle timer overrides (idle.sh) |
 | waybar.jsonc | `"include"` in waybar.jsonc; nested objects merge, keys set in the main file win | nothing at the moment (`{}`) |
 
 Every include is optional so a missing link only means desktop-ish defaults
@@ -53,6 +53,7 @@ popup's "Restart bar & popups" runs.
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
 | polkit-kde agent, nm-applet, blueman-applet | autostart.sh | | |
 | rofi | Super+r bind in config.conf | rofi.rasi | |
+| grim + slurp + satty (screenshots) | Super+t → screenshot.sh | | |
 
 ## Data flow
 
@@ -120,6 +121,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | history.sh | history | custom/history | reads run.sh's log |
 | palette.sh | | | command palette: every `bind=` in config.conf plus a few unbound actions, in rofi with label · description · keys; descriptions in `describe()`; Super+Shift+p |
 | layout.sh | | | rofi dmenu of `mmsg get layouts` with a description per row, current one preselected; Super+Shift+n |
+| screenshot.sh | | | `slurp -d` region → `grim` → `satty` (annotate; Enter copies, Ctrl+S saves to `$screenshot_dir`, default ~/Pictures/Screenshots); Super+t |
 | idle.sh | idle | | swayidle wrapper; timers by power source (/sys Mains supply; none → AC); `on-battery` for other scripts |
 | media.sh | media | custom/media (bar-stream) | MPRIS via busctl, no playerctl |
 | monitors.sh | | | `names` (enabled monitors), `taskbars` (one eww taskbar per monitor), internal panel vs externals (`status`, `apply`, `watch`) and lid (`fold`, `unfold`). Disabled monitors stay in `all-monitors` with width 0 |
