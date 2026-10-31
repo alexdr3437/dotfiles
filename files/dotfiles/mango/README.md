@@ -123,7 +123,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | media.sh | media | custom/media (bar-stream) | MPRIS via busctl, no playerctl |
 | nightlight.sh | (via settings) | | wlsunset; sun times from `weather.sh cached`, never the network |
 | settings.sh | settings | custom/settings | theme / dnd / nightlight / restart |
-| sys.sh | sys (deflisten) | custom/sys (bar-stream) | /proc only, no forks per tick |
+| sys.sh | sys (deflisten) | custom/sys (bar-stream) | /proc only, no forks per tick; net rates over the physical interfaces every 1s; `top` padded to exactly 5 so the popup uses fixed rows (a `for` rebuilt its children every 2s and flickered) |
 | taskbar.sh | taskbar | | one eww window per monitor; `.desktop` icon lookups cached in icons.tsv (hits only) |
 | vol.sh | vol | pulseaudio (built-in) | pactl + wpctl |
 | vpn.sh | vpn | custom/proton (`bar proton`), custom/tailscale (`bar ts`) | NetworkManager + tailscale |
