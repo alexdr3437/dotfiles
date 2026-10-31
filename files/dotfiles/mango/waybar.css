@@ -106,10 +106,10 @@ tooltip label {
   color: @text;
 }
 
-#custom-sys { color: @teal; }
+#custom-sys { color: @teal; font-feature-settings: "tnum"; }
 #custom-sys.high { color: @urgent; }
 
-#custom-net { color: @sky; min-width: 120px; }   /* min-width: rates change every second, the bar must not shuffle */
+#custom-net { color: @sky; font-feature-settings: "tnum"; }   /* digits are padded to 3 by sys.sh; tnum makes them equal width */
 
 #custom-battery { color: @green; }
 #custom-battery.low { color: @urgent; }

@@ -17,7 +17,7 @@
 (defpoll taskbar :interval "1s" :initial '{}' "~/.config/mango/taskbar.sh status")
 (defpoll settings :interval "3s" :initial '{"theme":"","themes":[],"dnd":false,"nl":{"active":false,"start":"","stop":"","after":30}}' "~/.config/mango/settings.sh status")
 ;; streamed (0.5s ticks) rather than polled; eww runs it only while the system popup is open
-(deflisten sys :initial '{"cpu":0,"load":"","cores":0,"temp":0,"mem":{"used":0,"total":0,"pct":0},"swap":{"used":0,"total":0,"pct":0},"net":{"iface":"","down":"","up":"","down_bps":0,"up_bps":0},"top":[{"name":"","cpu":0,"mem":""},{"name":"","cpu":0,"mem":""},{"name":"","cpu":0,"mem":""},{"name":"","cpu":0,"mem":""},{"name":"","cpu":0,"mem":""}]}' "~/.config/mango/sys.sh stream")
+(deflisten sys :initial '{"cpu":0,"cpu_pad":"","load":"","cores":0,"temp":0,"mem":{"used":"","total":0,"pct":0},"swap":{"used":"","total":0,"pct":0},"net":{"iface":"","down":"","up":"","down_bps":0,"up_bps":0},"top":[{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""}]}' "~/.config/mango/sys.sh stream")
 
 ;; ---------------------------------------------------------------- backdrop
 ;; invisible window covering each monitor (below the bars) while a popup is open;
@@ -205,7 +205,7 @@
   :geometry (geometry :x "10px" :y "8px" :width "340px" :anchor "top right")
   (box :class "popup" :orientation "v" :space-evenly false :spacing 6
     (header :icon "󰻠" :title "System" :win "system" :app "ghostty -e btop" :toggle "" :on false)
-    (meter :icon "󰻠" :title "CPU" :sub "${sys.cpu}% · load ${sys.load} · ${sys.temp}°C"
+    (meter :icon "󰻠" :title "CPU" :sub "${sys.cpu_pad}% · load ${sys.load} · ${sys.temp}°C"
            :pct {sys.cpu} :warn 85 :show true)
     (meter :icon "󰍛" :title "Memory" :sub "${sys.mem.used} / ${sys.mem.total} GiB"
            :pct {sys.mem.pct} :warn 90 :show true)

@@ -56,7 +56,7 @@ tooltip {
 .row-icon    { color: $subtext0; font-size: 19px; min-width: 22px; }
 .row-icon-on { color: $accent;   font-size: 19px; min-width: 22px; }
 .row-title { color: $text; }
-.row-sub   { color: $subtext0; font-size: 13px; }
+.row-sub   { color: $subtext0; font-size: 13px; font-feature-settings: "tnum"; }   // tabular digits: numbers padded by sys.sh line up
 .section   { color: $subtext1; font-size: 13px; font-weight: bold; padding: 6px 8px 0 8px; }
 .empty     { color: $subtext0; padding: 8px; }
 .foot      { padding: 4px 4px 0 4px; }
