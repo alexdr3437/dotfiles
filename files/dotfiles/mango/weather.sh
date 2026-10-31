@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
-# Weather backend: Open-Meteo forecast for the location of your public IP (ip-api.com).
+# Weather backend: Open-Meteo forecast for the location of your public IP (ipinfo.io over
+# https, ip-api.com over plain http as the fallback).
 # Cached in ~/.cache/mango/weather.json and refreshed at most every 15 min.
 # The location is PINNED: it is only re-geolocated while no VPN is active (Proton via
 # NetworkManager, or a Tailscale exit node), otherwise the weather would follow the VPN exit.
@@ -21,9 +22,11 @@ vpn_active() {
 
 geolocate() {   # → JSON {city,lat,lon}
   if [ -s "$geofile" ] && vpn_active; then cat "$geofile"; return; fi
-  geo=$(curl -sf --max-time 5 'http://ip-api.com/json/?fields=status,city,lat,lon') \
-    && [ "$(printf '%s' "$geo" | jq -r .status)" = success ] \
-    || { [ -s "$geofile" ] && cat "$geofile"; return; }
+  geo=$(curl -sf --max-time 5 'https://ipinfo.io/json' \
+    | jq -c 'select(.loc) | (.loc | split(",")) as $l | {city, lat: ($l[0] | tonumber), lon: ($l[1] | tonumber)}' 2>/dev/null)
+  [ -n "$geo" ] || geo=$(curl -sf --max-time 5 'http://ip-api.com/json/?fields=status,city,lat,lon' \
+    | jq -c 'select(.status == "success") | {city, lat, lon}' 2>/dev/null)
+  [ -n "$geo" ] || { [ -s "$geofile" ] && cat "$geofile"; return; }
   vpn_active || printf '%s' "$geo" > "$geofile"
   printf '%s' "$geo"
 }

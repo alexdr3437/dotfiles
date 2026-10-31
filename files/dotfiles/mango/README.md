@@ -127,7 +127,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | taskbar.sh | taskbar | | one eww window per monitor; `.desktop` icon lookups cached in icons.tsv (hits only) |
 | vol.sh | vol | pulseaudio (built-in) | pactl + wpctl |
 | vpn.sh | vpn | custom/proton (`bar proton`), custom/tailscale (`bar ts`) | NetworkManager + tailscale |
-| weather.sh | weather | custom/weather | Open-Meteo, cached 15 min, location pinned while a VPN is up |
+| weather.sh | weather | custom/weather | Open-Meteo, cached 15 min; location from ipinfo.io (https, ip-api.com fallback), pinned while a VPN is up |
 | wifi.sh | wifi | | nmcli (the popup) |
 | network.sh | | custom/network | first connected ethernet or wifi device, tunnels ignored; `pick` reads nmcli lines from stdin for tests |
 
@@ -219,7 +219,6 @@ export MANGO_INSTANCE_SIGNATURE=$(ls $XDG_RUNTIME_DIR/mango-*.sock)   # mmsg fro
 
 ## Known gaps / todo
 
-- `hosts/laptop/` assumes the panel is `eDP-1` (unverified); the laptop-side
-  behaviour (dock, lid, timers, keys, battery warning) has not been seen running
-  yet. See `docs/mango-laptop-handoff.md`.
-- Super+m quits the session with no confirmation.
+- The laptop-side behaviour (panel off while the HDMI monitor is connected, lid,
+  timers, keys, battery warning) has not been seen running yet; the panel name
+  eDP-1 is confirmed from sysfs. See `docs/mango-laptop-handoff.md`.

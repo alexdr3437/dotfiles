@@ -187,20 +187,21 @@ case runs on the desktop. The per-host `waybar.jsonc` files are empty now.
 No ethernet exists to test for real yet: plugging the desktop's cable in is
 the first chance.
 
-### 8. Super+m quits the session with no confirmation
+### 8. Super+m quit bind (DONE 2026-10-31)
 
-`bind=SUPER,m,quit` in config.conf. Remove it (the power popup has Log out)
-or route it through a confirmation.
+Removed from config.conf; Log out stays in the power popup.
 
-### 9. Minor
+### 9. Minor (DONE 2026-10-31)
 
-- Weather geolocation uses plain-HTTP ip-api.com and pins the location;
-  on a corporate network the pinned city will be the office egress.
-  Low stakes; `weather.sh refresh` re-geolocates when no VPN is active.
-- `hosts/laptop` still imports `modules/kde.nix`; decide whether mango
-  replaces plasma there or sits beside it in sddm (desktop does the latter).
-- The laptop's `bluetooth-watchdog` power-cycles the adapter; `bt.sh` and
-  `battery.sh` tolerate bluetoothctl being briefly empty.
+- Weather geolocation now asks ipinfo.io over https first and falls back to
+  ip-api.com (http only). Pinning is unchanged and is the intended behaviour:
+  the location is only re-read while no VPN is active, so on the office
+  network it is the office, which is where the laptop is.
+- `hosts/laptop` keeps `modules/kde.nix`; mango sits beside plasma in sddm
+  (user decision, item 2).
+- `bt.sh status` and `battery.sh bar` were run with a stub `bluetoothctl` that
+  prints nothing (the adapter mid power-cycle under the laptop's
+  `bluetooth-watchdog`): both return valid JSON (`powered:false`, no devices).
 
 ## Constraints and conventions
 
