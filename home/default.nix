@@ -14,14 +14,6 @@
   home.username = "alex";
   home.homeDirectory = "/home/alex";
 
-  home.file.".config/autostart/proton-vpn.desktop".text = ''
-    [Desktop Entry]
-    Type=Application
-    Name=Proton VPN
-    Exec=protonvpn-app
-    Terminal=false
-  '';
-
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
   # introduces backwards incompatible changes.

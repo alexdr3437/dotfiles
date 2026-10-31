@@ -44,6 +44,31 @@ in
     size = 24;
   };
 
+  # Apps that start with the session. Plasma used to run ~/.config/autostart;
+  # mango activates graphical-session.target instead (with WAYLAND_DISPLAY in the
+  # user manager), so these are user units: PartOf stops them with the session
+  # and starts them again with the next one. `systemctl --user status <name>`.
+  # Bitwarden in the background is what lets the browser extensions unlock
+  # through the desktop app; --autostart is its own "start minimized" flag.
+  systemd.user.services = let
+    sessionApp = description: exec: {
+      Unit = {
+        Description = description;
+        After = [ "graphical-session.target" ];
+        PartOf = [ "graphical-session.target" ];
+      };
+      Service = {
+        ExecStart = exec;
+        Restart = "on-failure";
+        Slice = "app.slice";
+      };
+      Install.WantedBy = [ "graphical-session.target" ];
+    };
+  in {
+    bitwarden = sessionApp "Bitwarden" "${pkgs.bitwarden-desktop}/bin/bitwarden --autostart";
+    proton-vpn = sessionApp "Proton VPN" "${pkgs.proton-vpn}/bin/protonvpn-app";
+  };
+
   # "Screenshot" in the rofi app launcher: the same pipeline as Super+t
   # (screenshot.sh: slurp → grim → satty). satty's own entry is NoDisplay and
   # needs an image, so it never shows up on its own.
