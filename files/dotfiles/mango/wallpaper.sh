@@ -1,10 +1,11 @@
 #!/usr/bin/env sh
-# Set a random wallpaper from ~/Pictures/backgrounds, and build the lock screen
-# background from it: a blurred, dimmed copy at ~/.cache/mango/lock.png (lock.sh).
+# Set a random wallpaper from the dotfiles repo (files/wallpapers), and build the lock
+# screen background from it: a blurred, dimmed copy at ~/.cache/mango/lock.png (lock.sh).
+wallpapers="$HOME/.dotfiles/files/wallpapers"
 cache="$HOME/.cache/mango"
 mkdir -p "$cache"
 
-img=$(find "$HOME/Pictures/backgrounds" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) | shuf -n 1)
+img=$(find "$wallpapers" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) | shuf -n 1)
 [ -n "$img" ] || exit 0
 
 pkill -f '^swaybg '  # nix wraps binaries, so pkill -x swaybg never matches

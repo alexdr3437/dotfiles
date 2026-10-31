@@ -13,7 +13,7 @@ mkdir -p "$log"
 "$dir/idle.sh" start
 "$dir/nightlight.sh" auto   # unless turned off in settings
 
-# wallpaper (random from ~/Pictures/backgrounds)
+# wallpaper (random from ~/.dotfiles/files/wallpapers)
 "$dir/wallpaper.sh" >/dev/null 2>&1 &
 
 # polkit agent: password prompts for nm / blueman / systemctl

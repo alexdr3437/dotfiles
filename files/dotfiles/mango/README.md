@@ -23,7 +23,7 @@ popup's "Restart bar & popups" runs.
 | waybar (top bar) | autostart.sh | waybar.jsonc, waybar.css | ~/.cache/mango/waybar.log |
 | eww daemon (popups, taskbar, backdrop) | autostart.sh | eww/eww.yuck, eww/eww.scss | ~/.cache/mango/eww.log |
 | swaync | autostart.sh | swaync.json, swaync.css | ~/.cache/mango/swaync.log |
-| swaybg | wallpaper.sh | random file in ~/Pictures/backgrounds | |
+| swaybg | wallpaper.sh | random file in ~/.dotfiles/files/wallpapers | |
 | swayidle | idle.sh start | timers hard-coded in idle.sh | |
 | gtklock (lock screen) | lock.sh (idle.sh, power popup) | gtklock.css + ~/.cache/mango/lock.png | |
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
