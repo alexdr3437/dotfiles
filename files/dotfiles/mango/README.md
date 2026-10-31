@@ -52,6 +52,7 @@ popup's "Restart bar & popups" runs.
 | gtklock (lock screen) | lock.sh (first `exec_once` at session start since greetd autologs in, idle.sh, power popup, Alt+m) | gtklock.css + ~/.cache/mango/lock.png | |
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
 | soteria (polkit agent), nm-applet, blueman-applet | autostart.sh | | |
+| drives.sh watch | autostart.sh | udev block add → notification with "Mount and open" / "Mount" (udisksctl, then Dolphin) | |
 | rofi | Super+r bind in config.conf | rofi.rasi | |
 | grim + slurp + satty (screenshots) | Super+t → screenshot.sh | | |
 
@@ -118,6 +119,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | battery.sh | bat | custom/battery | upower, plus BLE batteries taken from `bt.sh status`; `bar` fires the low-battery notification at 20 and 10 % (`warn`) |
 | bt.sh | bt | | the only script that parses bluetoothctl (BLE battery needs bluez Experimental) |
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
+| drives.sh | | | removable drives: `watch` runs `added NAME` per udev add event → notify-send with action buttons; `mount NAME [open]` via udisksctl, `open` shows it in Dolphin. Nothing auto-mounts |
 | history.sh | history | custom/history | reads run.sh's log |
 | palette.sh | | | command palette: every `bind=` in config.conf plus a few unbound actions, in rofi with label · description · keys; descriptions in `describe()`; Super+Shift+p |
 | layout.sh | | | rofi dmenu of `mmsg get layouts` with a description per row, current one preselected; Super+Shift+n |

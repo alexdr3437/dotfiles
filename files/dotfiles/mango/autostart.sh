@@ -43,6 +43,10 @@ sleep 1.5
 pkill -f '^mmsg watch all-monitors'; pkill -f "$dir/monitors.sh watch"
 "$dir/monitors.sh" watch >/dev/null 2>&1 &
 
+# removable drives: "Mount and open" notification on plug-in (udev add → drives.sh added)
+pkill -f "$dir/drives.sh watch"; pkill -f "^udevadm monitor --udev -s block"
+"$dir/drives.sh" watch >/dev/null 2>&1 &
+
 # bars (needs swaync running first for the notification module)
 pkill -f '^waybar '
 waybar -c "$dir/waybar.jsonc" -s "$dir/waybar.css" >"$log/waybar.log" 2>&1 &
