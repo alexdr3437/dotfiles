@@ -2,7 +2,6 @@
 {
   imports = [
     ./hardware-configuration.nix
-    # ../../modules/hyprland.nix
     ../../modules/kde.nix
     ../../modules/audio.nix
     ../../modules/networking.nix

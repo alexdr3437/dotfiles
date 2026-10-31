@@ -2,7 +2,6 @@
 {
   imports = [
     inputs.nixvim.homeModules.nixvim
-    ./hyprland.nix
     ./mango.nix
     ./terminal.nix
     ./neovim
