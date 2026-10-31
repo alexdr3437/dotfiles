@@ -218,7 +218,7 @@ export MANGO_INSTANCE_SIGNATURE=$(ls $XDG_RUNTIME_DIR/mango-*.sock)   # mmsg fro
 ## Known gaps / todo
 
 - `hosts/laptop/` assumes the panel is `eDP-1` (unverified) and the laptop
-  still needs brightness/volume key binds and a battery low warning. See
+  still needs a battery low warning (hardware keys are bound in config.conf). See
   `docs/mango-laptop-handoff.md`.
 - eww taskbar windows are opened once per monitor at autostart; monitor
   hotplug is not handled (`mmsg watch all-monitors` could drive it).

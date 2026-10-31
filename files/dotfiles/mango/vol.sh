@@ -2,8 +2,10 @@
 # Volume backend for the eww popup (pipewire via pactl/wpctl).
 #   vol.sh status             → JSON {volume, muted, name, sinks:[{name,desc,default}]}
 #   vol.sh set N | mute | sink NAME
+#   vol.sh up | down          → hardware volume keys (config.conf), $step % at a time, capped at 100
 # shellcheck source=lib.sh
 . "$HOME/.config/mango/lib.sh"
+step=5
 
 status() {
   default=$(pactl get-default-sink)
@@ -25,6 +27,8 @@ case "$1" in
     cur=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{printf "%d", $2*100+0.5}')
     [ "$want" = "$cur" ] || wpctl set-volume @DEFAULT_AUDIO_SINK@ "${want}%" ;;
   mute) run wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; refresh vol "$(status)" ;;
+  up) run wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ "${step}%+"; refresh vol "$(status)" ;;
+  down) run wpctl set-volume @DEFAULT_AUDIO_SINK@ "${step}%-"; refresh vol "$(status)" ;;
   sink) run pactl set-default-sink "$2"; refresh vol "$(status)" ;;
-  *) usage "status|set N|mute|sink NAME" ;;
+  *) usage "status|set N|mute|up|down|sink NAME" ;;
 esac

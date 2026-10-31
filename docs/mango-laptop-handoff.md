@@ -157,14 +157,17 @@ popup shows the active set (`idle.source`).
 Verify on the laptop: unplug → `idle.sh status` says battery and
 `pgrep -af swayidle` shows 120/300 s; plug back → 300/3600 s.
 
-### 6. No hardware keys
+### 6. Hardware keys (DONE 2026-10-31)
 
-`config.conf` has no binds for XF86MonBrightnessUp/Down, XF86AudioRaise/
-LowerVolume/Mute, XF86AudioPlay/Next/Prev. `brightnessctl` is not
-installed (add to `modules/mango.nix`). Volume should go through
-`vol.sh`-style wpctl calls so the bar and popup agree; media through
-`media.sh playpause|next|prev`. Mango docs/bindings/keys.md has a "Media
-Controls" section with the key names.
+config.conf binds XF86AudioRaiseVolume/LowerVolume/Mute → `vol.sh up|down|mute`
+(5 % steps, capped at 100, logged through `run`, popup refreshed),
+XF86AudioMicMute → `wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle`,
+XF86AudioPlay/Next/Prev → `media.sh playpause|next|prev` (XF86AudioPause is
+the same keysym to mango; binding both is a conflict) and
+XF86MonBrightnessUp/Down → `brightnessctl set 5%+/-` (`brightnessctl` added to
+`modules/mango.nix`; no backlight on the desktop, so a no-op there). Shared, not
+per host, since desktop keyboards send the audio keys too. Verify brightness
+on the laptop; `wev` shows the names if a key does nothing.
 
 ### 7. Waybar network module hides wired dock connections
 

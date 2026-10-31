@@ -34,5 +34,6 @@ in
     wlsunset # night light toggle in the settings popup
     swayidle # idle lock / screen off (idle.sh)
     wlopm # screen power control for idle.sh
+    brightnessctl # XF86MonBrightness* binds in config.conf (laptop panel)
   ];
 }
