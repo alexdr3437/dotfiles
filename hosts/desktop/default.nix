@@ -54,10 +54,12 @@
   # the last profile across reboots and nothing in the mango session ever changes it, so the
   # desktop ran with EPP "power" for months: a fork cost ~10 ms and every popup ~0.5 s.
   # With ppd gone intel_pstate keeps whatever EPP it is given; tmpfiles writes it at boot and
-  # on every switch. balance_performance is what ppd calls "balanced".
+  # on every switch. performance: the CPU ramps on the slightest load and holds its clocks;
+  # idle states still work, so it costs a few watts at idle. (balance_performance is ppd's
+  # "balanced", measured at ~2x the fork cost and popup latency of performance.)
   services.power-profiles-daemon.enable = false;
   systemd.tmpfiles.rules = [
-    "w /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference - - - - balance_performance"
+    "w /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference - - - - performance"
   ];
 
   # attempt to fix desktop stuttering
