@@ -106,4 +106,4 @@ for bmon in $mons; do
   esac
 done
 ewwc open-many "$@" "$win" --arg "$win:mon=$mon" >/dev/null 2>&1
-cancelled && { close_ids "$win"; close_backdrops; exit 0; }     # …and once more after opening
+if cancelled; then close_ids "$win"; close_backdrops; fi            # …and once more after opening
