@@ -19,9 +19,9 @@ pkill -f "^upower --monitor"; pkill -f "$dir/idle.sh watch"
 # wallpaper (random from ~/.dotfiles/files/wallpapers)
 "$dir/wallpaper.sh" >/dev/null 2>&1 &
 
-# polkit agent: password prompts for nm / blueman / systemctl
-pkill -f '^[^ ]*polkit-kde-authentication-agent-1'
-/run/current-system/sw/libexec/polkit-kde-authentication-agent-1 >/dev/null 2>&1 &
+# polkit agent (soteria, GTK): password prompts for nm / blueman / systemctl
+pkill -f '^[^ ]*/[.]?soteria(-wrapped)?$'   # the bin is a wrapper, -x would miss .soteria-wrapped
+soteria >/dev/null 2>&1 &
 
 # notifications
 pkill -f '^swaync '

@@ -51,7 +51,7 @@ popup's "Restart bar & popups" runs.
 | monitors.sh watch | autostart.sh (after eww) | taskbar per enabled monitor, re-synced on hotplug; laptop panel off while another monitor exists (`internal_monitor` in hosts/<host>/env.sh); fold/unfold lid binds | |
 | gtklock (lock screen) | lock.sh (first `exec_once` at session start since greetd autologs in, idle.sh, power popup, Alt+m) | gtklock.css + ~/.cache/mango/lock.png | |
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
-| polkit-kde agent, nm-applet, blueman-applet | autostart.sh | | |
+| soteria (polkit agent), nm-applet, blueman-applet | autostart.sh | | |
 | rofi | Super+r bind in config.conf | rofi.rasi | |
 | grim + slurp + satty (screenshots) | Super+t → screenshot.sh | | |
 

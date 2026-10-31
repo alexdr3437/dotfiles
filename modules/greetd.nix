@@ -11,8 +11,7 @@
   # to come from sddm, so the wrapper sets it; Qt and electron apps read it to pick wayland.
   #
   # If the session ends (logout from the power popup, a crash) greetd falls back to
-  # tuigreet, which lists every installed session, so plasma stays reachable while
-  # modules/kde.nix is still imported.
+  # tuigreet, which lists every installed session (only mango since Plasma was removed).
   services.greetd = {
     enable = true;
     settings = {

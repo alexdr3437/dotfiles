@@ -2,7 +2,6 @@
 {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/kde.nix
     ../../modules/greetd.nix
     ../../modules/mango.nix # the session greetd boots into; config in files/dotfiles/mango
     ../../modules/audio.nix
@@ -29,7 +28,7 @@
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  # TLP instead of power-profiles-daemon, so Plasma's profile setting (powerdevilrc) is inert
+  # TLP instead of power-profiles-daemon (ppd used to be driven by Plasma's powerdevil),
   # and the CPU policy lives here: balanced on wall power, power saver on battery. These are
   # TLP's own defaults, spelled out. (The desktop has the same intent in hosts/desktop.)
   services.power-profiles-daemon.enable = false;
@@ -45,7 +44,7 @@
 
   # The lid is mango's: files/dotfiles/mango/hosts/laptop/mango.conf binds fold/unfold
   # to monitors.sh (battery → suspend, AC → lock + panel off). logind would otherwise
-  # suspend on top of that. Applies to the plasma session too.
+  # suspend on top of that.
   services.logind.settings.Login = {
     HandleLidSwitch = "ignore";
     HandleLidSwitchDocked = "ignore";

@@ -21,6 +21,29 @@ in
   # `host` comes from home-manager.extraSpecialArgs in flake.nix.
   xdg.configFile."mango-host".source = config.lib.file.mkOutOfStoreSymlink "${mango}/hosts/${host}";
 
+  # GTK look for the mango session (rofi icons, the eww taskbar, swaync, gtklock,
+  # any GTK app). Plasma's kde-gtk-config used to write ~/.config/gtk-*/settings.ini
+  # with breeze icons, breeze cursors and Noto Sans; these replace them now that
+  # Plasma is gone. Noto Sans comes from modules/fonts.nix. The cursor also goes to
+  # mango itself: cursor_theme in config.conf, XCURSOR_* for everything else.
+  gtk = {
+    enable = true;
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    font = {
+      name = "Noto Sans";
+      size = 10;
+    };
+  };
+  home.pointerCursor = {
+    gtk.enable = true;
+    name = "Bibata-Modern-Classic";
+    package = pkgs.bibata-cursors;
+    size = 24;
+  };
+
   # "Screenshot" in the rofi app launcher: the same pipeline as Super+t
   # (screenshot.sh: slurp → grim → satty). satty's own entry is NoDisplay and
   # needs an image, so it never shows up on its own.

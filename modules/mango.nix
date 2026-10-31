@@ -29,6 +29,10 @@ in
   programs.gtklock.enable = true;
   security.pam.services.swaylock = { };
 
+  # gsettings backend for the GTK apps and home-manager's gtk module. Plasma used
+  # to pull it in; without it GTK falls back to a memory backend and warns.
+  programs.dconf.enable = true;
+
   # battery.sh reads upower; its low-battery notification fires at 20 and 10 %.
   # upower itself hybrid-sleeps at percentageAction (2 %) as the last resort.
   # Declared here so it does not depend on the plasma module being present.
@@ -57,5 +61,6 @@ in
     grim
     slurp
     satty
+    soteria # polkit agent (GTK), started by autostart.sh; was Plasma's polkit-kde-agent
   ];
 }

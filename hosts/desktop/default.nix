@@ -2,7 +2,6 @@
 {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/kde.nix
     ../../modules/greetd.nix
     ../../modules/mango.nix
     ../../modules/audio.nix
