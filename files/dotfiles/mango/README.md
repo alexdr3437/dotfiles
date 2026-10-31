@@ -89,8 +89,8 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 
 | script | eww var | bar module | notes |
 | --- | --- | --- | --- |
-| battery.sh | bat | custom/battery | upower + bluetoothctl (BLE needs bluez Experimental) |
-| bt.sh | bt | | bluetooth module is waybar built-in |
+| battery.sh | bat | custom/battery | upower, plus BLE batteries taken from `bt.sh status` |
+| bt.sh | bt | | the only script that parses bluetoothctl (BLE battery needs bluez Experimental) |
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
 | history.sh | history | custom/history | reads run.sh's log |
 | idle.sh | idle | | swayidle wrapper |

@@ -2,7 +2,7 @@
 # Battery backend.
 #   battery.sh status → eww JSON   {laptop:{present,percent,glyph,detail}, devices:[{name,percent,glyph}]}
 #   battery.sh bar    → waybar JSON {text, tooltip, class}
-# Sources: upower (laptop + HID devices) and bluetoothctl (BLE devices; needs bluez Experimental=true).
+# Sources: upower (laptop + HID devices) and bt.sh (BLE devices via bluez; needs Experimental=true).
 # shellcheck source=lib.sh
 . "$HOME/.config/mango/lib.sh"
 
@@ -34,18 +34,11 @@ status() {
 "
     fi
   done
-  # BLE devices report battery through bluez rather than upower
-  for mac in $(bluetoothctl devices Connected | awk '{print $2}'); do
-    info=$(bluetoothctl info "$mac")
-    pct=$(printf '%s\n' "$info" | sed -n 's/.*Battery Percentage: 0x[0-9a-fA-F]* (\([0-9]*\)).*/\1/p' | head -1)
-    [ -n "$pct" ] || continue
-    name=$(printf '%s\n' "$info" | sed -n 's/^\s*Name: //p' | head -1)
-    icon=$(printf '%s\n' "$info" | sed -n 's/^\s*Icon: //p' | head -1)
-    devices="$devices$(jq -cn --arg n "$name" --argjson p "$pct" --arg g "$(device_glyph "$icon")" '{name:$n, percent:$p, glyph:$g}')
-"
-  done
-  printf '%s' "$devices" | jq -cs --argjson laptop "$laptop" \
-    '{laptop:$laptop, devices:(unique_by(.name) | sort_by(.percent))}'
+  # BLE devices report battery through bluez rather than upower; bt.sh is the one
+  # place that parses bluetoothctl, so take its connected devices that have a battery
+  ble=$("$dir/bt.sh" status | jq -c '[.devices[] | select(.connected and .battery != "") | {name, percent: (.battery | tonumber), glyph}]')
+  printf '%s' "$devices" | jq -cs --argjson laptop "$laptop" --argjson ble "${ble:-[]}" \
+    '{laptop:$laptop, devices:((. + $ble) | unique_by(.name) | sort_by(.percent))}'
 }
 
 bar() {
