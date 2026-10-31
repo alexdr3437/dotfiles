@@ -15,7 +15,7 @@ if command -v gtklock >/dev/null; then
   hide_after=15
   [ -s "$bg" ] || bg=""
   exec gtklock --daemonize --style "$dir/gtklock.css" \
-    --time-format '%-I:%M' --date-format '%A, %B %-d' \
+    --time-format '%-I:%M %p' --date-format '%A, %B %-d' \
     --start-hidden --idle-hide --idle-timeout "$hide_after" \
     ${lock_monitor:+--monitor-priority "$lock_monitor"} \
     ${bg:+--background "$bg"}
