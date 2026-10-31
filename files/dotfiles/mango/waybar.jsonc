@@ -1,4 +1,6 @@
 // Top bar only: tags / clock / system. The bottom (grouped taskbar) is an eww window, see eww/eww.yuck.
+// Every module: left-click → eww popup (popup.sh), double-click and right-click → the same full app
+// (popup.sh's 2nd argument must match on-click-right), hover → nothing ("tooltip": false everywhere).
 // Started by autostart.sh:  waybar -c waybar.jsonc -s waybar.css
 [
   {
@@ -34,6 +36,7 @@
 
     "mango/workspaces": {
       "format": "{index}",
+      "tooltip": false,
       "hide-empty": true,
       "on-click": "activate",
       "on-click-right": "toggle",
@@ -56,6 +59,7 @@
     // cpu + memory; click → system popup, double/right-click → btop
     // no "interval": the script keeps running and streams a line every 0.5s
     "custom/sys": {
+      "tooltip": false,
       "exec": "~/.config/mango/sys.sh bar-stream",
       "return-type": "json",
       "format": "{}",
@@ -63,17 +67,19 @@
       "on-click-right": "ghostty -e btop"
     },
 
-    // down / up rate over the physical interfaces, once a second (sys.sh); click → system popup
+    // down / up rate over the physical interfaces, once a second (sys.sh); click → system popup, double/right-click → sniffnet
     "custom/net": {
       "exec": "~/.config/mango/sys.sh bar-stream net",
       "return-type": "json",
       "format": "{}",
-      "on-click": "~/.config/mango/popup.sh system 'ghostty -e btop'",
+      "tooltip": false,
+      "on-click": "~/.config/mango/popup.sh system 'ghostty -e sniffnet'",
       "on-click-right": "ghostty -e sniffnet"
     },
 
     // laptop battery if there is one, else the lowest device battery; click → battery popup
     "custom/battery": {
+      "tooltip": false,
       "exec": "~/.config/mango/battery.sh bar",
       "return-type": "json",
       "interval": 30,
@@ -81,12 +87,13 @@
       "on-click": "~/.config/mango/popup.sh battery"
     },
 
-    // now playing (media.sh streams it every second); click → media popup, right-click → play/pause, scroll → next/prev
+    // now playing (media.sh streams it every second); click → media popup, double/right-click → play/pause, scroll → next/prev
     "custom/media": {
       "exec": "~/.config/mango/media.sh bar-stream",
       "return-type": "json",
       "format": "{}",
-      "on-click": "~/.config/mango/popup.sh media",
+      "tooltip": false,
+      "on-click": "~/.config/mango/popup.sh media '~/.config/mango/media.sh playpause'",
       "on-click-right": "~/.config/mango/media.sh playpause",
       "on-scroll-up": "~/.config/mango/media.sh next",
       "on-scroll-down": "~/.config/mango/media.sh prev"
@@ -94,6 +101,7 @@
 
     // weather for the public-IP location (Open-Meteo); click → forecast popup
     "custom/weather": {
+      "tooltip": false,
       "exec": "~/.config/mango/weather.sh bar",
       "return-type": "json",
       "interval": 600,
@@ -104,6 +112,7 @@
 
 
     "custom/proton": {
+      "tooltip": false,
       "exec": "~/.config/mango/vpn.sh bar proton",
       "return-type": "json",
       "interval": 10,
@@ -113,6 +122,7 @@
     },
 
     "custom/tailscale": {
+      "tooltip": false,
       "exec": "~/.config/mango/vpn.sh bar ts",
       "return-type": "json",
       "interval": 10,
@@ -121,6 +131,7 @@
     },
 
     "tray": {
+      "tooltip": false,
       "icon-size": 16,
       "spacing": 8,
       // nm-applet / blueman-applet stay running (blueman-manager needs its applet)
@@ -136,7 +147,7 @@
         "headset": "󰋎",
         "default": ["󰕿", "󰖀", "󰕾"]
       },
-      "tooltip-format": "{desc}\n{volume}%",
+      "tooltip": false,
       "scroll-step": 5,
       "on-click": "~/.config/mango/popup.sh volume pavucontrol",
       "on-click-right": "pavucontrol",
@@ -149,10 +160,7 @@
       "format-disabled": "󰂲",
       "format-connected": "󰂱  {num_connections}",
       "format-connected-battery": "󰂱  {device_battery_percentage}%",
-      "tooltip-format": "{controller_alias}  {controller_address}\n\nno devices connected",
-      "tooltip-format-connected": "{controller_alias}  {controller_address}\n\n{device_enumerate}",
-      "tooltip-format-enumerate-connected": "{device_alias}  {device_address}",
-      "tooltip-format-enumerate-connected-battery": "{device_alias}  {device_address}  {device_battery_percentage}%",
+      "tooltip": false,
       "on-click": "~/.config/mango/popup.sh bluetooth blueman-manager",
       "on-click-right": "blueman-manager"
     },
@@ -161,6 +169,7 @@
     // Not the built-in module: that one follows the default route (the VPN tunnel when
     // Proton is up) or one fixed interface pattern. Rates live in custom/net.
     "custom/network": {
+      "tooltip": false,
       "exec": "~/.config/mango/network.sh bar",
       "return-type": "json",
       "interval": 5,
@@ -193,19 +202,19 @@
 
     "custom/history": {
       "format": "󰆍",
-      "tooltip-format": "what the widgets ran",
+      "tooltip": false,
       "on-click": "~/.config/mango/popup.sh history"
     },
 
     "custom/settings": {
       "format": "󰒓",
-      "tooltip-format": "settings",
+      "tooltip": false,
       "on-click": "~/.config/mango/popup.sh settings"
     },
 
     "custom/power": {
       "format": "󰐥",
-      "tooltip-format": "power menu",
+      "tooltip": false,
       "on-click": "~/.config/mango/popup.sh power"
     }
   }
