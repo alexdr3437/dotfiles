@@ -20,7 +20,12 @@ configuration {
 }
 
 window {
-  location: center;
+  /* pinned near the top, growing downwards: with location center every change in the
+   * number of results recentred (moved) the window, which mango animated. Anchored at
+   * the top edge only the height changes, so nothing slides around. */
+  location: north;
+  anchor: north;
+  y-offset: 12%;
   width: 620px;
   background-color: @base;
   border: 1px;
