@@ -49,7 +49,7 @@ popup's "Restart bar & popups" runs.
 | swaybg | wallpaper.sh | random file in ~/.dotfiles/files/wallpapers | |
 | swayidle | idle.sh start | timers at the top of idle.sh, AC vs battery; `idle.sh watch` restarts it when the source changes | |
 | monitors.sh watch | autostart.sh (after eww) | taskbar per enabled monitor, re-synced on hotplug; laptop panel off while another monitor exists (`internal_monitor` in hosts/<host>/env.sh); fold/unfold lid binds | |
-| gtklock (lock screen) | lock.sh (idle.sh, power popup, Alt+l) | gtklock.css + ~/.cache/mango/lock.png | |
+| gtklock (lock screen) | lock.sh (first `exec_once` at session start since greetd autologs in, idle.sh, power popup, Alt+m) | gtklock.css + ~/.cache/mango/lock.png | |
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
 | polkit-kde agent, nm-applet, blueman-applet | autostart.sh | | |
 | rofi | Super+r bind in config.conf | rofi.rasi | |

@@ -10,7 +10,7 @@ in
 {
   # mango.nixosModules.mango is imported in flake.nix
 
-  # adds a "Mango" session to sddm alongside plasma
+  # the mango package + session file; greetd (modules/greetd.nix) boots straight into it
   programs.mango.enable = true;
 
   # lock screen: gtklock (clock + password box over a blurred copy of the
@@ -30,7 +30,7 @@ in
 
   # ~/.config/mango/ → files/dotfiles/mango (linked by home/mango.nix, see its
   # README.md): config.conf, the bar, the popups and the scripts behind them.
-  # Super+r opens rofi, Alt+l locks.
+  # Super+r opens rofi, Alt+m locks.
   environment.systemPackages = with pkgs; [
     rofi
     swaybg # wallpaper, started by ~/.config/mango/autostart.sh

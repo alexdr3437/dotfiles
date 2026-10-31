@@ -3,6 +3,7 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/kde.nix
+    ../../modules/greetd.nix
     ../../modules/mango.nix
     ../../modules/audio.nix
     ../../modules/networking.nix
@@ -134,6 +135,9 @@
 
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.greetd.enableGnomeKeyring = true;
+  # autologin (modules/greetd.nix) types no password, so the keyring is unlocked by the
+  # first gtklock unlock instead
+  security.pam.services.gtklock.enableGnomeKeyring = true;
 
   system.stateVersion = "25.05"; # do not change this!
 }

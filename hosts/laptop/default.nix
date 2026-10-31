@@ -3,7 +3,8 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/kde.nix
-    ../../modules/mango.nix # "Mango" session beside plasma in sddm; config in files/dotfiles/mango
+    ../../modules/greetd.nix
+    ../../modules/mango.nix # the session greetd boots into; config in files/dotfiles/mango
     ../../modules/audio.nix
     ../../modules/networking.nix
     ../../modules/embedded-dev.nix
