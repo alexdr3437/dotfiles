@@ -123,15 +123,21 @@ add/remove (would move the user's windows; do it on the laptop by
 docking, or on the desktop with `mmsg dispatch disable_monitor,HDMI-A-2`
 then `enable_monitor`).
 
-### 4. No low-battery warning
+### 4. Low-battery warning (DONE 2026-10-31)
 
-`battery.sh bar` only colours the module (`class: low` under 20%). Add:
-`notify-send -u critical` when the laptop battery crosses 20% and 10% while
-discharging (track the last warned level in `$cache_dir/battery.warned` so
-it fires once per crossing; it is polled every 30 s by waybar), and
-`services.upower.criticalPowerAction = "HybridSleep"` or similar in nix
-(check that `services.upower.enable` is on; KDE's module probably enables it,
-but the laptop may drop KDE).
+`battery.sh bar` (polled every 30 s by waybar) calls `battery.sh warn PERCENT
+STATE DETAIL` for the laptop battery: while discharging, a critical
+notification once per threshold crossed (20 then 10 %, `warn_levels`), the
+last level kept in `~/.cache/mango/battery.warned` and cleared as soon as the
+state is not discharging. The synchronous hint makes the 10 % one replace the
+20 % one. `modules/mango.nix` declares `services.upower` (enable,
+`criticalPowerAction = "HybridSleep"`, which fires at upower's
+percentageAction, 2 %) so it does not depend on the plasma module.
+
+Verified on the desktop by driving `warn` by hand through 50 → 19 → 15 → 9 →
+charging. On the laptop just let it drain past 20 %, or run
+`~/.config/mango/battery.sh warn 19 discharging "test"` for the notification
+look.
 
 ### 5. Idle timers by power source (DONE 2026-10-31)
 

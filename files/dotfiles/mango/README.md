@@ -114,7 +114,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 
 | script | eww var | bar module | notes |
 | --- | --- | --- | --- |
-| battery.sh | bat | custom/battery | upower, plus BLE batteries taken from `bt.sh status` |
+| battery.sh | bat | custom/battery | upower, plus BLE batteries taken from `bt.sh status`; `bar` fires the low-battery notification at 20 and 10 % (`warn`) |
 | bt.sh | bt | | the only script that parses bluetoothctl (BLE battery needs bluez Experimental) |
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
 | history.sh | history | custom/history | reads run.sh's log |
@@ -197,6 +197,7 @@ and must be killed from a TTY.
 | $state_dir/nightlight.off | nightlight.sh | exists → user turned night light off |
 | $cache_dir/{actions.log,actions/} | run.sh | History popup data |
 | $cache_dir/{weather,geo}.json | weather.sh | forecast cache, pinned location |
+| $cache_dir/battery.warned | battery.sh | last low-battery level warned about; removed when charging |
 | $cache_dir/icons.tsv | taskbar.sh | appid → icon name (only successful lookups) |
 | $cache_dir/wallpaper, lock.png | wallpaper.sh | current wallpaper path; blurred copy for the lock screen |
 | $cache_dir/art/ | media.sh | downloaded album art |
@@ -217,9 +218,9 @@ export MANGO_INSTANCE_SIGNATURE=$(ls $XDG_RUNTIME_DIR/mango-*.sock)   # mmsg fro
 
 ## Known gaps / todo
 
-- `hosts/laptop/` assumes the panel is `eDP-1` (unverified) and the laptop
-  still needs a battery low warning (hardware keys are bound in config.conf). See
-  `docs/mango-laptop-handoff.md`.
+- `hosts/laptop/` assumes the panel is `eDP-1` (unverified); the laptop-side
+  behaviour (dock, lid, timers, keys, battery warning) has not been seen running
+  yet. See `docs/mango-laptop-handoff.md`.
 - waybar's network module is filtered to `wl*` on the desktop
   (`hosts/desktop/waybar.jsonc`); the laptop has no filter, so the VPN
   tunnel shows as the connection while Proton is up.

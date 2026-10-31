@@ -20,6 +20,14 @@ in
   programs.gtklock.enable = true;
   security.pam.services.swaylock = { };
 
+  # battery.sh reads upower; its low-battery notification fires at 20 and 10 %.
+  # upower itself hybrid-sleeps at percentageAction (2 %) as the last resort.
+  # Declared here so it does not depend on the plasma module being present.
+  services.upower = {
+    enable = true;
+    criticalPowerAction = "HybridSleep";
+  };
+
   # ~/.config/mango/ → files/dotfiles/mango (linked by home/mango.nix, see its
   # README.md): config.conf, the bar, the popups and the scripts behind them.
   # Super+r opens rofi, Alt+l locks.

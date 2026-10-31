@@ -1,10 +1,17 @@
 #!/usr/bin/env sh
 # Battery backend.
 #   battery.sh status → eww JSON   {laptop:{present,percent,glyph,detail}, devices:[{name,percent,glyph}]}
-#   battery.sh bar    → waybar JSON {text, tooltip, class}
+#   battery.sh bar    → waybar JSON {text, tooltip, class}; also fires the low-battery warning
+#   battery.sh warn PERCENT STATE [DETAIL] → what bar calls for the laptop battery; run by hand to test
 # Sources: upower (laptop + HID devices) and bt.sh (BLE devices via bluez; needs Experimental=true).
+# Low-battery warning: a critical notification once per threshold crossed while discharging
+# ($warn_levels, highest first); the level last warned about is kept in $cache_dir/battery.warned
+# and cleared as soon as the battery charges. upower's own HybridSleep at 2 % is the last resort
+# (modules/mango.nix). waybar polls `bar` every 30 s.
 # shellcheck source=lib.sh
 . "$HOME/.config/mango/lib.sh"
+warn_levels="20 10"
+warned="$cache_dir/battery.warned"
 
 laptop_glyph() {  # percent, state
   if [ "$2" = "charging" ] || [ "$2" = "fully-charged" ]; then echo "󰂄"; return; fi
@@ -41,8 +48,26 @@ status() {
     '{laptop:$laptop, devices:((. + $ble) | unique_by(.name) | sort_by(.percent))}'
 }
 
+# warn PERCENT STATE [DETAIL]: notify when a new threshold has been crossed on the way down
+warn() {
+  pct=$1; bstate=$2; detail=$3
+  if [ "$bstate" != discharging ]; then rm -f "$warned"; return 0; fi
+  level=""
+  for l in $warn_levels; do [ "$pct" -le "$l" ] && level=$l; done   # lowest threshold at or above pct
+  [ -n "$level" ] || { rm -f "$warned"; return 0; }
+  [ "$(cat "$warned" 2>/dev/null)" = "$level" ] && return 0
+  echo "$level" > "$warned"
+  notify-send -u critical -a battery -i battery-caution \
+    -h string:x-canonical-private-synchronous:battery \
+    "Battery low: ${pct}%" "${detail:-plug in soon}"
+}
+
 bar() {
-  status | jq -c '
+  s=$(status)
+  # shellcheck disable=SC2046  # three words: percent state detail-tail
+  printf '%s' "$s" | jq -r 'select(.laptop.present) | .laptop | "\(.percent) \(.detail)"' \
+    | { read -r p rest && warn "$p" "$(printf '%s' "$rest" | sed -n 's/^[0-9]*% · \([a-z-]*\).*/\1/p')" "$rest"; }
+  printf '%s' "$s" | jq -c '
     (if .laptop.present then "\(.laptop.glyph) \(.laptop.percent)%"
      elif (.devices | length) > 0 then "\(.devices[0].glyph) \(.devices[0].percent)%"
      else "󰂑" end) as $text
@@ -55,5 +80,6 @@ bar() {
 case "$1" in
   status) status ;;
   bar) bar ;;
-  *) usage "status|bar" ;;
+  warn) [ -n "$3" ] || usage "warn PERCENT STATE [DETAIL]"; warn "$2" "$3" "$4" ;;
+  *) usage "status|bar|warn PERCENT STATE [DETAIL]" ;;
 esac
