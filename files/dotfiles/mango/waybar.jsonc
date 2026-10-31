@@ -73,8 +73,8 @@
       "return-type": "json",
       "format": "{}",
       "tooltip": false,
-      "on-click": "~/.config/mango/popup.sh system 'ghostty -e sniffnet'",
-      "on-click-right": "ghostty -e sniffnet"
+      "on-click": "~/.config/mango/popup.sh system sniffnet",
+      "on-click-right": "sniffnet"
     },
 
     // laptop battery if there is one, else the lowest device battery; click → battery popup
