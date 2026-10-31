@@ -104,29 +104,24 @@ To verify on the laptop: panel name (`mmsg get all-monitors`; fix in
 `all-monitors` stream really fires on hotplug, and that the panel comes back
 after resume (`unfold` runs when the switch state is re-read).
 
-### 3. eww taskbar does not survive monitor hotplug
+### 3. eww taskbar follows monitor hotplug (DONE 2026-10-31)
 
-`autostart.sh` opens one `taskbar-<mon>` eww window per monitor once at
-login. Dock/undock leaves the new monitor without a taskbar and eww holding
-a window for a vanished output. Waybar (no `output` key → one bar per
-output) and swaybg handle hotplug themselves.
+`monitors.sh taskbars` diffs the enabled monitors (`monitors.sh names`, width > 0)
+against the open `taskbar-*` eww windows, opens the missing and closes the
+stale. `monitors.sh watch` runs it (after `apply`) whenever the set of enabled
+monitor names changes; the all-monitors stream also fires on focus and tag
+changes, so the set is compared first and nothing else happens. autostart.sh no
+longer opens taskbars itself: it starts the watcher after the eww daemon, and
+restarts it there because the watcher remembers the monitor set and must
+re-open everything after an eww restart. `popup.sh` backdrops use the same
+`names` so a disabled panel gets no backdrop.
 
-Fix: a small watcher started from autostart.sh:
-
-```sh
-mmsg watch all-monitors | while read -r _; do
-  # diff current monitors against open taskbar-* windows (ewwc active-windows),
-  # open missing ones, close stale ones
-done
-```
-
-`mmsg watch all-monitors` streams a JSON object on every change (confirmed
-in `mmsg --help`). `popup.sh` already opens backdrops per monitor
-dynamically, so only the taskbar needs this. Kill the watcher in
-autostart.sh before restarting (`pkill -f 'mmsg watch all-monitors'`).
-Note eww pitfall from the README: a previous directory move left the eww
-daemon alive but unreachable; the fix was killing `.eww-wrapped` and
-restarting the daemon + taskbars.
+Verified on the desktop: a closed taskbar is re-opened by `taskbars`, a
+planted `taskbar-FAKE` is closed, and the running watcher ignores events
+that leave the monitor set alone. Not verified: an actual output
+add/remove (would move the user's windows; do it on the laptop by
+docking, or on the desktop with `mmsg dispatch disable_monitor,HDMI-A-2`
+then `enable_monitor`).
 
 ### 4. No low-battery warning
 

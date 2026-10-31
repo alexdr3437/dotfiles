@@ -48,7 +48,7 @@ popup's "Restart bar & popups" runs.
 | swaync | autostart.sh | swaync.json, swaync.css | ~/.cache/mango/swaync.log |
 | swaybg | wallpaper.sh | random file in ~/.dotfiles/files/wallpapers | |
 | swayidle | idle.sh start | timers at the top of idle.sh, AC vs battery; `idle.sh watch` restarts it when the source changes | |
-| monitors.sh watch | autostart.sh | laptop panel off while another monitor exists (`internal_monitor` in hosts/<host>/env.sh); fold/unfold lid binds | |
+| monitors.sh watch | autostart.sh (after eww) | taskbar per enabled monitor, re-synced on hotplug; laptop panel off while another monitor exists (`internal_monitor` in hosts/<host>/env.sh); fold/unfold lid binds | |
 | gtklock (lock screen) | lock.sh (idle.sh, power popup, Alt+l) | gtklock.css + ~/.cache/mango/lock.png | |
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
 | polkit-kde agent, nm-applet, blueman-applet | autostart.sh | | |
@@ -119,7 +119,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
 | history.sh | history | custom/history | reads run.sh's log |
 | idle.sh | idle | | swayidle wrapper; timers by power source (/sys Mains supply; none → AC); `on-battery` for other scripts |
-| monitors.sh | | | internal panel vs externals (`status`, `apply`, `watch`) and lid (`fold`, `unfold`); no-op without `internal_monitor`. Disabled monitors stay in `all-monitors` with width 0 |
+| monitors.sh | | | `names` (enabled monitors), `taskbars` (one eww taskbar per monitor), internal panel vs externals (`status`, `apply`, `watch`) and lid (`fold`, `unfold`). Disabled monitors stay in `all-monitors` with width 0 |
 | media.sh | media | custom/media (bar-stream) | MPRIS via busctl, no playerctl |
 | nightlight.sh | (via settings) | | wlsunset; sun times from `weather.sh cached`, never the network |
 | settings.sh | settings | custom/settings | theme / dnd / nightlight / restart |
@@ -220,8 +220,6 @@ export MANGO_INSTANCE_SIGNATURE=$(ls $XDG_RUNTIME_DIR/mango-*.sock)   # mmsg fro
 - `hosts/laptop/` assumes the panel is `eDP-1` (unverified) and the laptop
   still needs a battery low warning (hardware keys are bound in config.conf). See
   `docs/mango-laptop-handoff.md`.
-- eww taskbar windows are opened once per monitor at autostart; monitor
-  hotplug is not handled (`mmsg watch all-monitors` could drive it).
 - waybar's network module is filtered to `wl*` on the desktop
   (`hosts/desktop/waybar.jsonc`); the laptop has no filter, so the VPN
   tunnel shows as the connection while Proton is up.

@@ -16,10 +16,6 @@ pkill -f "^upower --monitor"; pkill -f "$dir/idle.sh watch"
 "$dir/idle.sh" watch >/dev/null 2>&1 &
 "$dir/nightlight.sh" auto   # unless turned off in settings
 
-# laptop panel off while an external monitor is connected (no-op without $internal_monitor)
-pkill -f '^mmsg watch all-monitors'; pkill -f "$dir/monitors.sh watch"
-"$dir/monitors.sh" watch >/dev/null 2>&1 &
-
 # wallpaper (random from ~/.dotfiles/files/wallpapers)
 "$dir/wallpaper.sh" >/dev/null 2>&1 &
 
@@ -41,9 +37,11 @@ blueman-applet >/dev/null 2>&1 &
 for p in $(pgrep -x .eww-wrapped); do kill "$p"; done   # eww kill misses orphaned daemons
 eww -c "$dir/eww" daemon >"$log/eww.log" 2>&1 &
 sleep 1.5
-for mon in $(mmsg get all-monitors 2>/dev/null | jq -r '.monitors[].name'); do   # grouped taskbar, one per monitor
-  eww -c "$dir/eww" open taskbar --screen "$mon" --id "taskbar-$mon" --arg "mon=$mon" >/dev/null 2>&1
-done
+# monitor watcher: opens the grouped taskbar on every enabled monitor now and on hotplug,
+# and keeps the laptop panel off while an external monitor is connected. Restarted here
+# because it remembers the monitor set and must re-open the taskbars after an eww restart.
+pkill -f '^mmsg watch all-monitors'; pkill -f "$dir/monitors.sh watch"
+"$dir/monitors.sh" watch >/dev/null 2>&1 &
 
 # bars (needs swaync running first for the notification module)
 pkill -f '^waybar '

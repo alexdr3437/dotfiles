@@ -24,7 +24,7 @@ close_backdrops() { close_ids "$(open_wins | grep '^backdrop-')"; }
 close_all()       { close_ids "$(open_wins)"; }
 close_others()    { close_ids "$(open_wins | grep -v '^backdrop-' | grep -vx "$win")"; }
 open_backdrops() {
-  mons=$(mmsg get all-monitors 2>/dev/null | jq -r '.monitors[].name' 2>/dev/null)
+  mons=$("$dir/monitors.sh" names)   # enabled only: a disabled monitor has no screen for eww
   for bmon in ${mons:-0}; do   # (not "mon": that holds the popup's target monitor)
     ewwc open backdrop --screen "$bmon" --id "backdrop-$bmon" >/dev/null 2>&1
   done
