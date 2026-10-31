@@ -18,7 +18,8 @@ runtime). Run `~/.config/mango/check.sh` after every edit.
   not import it yet.** The laptop uses KDE today, has TLP, and a
   `bluetooth-watchdog` service for its Intel AX211.
 - Last commits on `main`: `fb8d2c2` (lib.sh + state dir + lint),
-  `3c6188c` (bluetooth dedupe). Working tree clean. Nothing pushed.
+  `3c6188c` (bluetooth dedupe), then the per-host split (item 1). Nothing
+  pushed.
 - Desktop monitors: HDMI-A-2 (1440p, left, scale 1) and HDMI-A-1 (4K,
   right, scale 1.5). Laptop: one external monitor, internal panel to be
   disabled, name not yet known (probably `eDP-1`; confirm with
@@ -31,32 +32,39 @@ The user also wants it usable undocked, so "eDP always off" is wrong.
 
 ## Issues, in the order to tackle them
 
-### 1. Per-host config split (do this first; it decides the shape)
+### 1. Per-host config split (DONE 2026-10-31)
 
-`config.conf` hard-codes the desktop's monitor rules:
+Everything machine-specific now lives in `files/dotfiles/mango/hosts/<host>/`
+(`desktop`, `laptop`), reached through the symlink `~/.config/mango-host`
+that `home/mango.nix` creates from `host` in `home-manager.extraSpecialArgs`
+(flake.nix). Three files per host, one per consumer:
 
-```ini
-monitor_rule=name:HDMI-A-2,x:0,y:0,scale:1
-monitor_rule=name:HDMI-A-1,x:2560,y:0,scale:1.5
-```
+- `mango.conf`: `source_optional=~/.config/mango-host/mango.conf` at the end
+  of config.conf (mango expands `~` and `./`; it also hot-reloads sourced
+  files). Lid `switchbind`s for item 2 go here.
+- `env.sh`: sourced by lib.sh; `lock_min`, `off_min` (idle.sh, fallback
+  10/15), `lock_monitor` (lock.sh `--monitor-priority`, empty on the laptop).
+  Power-aware timers for item 5 start here.
+- `waybar.jsonc`: `"include"` in waybar.jsonc, nested objects merge, main
+  file wins. Holds the network `interface` filter (`wl*` on the desktop, none
+  on the laptop; item 7 still applies).
 
-Mango supports `source=<file>` and `source_optional=<file>` in config.conf
-(see docs/configuration/toml.md in the mango source; the source is at
-`nix eval --raw --impure --expr '(builtins.getFlake (toString ~/.dotfiles)).inputs.mango.outPath'`).
-Plan:
+`check.sh` fails when the link or a file is missing and runs `mango -p` on
+config.conf and the host file (errors inside a `source`d file do not change
+`mango -p`'s exit code). The README has a "Per-host settings" section and
+invariant 11 (nothing machine-specific outside `hosts/`).
 
-- Move monitor rules (and anything else host-specific: idle timers, lid
-  binds) into `files/dotfiles/mango/hosts/<host>.conf`.
-- `config.conf` ends with `source=~/.config/mango/host.conf` (check whether
-  mango expands `~`; the rest of config.conf uses absolute `/home/alex/...`).
-- `home/mango.nix` writes/links `host.conf` per host. `home/` is shared by
-  both hosts via `home-manager.users.alex = import ./home`, so pass the
-  host name in (e.g. `home-manager.extraSpecialArgs` already exists in
-  flake.nix; add `host = "desktop"` / `"laptop"` there) and pick the file.
-  Keep the config dir read-only at runtime: either link `host.conf` from
-  the store or point `source=` at the per-host file directly.
-- Also split: `idle.sh` timers, the waybar network `interface` filter
-  (see item 7), and gtklock `--monitor-priority HDMI-A-1` in `lock.sh`.
+State of the desktop: `~/.config/mango-host` was created by hand
+(`ln -s`) so the live session kept working; the next `nixos-rebuild switch`
+replaces it with the home-manager link (the hand-made one is moved to
+`mango-host.hm-bak`, delete it). Verified live: `mmsg dispatch reload_config`
+keeps HDMI-A-1 at x=2560 scale 1.5, waybar logs "Including resource file",
+swayidle restarts with the env.sh timers, `nix build` of the
+`xdg.configFile."mango-host".source` derivation for both hosts points at the
+right directory.
+
+`hosts/laptop/` is a skeleton with the lid binds commented out; fill it in
+under items 2 and 5.
 
 ### 2. Lid handling / disabling the internal panel
 

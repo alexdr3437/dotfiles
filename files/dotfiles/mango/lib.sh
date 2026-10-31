@@ -7,7 +7,13 @@ dir="$HOME/.config/mango"                               # this directory (symlin
 cache_dir="$HOME/.cache/mango"                          # logs, weather cache, album art, lock.png, icon cache
 state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/mango"  # theme.css + what theme.sh derives from it, nightlight.off
 runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"                  # click timestamps (popup.sh, cal.sh)
+host_dir="$HOME/.config/mango-host"                     # hosts/<host> of this directory (linked by home/mango.nix)
 mkdir -p "$cache_dir" "$state_dir"
+
+# per-host shell variables (idle timers, lock monitor, ...); each script keeps its own
+# default with ${var:-default}, so a missing link only means desktop-ish defaults
+# shellcheck source=hosts/desktop/env.sh
+[ -r "$host_dir/env.sh" ] && . "$host_dir/env.sh"
 
 dbl_ms=350   # two clicks closer than this count as a double-click (popup.sh, cal.sh)
 

@@ -12,6 +12,29 @@ generated files go to `~/.local/state/mango`, caches to `~/.cache/mango`.
 Read this before changing anything, and run `check.sh` after. The rules
 below were each learned the hard way and are easy to break without noticing.
 
+## Per-host settings: `hosts/<host>/`
+
+Everything that differs between the desktop and the laptop lives in
+`hosts/<host>/` (`desktop`, `laptop`), reached through the symlink
+`~/.config/mango-host` that `home/mango.nix` creates (`host` is passed in
+`home-manager.extraSpecialArgs` in flake.nix). It cannot live inside
+`~/.config/mango` because that is the repo checkout itself. Three files, one per
+consumer:
+
+| file | consumer | holds |
+| --- | --- | --- |
+| mango.conf | `source_optional=~/.config/mango-host/mango.conf` at the end of config.conf | monitor rules, lid `switchbind`s |
+| env.sh | sourced by lib.sh; scripts keep their own `${var:-default}` | `lock_min`, `off_min` (idle.sh), `lock_monitor` (lock.sh) |
+| waybar.jsonc | `"include"` in waybar.jsonc; nested objects merge, keys set in the main file win | `network.interface` filter |
+
+Every include is optional so a missing link only means desktop-ish defaults
+and mango's automatic monitor layout; `check.sh` fails when the link or one of
+the three files is absent, and parses `mango.conf` with `mango -p` (an error
+inside a `source`d file is only printed by mango, not fatal, so it checks the
+host file on its own). Mango reloads config.conf and every sourced file when
+they change (`auto_reload_config=1`, the default); waybar and the scripts pick
+the other two up on restart.
+
 ## Process tree
 
 `config.conf` has `exec_once=autostart.sh`. autostart.sh is idempotent
@@ -63,6 +86,7 @@ Defines the paths and the only way scripts talk to the primitives:
 | `$cache_dir` | `~/.cache/mango`: logs, weather/geo cache, album art, icon cache, lock.png |
 | `$state_dir` | `~/.local/state/mango`: theme.css link, colors.scss, rofi-colors.rasi, nightlight.off |
 | `$runtime_dir` | `$XDG_RUNTIME_DIR`: click timestamps |
+| `$host_dir` | `~/.config/mango-host` → `hosts/<host>`; its `env.sh` is sourced here if present |
 | `$dbl_ms` | double-click window (popup.sh, cal.sh) |
 | `run CMD...` | run.sh: execute and record for the History popup |
 | `ewwc ARGS...` | ewwc.sh: the eww client |
@@ -112,8 +136,8 @@ Other scripts: `popup.sh` (window toggling), `theme.sh`, `lock.sh`,
 `lock.sh` runs gtklock with `gtklock.css` over `~/.cache/mango/lock.png`,
 which `wallpaper.sh` regenerates (blurred, dimmed, 1080p) every time it picks
 a wallpaper. Only the clock shows until a key press or mouse move; the form
-goes on the monitor named by `--monitor-priority` in lock.sh (desktop:
-HDMI-A-1). Falls back to plain swaylock. Both lockers need their PAM service
+goes on the monitor named by `lock_monitor` in `hosts/<host>/env.sh`
+(desktop: HDMI-A-1; empty lets gtklock pick). Falls back to plain swaylock. Both lockers need their PAM service
 from `modules/mango.nix`; a locker without one cannot verify the password
 and must be killed from a TTY.
 
@@ -155,7 +179,12 @@ and must be killed from a TTY.
    become a store copy later.
 10. **Timing constants** live at the top of the script that uses them
     (`tick` in sys.sh, timers in idle.sh and nightlight.sh) or in lib.sh
-    when shared (`dbl_ms`).
+    when shared (`dbl_ms`). Ones that differ per machine are set in
+    `hosts/<host>/env.sh` and the script keeps the fallback
+    (`lock_min=${lock_min:-10}`).
+11. **Nothing machine-specific outside `hosts/`.** No monitor names, interface
+    patterns or per-machine timers in config.conf, the scripts or
+    waybar.jsonc; add a key to the host files instead (see "Per-host settings").
 
 ## State and cache files
 
@@ -186,12 +215,13 @@ export MANGO_INSTANCE_SIGNATURE=$(ls $XDG_RUNTIME_DIR/mango-*.sock)   # mmsg fro
 
 ## Known gaps / todo
 
-- No per-host config: monitor rules in config.conf are the desktop's
-  (HDMI-A-2 / HDMI-A-1). The laptop needs eDP-1 rules or lid `switchbind`s,
-  brightness/volume key binds, a battery low warning, and power-aware idle
-  timers. Mango supports `source=` / `source_optional=` for a host file.
+- `hosts/laptop/` is a skeleton: no monitor rules or lid `switchbind`s yet
+  (eDP name unconfirmed), and the laptop still needs brightness/volume key
+  binds, a battery low warning and power-aware idle timers. See
+  `docs/mango-laptop-handoff.md`.
 - eww taskbar windows are opened once per monitor at autostart; monitor
   hotplug is not handled (`mmsg watch all-monitors` could drive it).
-- waybar's network module is filtered to `wl*`; wired dock connections show
-  as offline.
+- waybar's network module is filtered to `wl*` on the desktop
+  (`hosts/desktop/waybar.jsonc`); the laptop has no filter, so the VPN
+  tunnel shows as the connection while Proton is up.
 - Super+m quits the session with no confirmation.

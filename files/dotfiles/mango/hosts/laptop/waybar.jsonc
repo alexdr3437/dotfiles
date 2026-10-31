@@ -1,0 +1,8 @@
+// Work laptop: merged into waybar.jsonc through its "include" (nested objects merge;
+// a key set in waybar.jsonc itself wins, so only put host-specific keys here).
+{
+  "network": {
+    // no interface filter: the dock's ethernet must show. The VPN tunnel then
+    // wins the default route while Proton is up (handoff item 7 has the fix).
+  }
+}

@@ -1,0 +1,7 @@
+// Desktop: merged into waybar.jsonc through its "include" (nested objects merge;
+// a key set in waybar.jsonc itself wins, so only put host-specific keys here).
+{
+  "network": {
+    "interface": "wl*"   // not the default route (that is the VPN tunnel when Proton is up)
+  }
+}

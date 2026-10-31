@@ -74,6 +74,7 @@
             home-manager.extraSpecialArgs = {
               inherit nixpkgs-unstable;
               inherit inputs;
+              host = "desktop"; # files/dotfiles/mango/hosts/<host> (home/mango.nix)
             };
             home-manager.users.alex = import ./home;
           }
@@ -103,6 +104,7 @@
             home-manager.extraSpecialArgs = {
               inherit nixpkgs-unstable;
               inherit inputs;
+              host = "laptop"; # files/dotfiles/mango/hosts/<host> (home/mango.nix)
             };
             home-manager.users.alex = import ./home;
           }

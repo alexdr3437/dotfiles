@@ -3,6 +3,9 @@
 [
   {
     "name": "top",
+    // per-host overrides (network interface filter): nested objects merge, keys set
+    // in this file win. A missing file is only a warning in waybar.log.
+    "include": ["~/.config/mango-host/waybar.jsonc"],
     "layer": "top",
     "position": "top",
     "height": 38,
@@ -145,7 +148,7 @@
     },
 
     "network": {
-      "interface": "wl*",   // not the default route (that is the VPN tunnel when Proton is up)
+      // "interface" is per host: hosts/<host>/waybar.jsonc, pulled in by "include" above
       "interval": 5,
       "format-wifi": "{icon}  {essid}",
       "format-ethernet": "󰈀  {ifname}",

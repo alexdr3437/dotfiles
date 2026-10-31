@@ -11,13 +11,13 @@ if command -v gtklock >/dev/null; then
   # --start-hidden / --idle-hide: only the clock shows until a key press or mouse
   # move; the form folds away again after $hide_after seconds of inactivity.
   # --monitor-priority: which screen gets the form (others show only the clock);
-  # HDMI-A-1 is the desktop's 4K. Unknown names are ignored, so it is harmless elsewhere.
+  # $lock_monitor comes from hosts/<host>/env.sh, empty lets gtklock choose.
   hide_after=15
   [ -s "$bg" ] || bg=""
   exec gtklock --daemonize --style "$dir/gtklock.css" \
     --time-format '%-I:%M' --date-format '%A, %B %-d' \
     --start-hidden --idle-hide --idle-timeout "$hide_after" \
-    --monitor-priority HDMI-A-1 \
+    ${lock_monitor:+--monitor-priority "$lock_monitor"} \
     ${bg:+--background "$bg"}
 fi
 

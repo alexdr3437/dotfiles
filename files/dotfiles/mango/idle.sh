@@ -5,8 +5,8 @@
 #   idle.sh start | stop | toggle
 # shellcheck source=lib.sh
 . "$HOME/.config/mango/lib.sh"
-lock_min=10
-off_min=15
+lock_min=${lock_min:-10}   # per host in hosts/<host>/env.sh
+off_min=${off_min:-15}
 
 available() { command -v swayidle >/dev/null && command -v wlopm >/dev/null; }
 active() { pgrep -f '^swayidle' >/dev/null; }
