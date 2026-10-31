@@ -9,9 +9,16 @@ log="$cache_dir"
 # first login on a machine: theme.css and the files theme.sh derives from it don't exist yet
 [ -e "$state_dir/theme.css" ] || "$dir/theme.sh" catppuccin-mocha >/dev/null 2>&1
 
-# idle lock / screen off (no-op until swayidle + wlopm are installed)
+# idle lock / screen off / suspend on battery (no-op until swayidle + wlopm are installed);
+# the watcher swaps the timers when the power source changes (exits at once without a mains supply)
 "$dir/idle.sh" start
+pkill -f "^upower --monitor"; pkill -f "$dir/idle.sh watch"
+"$dir/idle.sh" watch >/dev/null 2>&1 &
 "$dir/nightlight.sh" auto   # unless turned off in settings
+
+# laptop panel off while an external monitor is connected (no-op without $internal_monitor)
+pkill -f '^mmsg watch all-monitors'; pkill -f "$dir/monitors.sh watch"
+"$dir/monitors.sh" watch >/dev/null 2>&1 &
 
 # wallpaper (random from ~/.dotfiles/files/wallpapers)
 "$dir/wallpaper.sh" >/dev/null 2>&1 &

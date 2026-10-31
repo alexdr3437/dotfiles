@@ -3,6 +3,7 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/kde.nix
+    ../../modules/mango.nix # "Mango" session beside plasma in sddm; config in files/dotfiles/mango
     ../../modules/audio.nix
     ../../modules/networking.nix
     ../../modules/embedded-dev.nix
@@ -30,6 +31,15 @@
   services.power-profiles-daemon.enable = false;
   services.tlp = {
     enable = true;
+  };
+
+  # The lid is mango's: files/dotfiles/mango/hosts/laptop/mango.conf binds fold/unfold
+  # to monitors.sh (battery → suspend, AC → lock + panel off). logind would otherwise
+  # suspend on top of that. Applies to the plasma session too.
+  services.logind.settings.Login = {
+    HandleLidSwitch = "ignore";
+    HandleLidSwitchDocked = "ignore";
+    HandleLidSwitchExternalPower = "ignore";
   };
 
   # The Intel AX211 bluetooth controller throws "Hardware error 0x0c" on BLE

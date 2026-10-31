@@ -24,7 +24,7 @@ consumer:
 | file | consumer | holds |
 | --- | --- | --- |
 | mango.conf | `source_optional=~/.config/mango-host/mango.conf` at the end of config.conf | monitor rules, lid `switchbind`s |
-| env.sh | sourced by lib.sh; scripts keep their own `${var:-default}` | `lock_min`, `off_min` (idle.sh), `lock_monitor` (lock.sh) |
+| env.sh | sourced by lib.sh; scripts keep their own `${var:-default}` | `internal_monitor` (monitors.sh), `lock_monitor` (lock.sh), idle timer overrides (idle.sh) |
 | waybar.jsonc | `"include"` in waybar.jsonc; nested objects merge, keys set in the main file win | `network.interface` filter |
 
 Every include is optional so a missing link only means desktop-ish defaults
@@ -47,7 +47,8 @@ popup's "Restart bar & popups" runs.
 | eww daemon (popups, taskbar, backdrop) | autostart.sh | eww/eww.yuck, eww/eww.scss | ~/.cache/mango/eww.log |
 | swaync | autostart.sh | swaync.json, swaync.css | ~/.cache/mango/swaync.log |
 | swaybg | wallpaper.sh | random file in ~/.dotfiles/files/wallpapers | |
-| swayidle | idle.sh start | timers at the top of idle.sh | |
+| swayidle | idle.sh start | timers at the top of idle.sh, AC vs battery; `idle.sh watch` restarts it when the source changes | |
+| monitors.sh watch | autostart.sh | laptop panel off while another monitor exists (`internal_monitor` in hosts/<host>/env.sh); fold/unfold lid binds | |
 | gtklock (lock screen) | lock.sh (idle.sh, power popup, Alt+l) | gtklock.css + ~/.cache/mango/lock.png | |
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
 | polkit-kde agent, nm-applet, blueman-applet | autostart.sh | | |
@@ -117,7 +118,8 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | bt.sh | bt | | the only script that parses bluetoothctl (BLE battery needs bluez Experimental) |
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
 | history.sh | history | custom/history | reads run.sh's log |
-| idle.sh | idle | | swayidle wrapper |
+| idle.sh | idle | | swayidle wrapper; timers by power source (/sys Mains supply; none → AC); `on-battery` for other scripts |
+| monitors.sh | | | internal panel vs externals (`status`, `apply`, `watch`) and lid (`fold`, `unfold`); no-op without `internal_monitor`. Disabled monitors stay in `all-monitors` with width 0 |
 | media.sh | media | custom/media (bar-stream) | MPRIS via busctl, no playerctl |
 | nightlight.sh | (via settings) | | wlsunset; sun times from `weather.sh cached`, never the network |
 | settings.sh | settings | custom/settings | theme / dnd / nightlight / restart |
@@ -215,9 +217,8 @@ export MANGO_INSTANCE_SIGNATURE=$(ls $XDG_RUNTIME_DIR/mango-*.sock)   # mmsg fro
 
 ## Known gaps / todo
 
-- `hosts/laptop/` is a skeleton: no monitor rules or lid `switchbind`s yet
-  (eDP name unconfirmed), and the laptop still needs brightness/volume key
-  binds, a battery low warning and power-aware idle timers. See
+- `hosts/laptop/` assumes the panel is `eDP-1` (unverified) and the laptop
+  still needs brightness/volume key binds and a battery low warning. See
   `docs/mango-laptop-handoff.md`.
 - eww taskbar windows are opened once per monitor at autostart; monitor
   hotplug is not handled (`mmsg watch all-monitors` could drive it).

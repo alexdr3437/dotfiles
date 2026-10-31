@@ -66,40 +66,43 @@ right directory.
 `hosts/laptop/` is a skeleton with the lid binds commented out; fill it in
 under items 2 and 5.
 
-### 2. Lid handling / disabling the internal panel
+### 2. Lid handling / internal panel (DONE 2026-10-31, laptop verification pending)
 
-Monitor rule parameters that matter (docs/configuration/monitors.md):
-`name` (regex), `x`, `y`, `scale`, `disable:1`, `primary:1`. Commands:
-`disable_monitor`, `enable_monitor`, `toggle_monitor`, `sleep_monitor`,
-`wakeup_monitor`, all taking a monitor spec like `eDP-1`.
+Behaviour the user asked for: panel black whenever an external monitor is
+connected, back on automatically when the last one goes; never suspend on wall
+power; suspend on battery.
 
-Lid switch bindings exist:
+Implementation (`files/dotfiles/mango/monitors.sh`, no-op where
+`internal_monitor` is empty, i.e. the desktop):
 
-```ini
-switchbind=fold,disable_monitor,eDP-1
-switchbind=unfold,enable_monitor,eDP-1
-```
+- `monitors.sh watch` (autostart.sh) applies on every `mmsg watch all-monitors`
+  event: externals present → `disable_monitor eDP-1`, none → `enable_monitor`.
+  Idempotent: mango keeps disabled monitors in `all-monitors` with a zero box,
+  so width > 0 means enabled (a DPMS-slept monitor keeps its box). The stream
+  also fires on focus/tag changes, so apply stays cheap.
+- Lid: `switchbind=fold/unfold,spawn,monitors.sh fold/unfold` in
+  `hosts/laptop/mango.conf`. fold: battery → `systemctl suspend`; AC →
+  `lock.sh` + `sleep_monitor` on the panel if it is in use. unfold:
+  `wakeup_monitor` only when the panel is the one in use (wakeup would also
+  re-enable a panel apply disabled), then apply.
+- `hosts/laptop/mango.conf`: `monitor_rule=name:eDP-1,scale:1.25` (name
+  assumed, 2560-wide panel). No static `disable:1` so an undocked login has a
+  screen.
+- Nix: `hosts/laptop` imports `modules/mango.nix` (Mango beside plasma in
+  sddm) and sets `services.logind.settings.Login.HandleLidSwitch*=ignore`;
+  flake.nix adds `inputs.mango.nixosModules.mango` to the laptop. Evaluated,
+  not built.
+- `wlopm --on '*'` in idle.sh's resume hook is safe: a disabled output is
+  removed from the wlr output layout, which drops its wl_output global, so
+  wlopm never sees it (source: handle_output_layout_change in
+  src/manage/monitor.c; wlroots creates/destroys the global in
+  wlr_output_layout_add/remove).
 
-They require logind to ignore the lid:
-
-```nix
-services.logind.settings.Login = {
-  HandleLidSwitch = "ignore";
-  HandleLidSwitchDocked = "ignore";
-  HandleLidSwitchExternalPower = "ignore";
-};
-```
-
-Recommended: lid-driven (fold disables eDP, unfold re-enables). A static
-`disable:1` rule is simpler but leaves zero outputs when the external
-monitor is unplugged. Trade-off to confirm with the user: with
-`HandleLidSwitch=ignore`, closing the lid on battery no longer suspends;
-pair it with an idle suspend (item 5) or a `fold` bind that also runs
-`systemctl suspend` when no external monitor is present (`mmsg get
-all-monitors | jq '.monitors | length'`).
-
-Verify: `wlopm --on '*'` in `idle.sh`'s resume hook must not re-light a
-disabled eDP-1 (wlopm only sees heads mango still exposes; check).
+To verify on the laptop: panel name (`mmsg get all-monitors`; fix in
+`hosts/laptop/mango.conf` and `env.sh` if not eDP-1), dock/undock with
+`monitors.sh status`, lid close on AC and on battery, that the
+`all-monitors` stream really fires on hotplug, and that the panel comes back
+after resume (`unfold` runs when the switch state is re-read).
 
 ### 3. eww taskbar does not survive monitor hotplug
 
@@ -135,17 +138,24 @@ it fires once per crossing; it is polled every 30 s by waybar), and
 (check that `services.upower.enable` is on; KDE's module probably enables it,
 but the laptop may drop KDE).
 
-### 5. Idle timers ignore power source
+### 5. Idle timers by power source (DONE 2026-10-31)
 
-`idle.sh` runs swayidle with fixed 10 min lock / 15 min screens off and no
-suspend. On battery add a suspend timeout (e.g. 30 min) and shorter screen
-off. Detect AC with `upower -i $(upower -e | grep line_power)` or
-`/sys/class/power_supply/AC*/online`; simplest is per-host timers via the
-host split, plus an `on-battery` branch. Also add `lock "$dir/lock.sh"` to
-the swayidle args so `loginctl lock-session` works. swayidle has no
-`-w`-safe reload; restart it when the power source changes if you want
-dynamic timers (a udev or upower `--monitor` loop), otherwise keep it
-static per host.
+`idle.sh` reads the source from /sys (a `Mains` supply that is offline →
+battery; no Mains supply → AC, which is the desktop). Both hosts share the
+defaults, overridable in `hosts/<host>/env.sh`:
+
+- AC: lock after 5 min, screens off after 60 (`wlopm`), never suspend.
+- battery: lock after 2 min, `systemctl suspend` after 5.
+- `lock` and `before-sleep` hooks run lock.sh in both (`loginctl
+  lock-session` works).
+
+`idle.sh watch` (autostart.sh) follows `upower --monitor` and restarts
+swayidle only when the source changes; it exits immediately without a Mains
+supply. `idle.sh on-battery` is the shared test for monitors.sh. The settings
+popup shows the active set (`idle.source`).
+
+Verify on the laptop: unplug → `idle.sh status` says battery and
+`pgrep -af swayidle` shows 120/300 s; plug back → 300/3600 s.
 
 ### 6. No hardware keys
 

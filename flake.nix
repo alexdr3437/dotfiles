@@ -88,6 +88,7 @@
           { _module.args = { inherit inputs; }; }
 
           ./hosts/laptop
+          inputs.mango.nixosModules.mango
           home-manager.nixosModules.home-manager
 
           {
