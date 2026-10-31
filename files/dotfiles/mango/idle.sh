@@ -12,7 +12,7 @@
 # shellcheck source=lib.sh
 . "$HOME/.config/mango/lib.sh"
 ac_lock_min=${ac_lock_min:-5}
-ac_off_min=${ac_off_min:-60}
+ac_off_min=${ac_off_min:-120}
 bat_lock_min=${bat_lock_min:-2}
 bat_suspend_min=${bat_suspend_min:-5}
 
