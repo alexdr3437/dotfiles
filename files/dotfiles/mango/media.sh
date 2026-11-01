@@ -11,12 +11,17 @@ empty='{"player":"","status":"","title":"","artist":"","art":"","length":0,"pos"
 players() { busctl --user list --json=short 2>/dev/null | jq -r '.[].name | select(startswith("org.mpris.MediaPlayer2."))'; }
 prop() { busctl --user --json=short get-property "$1" /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player "$2" 2>/dev/null | jq -c '.data'; }
 
-# prefer a playing player, else the first one
+# prefer a playing player, else the first paused one that isn't a browser:
+# browsers keep a paused session for any tab that once had media, which would
+# pin a stale tab title in the bar
 pick() {
   first=""
   for p in $(players); do
-    [ -z "$first" ] && first=$p
     [ "$(prop "$p" PlaybackStatus)" = '"Playing"' ] && { echo "$p"; return; }
+    case "$p" in
+      *.firefox*|*.chromium*|*.chrome*|*.brave*|*.vivaldi*|*.librewolf*|*.zen*) ;;
+      *) [ -z "$first" ] && first=$p ;;
+    esac
   done
   echo "$first"
 }
