@@ -36,9 +36,12 @@ in
         enable = true;
         package = hex;
         autostart = true;
-        # Parakeet Unified English: the only model that streams (text lands ~150 ms after
-        # release however long the clip, and it is what Labs › Live text needs). English only.
-        model = "parakeet_unified_en";
+        # Cohere Transcribe (2.4 GB, 14 languages): fewer errors than Parakeet on hex's English
+        # benchmark (1.27 % vs 1.60 % word error rate). It does not
+        # stream, so the whole clip is transcribed after release and Labs › Live text shows
+        # nothing; parakeet_unified_en is the streaming one. Activation (every switch and
+        # boot) re-applies this, so a model picked in the window lasts until then.
+        model = "cohere_transcribe";
         installModel = true;
         # Applied on every switch (`hex settings apply`); app rules made in the window that
         # are not declared here are replaced, since the whole list is one setting.
