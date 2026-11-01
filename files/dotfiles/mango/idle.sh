@@ -1,11 +1,13 @@
 #!/usr/bin/env sh
 # Idle handling (swayidle), with timers that depend on the power source:
-#   on AC:      lock after $ac_lock_min, screens off after $ac_off_min, never suspend
+#   on AC:      lock after $ac_lock_min, screens off after $ac_off_min, never suspend; with
+#               $soft_lock_min set (the desktop) the password-free lock screen (softlock.sh)
+#               comes first, after $soft_lock_min, and any key or pointer move ends it
 #   on battery: lock after $bat_lock_min, suspend after $bat_suspend_min
 # Both also set logind's IdleHint after $hint_min (reset on input): fah-client's "on idle"
 # reads it, though that is off and it folds all the time (modules/foldingathome.nix).
 # Lock before sleep and on `loginctl lock-session` in both. Needs swayidle + wlopm (modules/mango.nix).
-#   idle.sh status      → eww JSON {available, active, source, lock_min, off_min, suspend_min}
+#   idle.sh status      → eww JSON {available, active, source, soft_min, lock_min, off_min, suspend_min}
 #   idle.sh start | stop | toggle
 #   idle.sh watch       → restart swayidle when the power source changes (autostart.sh)
 #   idle.sh on-battery  → exit 0 on battery, 1 on AC (monitors.sh)
@@ -18,6 +20,7 @@ ac_off_min=${ac_off_min:-120}
 bat_lock_min=${bat_lock_min:-2}
 bat_suspend_min=${bat_suspend_min:-5}
 hint_min=${hint_min:-5}  # logind IdleHint (Folding@home's "on idle", currently off)
+soft_lock_min=${soft_lock_min:-0}  # AC: password-free lock screen after this many minutes; 0 = none
 
 available() { command -v swayidle >/dev/null && command -v wlopm >/dev/null; }
 active() { pgrep -f '^swayidle' >/dev/null; }
@@ -43,7 +46,9 @@ start() {
       lock "$dir/lock.sh" before-sleep "$dir/lock.sh" >/dev/null 2>&1 </dev/null
   else
     # wlopm never sees a monitor that monitors.sh disabled (no wl_output global), so --on '*' is safe
-    setsid -f swayidle -w \
+    set --
+    [ "$soft_lock_min" -gt 0 ] && set -- timeout $((soft_lock_min * 60)) "$dir/softlock.sh show" resume "$dir/softlock.sh hide"
+    setsid -f swayidle -w "$@" \
       timeout $((ac_lock_min * 60)) "$dir/lock.sh" \
       idlehint $((hint_min * 60)) \
       timeout $((ac_off_min * 60)) "wlopm --off '*'" resume "wlopm --on '*'" \
@@ -71,9 +76,9 @@ case "$1" in
   status)
     a=false; available && a=true
     r=false; active && r=true
-    src=$(power_source); lm=$ac_lock_min; [ "$src" = battery ] && lm=$bat_lock_min
-    printf '{"available":%s,"active":%s,"source":"%s","lock_min":%d,"off_min":%d,"suspend_min":%d}\n' \
-      "$a" "$r" "$src" "$lm" "$ac_off_min" "$bat_suspend_min" ;;
+    src=$(power_source); lm=$ac_lock_min; sm=$soft_lock_min; [ "$src" = battery ] && lm=$bat_lock_min sm=0
+    printf '{"available":%s,"active":%s,"source":"%s","soft_min":%d,"lock_min":%d,"off_min":%d,"suspend_min":%d}\n' \
+      "$a" "$r" "$src" "$sm" "$lm" "$ac_off_min" "$bat_suspend_min" ;;
   start) start ;;
   stop) stop ;;
   toggle) if active; then run "$0" stop; else run "$0" start; fi; sleep 0.3

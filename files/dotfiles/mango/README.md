@@ -24,7 +24,7 @@ consumer:
 | file | consumer | holds |
 | --- | --- | --- |
 | mango.conf | `source_optional=~/.config/mango-host/mango.conf` at the end of config.conf | monitor rules, lid `switchbind`s |
-| env.sh | sourced by lib.sh; scripts keep their own `${var:-default}` | `internal_monitor` (monitors.sh), `lock_monitor` (lock.sh), `screenshot_dir` (screenshot.sh), `ephemeral_w`/`ephemeral_h` (ephemeral.sh), idle timer overrides (idle.sh) |
+| env.sh | sourced by lib.sh; scripts keep their own `${var:-default}` | `internal_monitor` (monitors.sh), `lock_monitor` (lock.sh), `screenshot_dir` (screenshot.sh), `ephemeral_w`/`ephemeral_h` (ephemeral.sh), idle timer overrides (idle.sh), `soft_lock_min` for the password-free lock screen (desktop) |
 | waybar.jsonc | `"include"` in waybar.jsonc; nested objects merge, keys set in the main file win | nothing at the moment (`{}`) |
 
 Every include is optional so a missing link only means desktop-ish defaults
@@ -47,7 +47,7 @@ popup's "Restart bar & popups" runs.
 | eww daemon (popups, taskbar, backdrop) | autostart.sh | eww/eww.yuck, eww/eww.scss | ~/.cache/mango/eww.log |
 | swaync | autostart.sh | swaync.json, swaync.css | ~/.cache/mango/swaync.log |
 | swaybg | wallpaper.sh | random file in ~/.dotfiles/files/wallpapers | |
-| swayidle | idle.sh start | timers at the top of idle.sh, AC vs battery; `idle.sh watch` restarts it when the source changes; sets logind IdleHint after `hint_min` (read by Folding@home's "on idle", which is off: it folds all the time, modules/foldingathome.nix) | |
+| swayidle | idle.sh start | timers at the top of idle.sh, AC vs battery; on AC with `soft_lock_min` (desktop) the password-free lock screen (softlock.sh) first, the password lock after `ac_lock_min`; `idle.sh watch` restarts it when the source changes; sets logind IdleHint after `hint_min` (read by Folding@home's "on idle", which is off: it folds all the time, modules/foldingathome.nix) | |
 | monitors.sh watch | autostart.sh (after eww) | taskbar per enabled monitor, re-synced on hotplug; laptop panel off while another monitor exists (`internal_monitor` in hosts/<host>/env.sh); fold/unfold lid binds | |
 | gtklock (lock screen) | lock.sh (first `exec_once` at session start since greetd autologs in, idle.sh, power popup, Alt+m) | gtklock.css + ~/.cache/mango/lock.png | |
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
@@ -130,6 +130,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | palette.sh | | | command palette: every `bind=` in config.conf plus a few unbound actions, in rofi with label · description · keys; descriptions in `describe()`; Super+Shift+p |
 | layout.sh | | | rofi dmenu of `mmsg get layouts` with a description per row, current one preselected; Super+Shift+n |
 | screenshot.sh | | | `slurp -d` region → `grim` → `satty` (annotate; Enter copies, Ctrl+S saves to `$screenshot_dir`, default ~/Pictures/Screenshots); Super+t |
+| softlock.sh | | | the password-free lock screen: `show` opens eww `softlock` (blurred wallpaper + clock, takes the keyboard so the waking key goes nowhere) on every monitor, `hide` closes it; idle.sh runs them from a swayidle timeout and its resume where `soft_lock_min` is set (desktop: 5 min, password lock at 120) |
 | idle.sh | idle | | swayidle wrapper; timers by power source (/sys Mains supply; none → AC); `on-battery` for other scripts |
 | media.sh | media | custom/media (bar-stream) | MPRIS via busctl, no playerctl |
 | monitors.sh | | | `names` (enabled monitors), `taskbars` (one eww taskbar per monitor), internal panel vs externals (`status`, `apply`, `watch`) and lid (`fold`, `unfold`). Disabled monitors stay in `all-monitors` with width 0 |
@@ -164,6 +165,12 @@ doing nothing. If the form is ever stuck anyway, **Ctrl+Alt+Delete** (`bindl`, s
 it works while locked) runs `lock.sh relock`: it kills the locker and starts a
 fresh one. mango keeps the session locked while no locker runs and hands the
 lock to the next, so this never unlocks anything.
+
+Idle on the desktop: after `soft_lock_min` (5) the password-free lock screen
+(`softlock.sh`), which the first key, pointer move or click ends; the password
+lock only after `ac_lock_min` (120). Both are set in `hosts/desktop/env.sh`; the
+laptop sets neither and locks with the password after 5 minutes. Alt+m, the
+power popup, boot and sleep always lock with the password.
 
 ## Invariants (do not break these)
 

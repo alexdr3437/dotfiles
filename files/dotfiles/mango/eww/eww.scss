@@ -197,3 +197,22 @@ tooltip {
   min-width: 10px;
   margin: 0 0 1px 0;
 }
+
+// ---------------------------------------------------------------- softlock
+// the password-free idle screen (softlock.sh): same look as gtklock's hidden state,
+// the blurred wallpaper wallpaper.sh keeps for the lock screen, crust if it is missing
+.softlock {
+  background-color: $crust;
+  background-image: url("/home/alex/.cache/mango/lock.png");
+  background-size: cover;
+  background-position: center;
+}
+.softlock-clock {
+  font-size: 76px;
+  font-weight: bold;
+  color: $text;
+}
+.softlock-date {
+  font-size: 18px;
+  color: $subtext0;
+}
