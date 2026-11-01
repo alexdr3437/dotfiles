@@ -2,7 +2,9 @@
 # Idle handling (swayidle), with timers that depend on the power source:
 #   on AC:      lock after $ac_lock_min, screens off after $ac_off_min, never suspend
 #   on battery: lock after $bat_lock_min, suspend after $bat_suspend_min
-# Lock before sleep and on `loginctl lock-session` in both. Needs swayidle + wlopm (modules/mango.nix).
+# Both also set logind's IdleHint after $hint_min (reset on input): fah-client folds only
+# while it is set (modules/foldingathome.nix). Lock before sleep and on `loginctl lock-session`
+# in both. Needs swayidle + wlopm (modules/mango.nix).
 #   idle.sh status      → eww JSON {available, active, source, lock_min, off_min, suspend_min}
 #   idle.sh start | stop | toggle
 #   idle.sh watch       → restart swayidle when the power source changes (autostart.sh)
@@ -15,6 +17,7 @@ ac_lock_min=${ac_lock_min:-5}
 ac_off_min=${ac_off_min:-120}
 bat_lock_min=${bat_lock_min:-2}
 bat_suspend_min=${bat_suspend_min:-5}
+hint_min=${hint_min:-5}  # logind IdleHint (Folding@home starts)
 
 available() { command -v swayidle >/dev/null && command -v wlopm >/dev/null; }
 active() { pgrep -f '^swayidle' >/dev/null; }
@@ -35,12 +38,14 @@ start() {
   if [ "$(power_source)" = battery ]; then
     setsid -f swayidle -w \
       timeout $((bat_lock_min * 60)) "$dir/lock.sh" \
+      idlehint $((hint_min * 60)) \
       timeout $((bat_suspend_min * 60)) "systemctl suspend" \
       lock "$dir/lock.sh" before-sleep "$dir/lock.sh" >/dev/null 2>&1 </dev/null
   else
     # wlopm never sees a monitor that monitors.sh disabled (no wl_output global), so --on '*' is safe
     setsid -f swayidle -w \
       timeout $((ac_lock_min * 60)) "$dir/lock.sh" \
+      idlehint $((hint_min * 60)) \
       timeout $((ac_off_min * 60)) "wlopm --off '*'" resume "wlopm --on '*'" \
       lock "$dir/lock.sh" before-sleep "$dir/lock.sh" >/dev/null 2>&1 </dev/null
   fi

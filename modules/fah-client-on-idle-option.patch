@@ -1,0 +1,13 @@
+diff --git a/src/fah/client/Config.cpp b/src/fah/client/Config.cpp
+index 444117d..9fc8879 100644
+--- a/src/fah/client/Config.cpp
++++ b/src/fah/client/Config.cpp
+@@ -59,7 +59,7 @@ void Config::load(const Options &opts) {
+       switch (opts[key].getType()) {
+       case Option::TYPE_INTEGER: insert(_key, opts[key].toInteger()); break;
+       case Option::TYPE_DOUBLE:  insert(_key, opts[key].toDouble());  break;
+-      case Option::TYPE_BOOLEAN: insert(_key, opts[key].toBoolean()); break;
++      case Option::TYPE_BOOLEAN: insertBoolean(_key, opts[key].toBoolean()); break;
+       default:                   insert(_key, opts[key]);             break;
+       }
+   }

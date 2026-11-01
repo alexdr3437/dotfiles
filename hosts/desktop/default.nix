@@ -21,6 +21,7 @@
     ../../modules/dictation.nix
     ../../modules/llm.nix
     ../../modules/logitech.nix
+    ../../modules/foldingathome.nix
   ];
 
   # nvidia 610.57.04 does not build on 7.3 (dmem_cgroup_register_region API change)
