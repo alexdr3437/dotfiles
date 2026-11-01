@@ -167,7 +167,7 @@ fresh one. mango keeps the session locked while no locker runs and hands the
 lock to the next, so this never unlocks anything.
 
 Idle on the desktop: after `soft_lock_min` (5) the password-free lock screen
-(`softlock.sh`), which the first key, pointer move or click ends; the password
+(`softlock.sh`; waybar hides while it shows), which the first key, pointer move or click ends; the password
 lock only after `ac_lock_min` (120). Both are set in `hosts/desktop/env.sh`; the
 laptop sets neither and locks with the password after 5 minutes on AC, 2 on battery. Alt+m, the
 power popup, boot and sleep always lock with the password.

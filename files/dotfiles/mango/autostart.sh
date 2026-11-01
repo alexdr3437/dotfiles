@@ -53,4 +53,5 @@ pkill -f "$dir/clip.sh watch"
 
 # bars (needs swaync running first for the notification module)
 pkill -f '^waybar '
+rm -f "$runtime_dir/mango-softlock-bar"   # a new waybar starts visible (softlock.sh)
 waybar -c "$dir/waybar.jsonc" -s "$dir/waybar.css" >"$log/waybar.log" 2>&1 &

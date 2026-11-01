@@ -27,7 +27,10 @@ open_wins() { ewwc active-windows 2>/dev/null | cut -d: -f1 | grep -v "^taskbar-
 # shellcheck disable=SC2086  # $1 is a whitespace-separated list of window ids
 close_ids() { [ -n "$1" ] && ewwc close $1 >/dev/null 2>&1; }
 close_backdrops() { close_ids "$(open_wins | grep '^backdrop-')"; }
-close_all()       { close_ids "$(open_wins)"; }
+close_all() {   # closing the soft lock also brings waybar back (softlock.sh)
+  ids=$(open_wins); close_ids "$ids"
+  case "$ids" in *softlock-*) "$dir/softlock.sh" hide ;; esac
+}
 
 case "$win" in
   close) close_all; swaync-client -cp >/dev/null 2>&1; exit 0 ;;
