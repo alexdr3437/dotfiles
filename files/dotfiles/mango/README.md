@@ -47,7 +47,7 @@ popup's "Restart bar & popups" runs.
 | eww daemon (popups, taskbar, backdrop) | autostart.sh | eww/eww.yuck, eww/eww.scss | ~/.cache/mango/eww.log |
 | swaync | autostart.sh | swaync.json, swaync.css | ~/.cache/mango/swaync.log |
 | swaybg | wallpaper.sh | random file in ~/.dotfiles/files/wallpapers | |
-| swayidle | idle.sh start | timers at the top of idle.sh, AC vs battery; `idle.sh watch` restarts it when the source changes; sets logind IdleHint after `hint_min` (Folding@home folds only then, modules/foldingathome.nix) | |
+| swayidle | idle.sh start | timers at the top of idle.sh, AC vs battery; `idle.sh watch` restarts it when the source changes; sets logind IdleHint after `hint_min` (read by Folding@home's "on idle", which is off: it folds all the time, modules/foldingathome.nix) | |
 | monitors.sh watch | autostart.sh (after eww) | taskbar per enabled monitor, re-synced on hotplug; laptop panel off while another monitor exists (`internal_monitor` in hosts/<host>/env.sh); fold/unfold lid binds | |
 | gtklock (lock screen) | lock.sh (first `exec_once` at session start since greetd autologs in, idle.sh, power popup, Alt+m) | gtklock.css + ~/.cache/mango/lock.png | |
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
