@@ -5,9 +5,9 @@
 #   sys.sh bar-stream net  → waybar JSON every 1 s with the down/up rates (custom/net)
 #   sys.sh status | bar    → one-shot forms
 # JSON: {cpu, cpu_pad, load, cores, temp, mem:{used,total,pct}, swap:{used,total,pct},
-#        net:{iface, down, up, down_bps, up_bps}, top:[{name, cpu, mem} x5]}
+#        net:{iface, down, up, down_bps, up_bps}, top:[{name, cpu, mem} x5], top_mem:(same, by memory)}
 # Label text is padded with U+2007 figure spaces to a fixed width (cpu_pad 3, used 4, rates 3,
-# top cpu 5, top mem 4) and top always has 5 entries (blank name = hidden row), so the popup
+# top cpu 5, top mem 4) and top/top_mem always have 5 entries (blank name = hidden row), so the popup
 # never re-lays out. net sums the physical interfaces (/sys/class/net/*/device exists), which
 # skips lo, docker and tunnels and so does not count VPN traffic twice.
 # (does not source lib.sh: needs no paths and nothing from it)
@@ -81,10 +81,11 @@ sample() {
   gib $su; swap_used=$gib_out; gib $swt; swap_total=$gib_out
 }
 
-top() {
+# top_by KEY → $top_out: the 5 heaviest processes by ps sort key KEY (pcpu or rss), as JSON
+top_by() {
   # drop ps and this script (fresh processes report inflated cpu); names may contain spaces;
   # rss (KiB) → "340 MiB" / "1.2 GiB"; jq pad(n) mirrors pad() above
-  top_json=$(ps -eo pid,pcpu,rss,comm --sort=-pcpu --no-headers | head -8 \
+  top_out=$(ps -eo pid,pcpu,rss,comm --sort=-"$1" --no-headers | head -8 \
     | awk -v me="$$" '$1 != me && $4 != "ps" {c=$2; m=$3; $1=""; $2=""; $3=""; sub(/^ +/, ""); printf "%s\t%s\t%s\n", $0, c, m}' \
     | jq -R -s -c --arg fs "$fs" 'def pad(n): tostring | (n - length) as $k | if $k > 0 then ($fs * $k) + . else . end;
                    split("\n") | map(select(length > 0) | split("\t")
@@ -92,14 +93,16 @@ top() {
                       mem: ((.[2] | tonumber) | if . >= 1048576 then "\(((. * 10 / 1048576 | floor) / 10) | pad(4)) GiB" else "\((. / 1024 | floor) | pad(4)) MiB" end)})
                    | .[:5] | . + [range(5 - length) | {name: "", cpu: "", mem: ""}]')   # always 5 rows
 }
+# both orders every time, so the popup's cpu/ram switch flips without waiting for a tick
+top() { top_by pcpu; top_json=$top_out; top_by rss; top_mem_json=$top_out; }
 
 emit_status() {
   rate "$down"; down_h=$rate_out; rate "$up"; up_h=$rate_out
   # padded strings for labels; cpu and pct stay numbers for the meters
   pad "$cpu" 3; cpu_p=$pad_out; pad "$mem_used" 4; mem_p=$pad_out; pad "$swap_used" 4; swap_p=$pad_out
-  printf '{"cpu":%d,"cpu_pad":"%s","load":"%s","load1":"%s","cores":%d,"temp":%d,"mem":{"used":"%s","total":%s,"pct":%d},"swap":{"used":"%s","total":%s,"pct":%d},"net":{"iface":"%s","down":"%s","up":"%s","down_bps":%d,"up_bps":%d},"top":%s}\n' \
+  printf '{"cpu":%d,"cpu_pad":"%s","load":"%s","load1":"%s","cores":%d,"temp":%d,"mem":{"used":"%s","total":%s,"pct":%d},"swap":{"used":"%s","total":%s,"pct":%d},"net":{"iface":"%s","down":"%s","up":"%s","down_bps":%d,"up_bps":%d},"top":%s,"top_mem":%s}\n' \
     "$cpu" "$cpu_p" "$load" "$l1" "$cores" "$temp" "$mem_p" "$mem_total" "$mem_pct" "$swap_p" "$swap_total" "$swap_pct" \
-    "${net_ifaces# }" "$down_h" "$up_h" "$down" "$up" "${top_json:-[]}"
+    "${net_ifaces# }" "$down_h" "$up_h" "$down" "$up" "${top_json:-[]}" "${top_mem_json:-[]}"
 }
 emit_bar_net() {
   rate3 "$down"; d=$rate3_out; rate3 "$up"; u=$rate3_out

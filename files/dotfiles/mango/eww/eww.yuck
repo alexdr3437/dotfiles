@@ -17,7 +17,9 @@
 (defpoll taskbar :interval "1s" :initial '{}' "~/.config/mango/taskbar.sh status")
 (defpoll settings :interval "3s" :initial '{"theme":"","themes":[],"dnd":false,"nl":{"active":false,"start":"","stop":"","after":30}}' "~/.config/mango/settings.sh status")
 ;; streamed (0.5s ticks) rather than polled; eww runs it only while the system popup is open
-(deflisten sys :initial '{"cpu":0,"cpu_pad":"","load":"","load1":"","cores":0,"temp":0,"mem":{"used":"","total":0,"pct":0},"swap":{"used":"","total":0,"pct":0},"net":{"iface":"","down":"","up":"","down_bps":0,"up_bps":0},"top":[{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""}]}' "~/.config/mango/sys.sh stream")
+(deflisten sys :initial '{"cpu":0,"cpu_pad":"","load":"","load1":"","cores":0,"temp":0,"mem":{"used":"","total":0,"pct":0},"swap":{"used":"","total":0,"pct":0},"net":{"iface":"","down":"","up":"","down_bps":0,"up_bps":0},"top":[{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""}],"top_mem":[{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""},{"name":"","cpu":"","mem":""}]}' "~/.config/mango/sys.sh stream")
+;; which list the system popup's top processes show: "cpu" (sys.top) or "mem" (sys.top_mem)
+(defvar sys_sort "cpu")
 
 ;; ---------------------------------------------------------------- backdrop
 ;; invisible window covering each monitor (below the bars) while a popup is open;
@@ -231,15 +233,22 @@
       (label :class "row-title" :halign "start" :hexpand true :text "Network")
       (label :class "row-sub" :text "⇣ ${sys.net.down}" :width 105 :halign "end")
       (label :class "row-sub" :text "⇡ ${sys.net.up}" :width 105 :halign "end"))
-    (label :class "section" :text "top processes" :halign "start")
+    (box :orientation "h" :space-evenly false
+      (label :class "section" :text "top processes" :halign "start" :hexpand true)
+      ;; sort switch: sys.sh sends both lists, so this only picks which one the rows read
+      (eventbox :class "chip-app" :cursor "pointer" :valign "end" :timeout "5s"
+                :tooltip {sys_sort == "mem" ? "sorted by memory · click for cpu" : "sorted by cpu · click for memory"}
+                :onclick {sys_sort == "mem" ? "~/.config/mango/async.sh ~/.config/mango/ewwc.sh update sys_sort=cpu"
+                                            : "~/.config/mango/async.sh ~/.config/mango/ewwc.sh update sys_sort=mem"}
+        (label :text {sys_sort == "mem" ? "ram" : "cpu"})))
     ;; five fixed rows, not a `for`: eww rebuilds every child of a for-loop each time the
-    ;; array changes (every 2s here), which flickered. sys.sh pads top to exactly 5 entries.
+    ;; array changes (every 2s here), which flickered. sys.sh pads both lists to exactly 5 entries.
     (box :orientation "v" :space-evenly false
-      (proc-row :p {sys.top[0]})
-      (proc-row :p {sys.top[1]})
-      (proc-row :p {sys.top[2]})
-      (proc-row :p {sys.top[3]})
-      (proc-row :p {sys.top[4]}))))
+      (proc-row :p {sys_sort == "mem" ? sys.top_mem[0] : sys.top[0]})
+      (proc-row :p {sys_sort == "mem" ? sys.top_mem[1] : sys.top[1]})
+      (proc-row :p {sys_sort == "mem" ? sys.top_mem[2] : sys.top[2]})
+      (proc-row :p {sys_sort == "mem" ? sys.top_mem[3] : sys.top[3]})
+      (proc-row :p {sys_sort == "mem" ? sys.top_mem[4] : sys.top[4]}))))
 
 (defwidget proc-row [p]
   (box :class "proc" :orientation "h" :space-evenly false :spacing 8 :visible {p.name != ""}
