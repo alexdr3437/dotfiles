@@ -55,6 +55,7 @@ popup's "Restart bar & popups" runs.
 | drives.sh watch | autostart.sh | udev block add → notification with "Mount and open" / "Mount" (udisksctl, then Dolphin) | |
 | rofi (app launcher, clipboard history, emoji picker) | Super+r → launcher.sh pick, Super+v → clip.sh pick, Super+period → emoji.sh | rofi.rasi | |
 | clip.sh watch | autostart.sh | `wl-paste --watch cliphist store` for text and images | |
+| hex (voice dictation) | `hex.service` user unit from hex's home-manager module (modules/dictation.nix), with graphical-session.target | hold Ctrl+Super in config.conf → `hex dictation start/stop` (a `dictation` key mode, see the comment there); settings in the `hex` window; models in ~/.local/share/hex | `journalctl --user -u hex` |
 | grim + slurp + satty (screenshots) | Super+t → screenshot.sh | | |
 
 ## Data flow

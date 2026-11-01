@@ -30,7 +30,13 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    voxtype.url = "github:peteonrails/voxtype/v1.1.1-rc2";
+    # hex voice dictation (modules/dictation.nix). Follows an in-tree nixpkgs so hex
+    # and the nvidia Vulkan driver do not end up with hex on the older glibc (then it
+    # finds no Vulkan adapter). unstable, not nixpkgs: hex needs a newer rustc than 26.05 has.
+    hex = {
+      url = "github:anomalyco/hex";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
 
     hw_db_interface.url = "git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";
     marc.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?dir=device-manager/tools/marc&ref=dev";
