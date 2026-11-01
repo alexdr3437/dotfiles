@@ -15,6 +15,16 @@ let
       patches = (old.patches or [ ]) ++ [ ./rofi-reset-selection.patch ];
     });
   };
+  # gtklock 4.0.0 loses the password form when a monitor goes away while locked
+  # (powered off overnight, unplugged): the window that inherits it is never marked
+  # focused, so no screen shows the form again and Enter does nothing; the only way
+  # out was a reboot. The patch takes upstream's fix for the removal (unreleased as
+  # of 4.0.0), gives the form to a returning monitor when no window holds it, and
+  # moves the form to whichever window mango gives the keyboard, so typing always
+  # lands in a visible field. See gtklock-monitor-hotplug.patch.
+  gtklock = pkgs.gtklock.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ./gtklock-monitor-hotplug.patch ];
+  });
 in
 {
   # mango.nixosModules.mango is imported in flake.nix
@@ -26,7 +36,10 @@ in
   # wallpaper, see ~/.config/mango/lock.sh). The module also registers its PAM
   # service; a locker without one can never verify the password and a locked
   # session can only be killed from a TTY. swaylock stays as the fallback.
-  programs.gtklock.enable = true;
+  programs.gtklock = {
+    enable = true;
+    package = gtklock;
+  };
   security.pam.services.swaylock = { };
 
   # gsettings backend for the GTK apps and home-manager's gtk module. Plasma used

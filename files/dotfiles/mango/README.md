@@ -156,6 +156,15 @@ goes on the monitor named by `lock_monitor` in `hosts/<host>/env.sh`
 Both lockers need their PAM service from `modules/mango.nix`; a locker without
 one cannot verify the password and must be killed from a TTY.
 
+Monitors may come and go while locked (powered off overnight, unplugged):
+gtklock is patched (`modules/gtklock-monitor-hotplug.patch`) so the form moves
+to whichever screen mango gives the keyboard and a returning monitor gets a
+window again; stock 4.0.0 could end with no screen showing the form and Enter
+doing nothing. If the form is ever stuck anyway, **Ctrl+Alt+Delete** (`bindl`, so
+it works while locked) runs `lock.sh relock`: it kills the locker and starts a
+fresh one. mango keeps the session locked while no locker runs and hands the
+lock to the next, so this never unlocks anything.
+
 ## Invariants (do not break these)
 
 1. **Every eww click handler goes through `async.sh`.** eww blocks until

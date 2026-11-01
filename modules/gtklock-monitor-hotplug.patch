@@ -1,0 +1,71 @@
+diff --git a/src/source.c b/src/source.c
+index cceab5e..1320691 100644
+--- a/src/source.c
++++ b/src/source.c
+@@ -89,7 +89,10 @@ static pid_t parent = -2;
+ static void monitors_added(GdkDisplay *display, GdkMonitor *monitor, gpointer user_data) {
+ 	struct Window *w = NULL;
+ 	if(window_by_monitor(monitor) == NULL) w = create_window(monitor);
+-	if(w == g_array_index(gtklock->windows, struct Window*, 0)) gtklock_focus_window(gtklock, w);
++	// No window holds the form (every monitor went away, or the focused one was
++	// removed and none was left): give it to the monitor that came back.
++	if(w != NULL && (gtklock->focused_window == NULL || w == g_array_index(gtklock->windows, struct Window*, 0)))
++		gtklock_focus_window(gtklock, w);
+ 	module_on_output_change(gtklock);
+ }
+ 
+@@ -97,11 +100,20 @@ static void monitors_removed(GdkDisplay *display, GdkMonitor *monitor, gpointer
+ 	struct Window *w = window_by_monitor(monitor);
+ 	if(w != NULL) {
+ 		if(gtklock->focused_window == w) {
+-			struct Window *any_window = g_array_index(gtklock->windows, struct Window*, 0);
+-			if(any_window == w) any_window = g_array_index(gtklock->windows, struct Window*, 1);
++			// Hand the form to another window and record it as focused (4.0.0 left
++			// focused_window NULL, so no window ever showed the form again and Enter
++			// did nothing; it also read index 1 past the end with one window left).
++			struct Window *any_window = NULL;
++			for(guint idx = 0; idx < gtklock->windows->len; idx++) {
++				struct Window *ctx = g_array_index(gtklock->windows, struct Window *, idx);
++				if(ctx != w) {
++					any_window = ctx;
++					break;
++				}
++			}
+ 
+-			gtklock->focused_window = NULL;
+-			if(any_window) window_swap_focus(any_window, w);
++			if(any_window) gtklock_focus_window(gtklock, any_window);
++			else gtklock->focused_window = NULL;
+ 		}
+ 		gtk_session_lock_unmap_lock_window(GTK_WINDOW(w->window));
+ 		gtk_widget_destroy(w->window);
+diff --git a/src/window.c b/src/window.c
+index b5859cb..e12e296 100644
+--- a/src/window.c
++++ b/src/window.c
+@@ -277,6 +277,17 @@ static gboolean entry_button_press(GtkWidget *widget, GdkEventButton *event, gpo
+ 	return FALSE;
+ }
+ 
++// The compositor decides which lock surface gets the keyboard, and each window
++// has its own password field that only takes keys while its form is shown. Move
++// the form to whichever window the keyboard enters, so typing always reaches a
++// visible field (the compositor may pick another monitor than gtklock did, e.g.
++// after a hotplug).
++static gboolean window_focus_in(GtkWidget *widget, GdkEvent *event, gpointer data) {
++	struct Window *win = window_by_widget(widget);
++	if(win != NULL && win != gtklock->focused_window) gtklock_focus_window(gtklock, win);
++	return FALSE;
++}
++
+ static gboolean window_enter_notify(GtkWidget *widget, gpointer data) {
+ 	struct Window *win = window_by_widget(widget);
+ 	gtk_entry_grab_focus_without_selecting(GTK_ENTRY(win->input_field));
+@@ -295,6 +306,7 @@ struct Window *create_window(GdkMonitor *monitor) {
+ 	w->window = gtk_application_window_new(gtklock->app);
+ 
+ 	g_signal_connect(w->window, "destroy", G_CALLBACK(window_destroy_notify), NULL);
++	g_signal_connect(w->window, "focus-in-event", G_CALLBACK(window_focus_in), NULL);
+ 	if(gtklock->follow_focus)
+ 		g_signal_connect(w->window, "enter-notify-event", G_CALLBACK(window_enter_notify), NULL);
+ 	if(gtklock->use_idle_hide || gtklock->hidden) {
