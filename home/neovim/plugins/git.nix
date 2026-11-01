@@ -206,8 +206,9 @@
       # wrong for this config, where <leader>gf/<leader>gl already diff against
       # HEAD and make no distinction between staged and not.
       #
-      # gitsigns re-opens an already-open preview at the hunk it lands on, so
-      # after <leader>gd these walk the diffs with the deleted lines still up.
+      # The <leader>gd preview clears as soon as the cursor moves, so these do
+      # not carry it along; <leader>gD keeps every hunk's deleted lines up
+      # while walking.
       {
         mode = "n";
         key = "[c";

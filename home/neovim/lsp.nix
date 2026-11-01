@@ -141,8 +141,9 @@
       # listed `typescript.tsx`, which is not a real neovim filetype and never
       # matched; `typescriptreact` is the one that does.)
       #
-      # Formatting is declined so prettier/eslint can own it; plugins/format.nix
-      # already refuses LSP formatting for these filetypes on save.
+      # Formatting is declined here so prettier/eslint can own it.
+      # plugins/format.nix also refuses LSP formatting on save for
+      # typescriptreact (not typescript; this on_attach covers that).
       ts_ls = {
         package = null;
         enable = true;

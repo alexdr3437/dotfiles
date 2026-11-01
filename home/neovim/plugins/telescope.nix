@@ -4,8 +4,9 @@
     plugins.telescope = {
       enable = true;
 
-      # The <leader>p/<leader>s pickers all pass no_ignore + hidden, so without
-      # these they would happily search .git/ and node_modules/.
+      # The <leader>p/<leader>s scope pickers all pass hidden, and the <leader>s
+      # ones also skip .gitignore, so without these they would happily search
+      # .git/ and node_modules/.
       settings.defaults.file_ignore_patterns = [
         "%.*build/"
         "%.*git/"

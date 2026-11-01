@@ -1,8 +1,8 @@
 # mini.map: a scaled-down render of the whole buffer, pinned right, with the
 # git hunks / diagnostics / search hits of that buffer marked on it.
 #
-# Deliberately the split `mini.map` package, not the whole mini.nvim bundle --
-# nothing else here uses mini.
+# Deliberately the split `mini.map` package, not the whole mini.nvim bundle,
+# matching the split mini-ai/mini-surround/mini-extra in textobjects.nix.
 { ... }:
 {
   programs.nixvim = {
@@ -98,8 +98,13 @@
         -- over the glyphs, so this is all foreground colour.
         --
         -- Marks take their colour from whatever the current colorscheme already
-        -- uses for git/diff, so this survives <leader>th, and are bolded to pull
-        -- them forward of the dimmed outline.
+        -- uses for git/diff, so this survives <leader>th. They are signal, not
+        -- content, so that colour goes on the cell's *background* (bolded) and
+        -- reads as a solid bar the way zed's scrollbar does. Tinting the glyphs
+        -- instead is not enough: gutter colours are picked to be unobtrusive in
+        -- a one-column gutter, and several themes put them a shade away from
+        -- Comment -- tokyonight's change is #6183bb against a #565f89 outline,
+        -- which is invisible at this size.
         local git_hl = {
           add = { name = "MiniMapGitAdd", from = { "GitSignsAdd", "Added", "DiffAdd" } },
           change = { name = "MiniMapGitChange", from = { "GitSignsChange", "Changed", "DiffChange" } },
@@ -121,12 +126,6 @@
           -- (MiniMapNormal -> NormalFloat, which is as bright as the buffer).
           vim.api.nvim_set_hl(0, "MiniMapNormal", { link = "Comment" })
 
-          -- Marks are signal, not content, so they get the cell's *background*
-          -- and read as a solid bar the way zed's scrollbar does. Tinting the
-          -- glyphs instead is not enough: gutter colours are picked to be
-          -- unobtrusive in a one-column gutter, and several themes put them a
-          -- shade away from Comment -- tokyonight's change is #6183bb against a
-          -- #565f89 outline, which is invisible at this size.
           -- Glyph colour on top of a mark bar. transparent.nvim clears Normal's
           -- background, so there is often nothing to read here and the bar needs
           -- a sane contrasting colour of its own.
@@ -195,7 +194,7 @@
     autoCmd = [
       {
         # VimEnter covers `nvim file`; BufWinEnter covers starting in a directory
-        # (oil) or on the dashboard and opening a file after.
+        # (oil) and opening a file after.
         event = [
           "VimEnter"
           "BufWinEnter"

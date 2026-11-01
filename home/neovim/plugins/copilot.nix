@@ -14,15 +14,11 @@
       # Suggest as you type rather than waiting for a key.
       auto_trigger = true;
 
-      # Load-bearing, not decoration: it is what keeps ghost text and the cmp
-      # menu from ever being on screen together, which is what lets the <C-y>
-      # mapping in completion.nix pick between them without guessing.
+      # Load-bearing for the <C-y> arbitration; see completion.nix.
       hide_during_completion = true;
 
       keymap = {
-        # The lua config asked for <C-y> here, which collided with nvim-cmp's
-        # confirm on the same key. completion.nix now owns <C-y> and calls
-        # `suggestion.accept()` itself, so copilot must not also map it.
+        # completion.nix owns <C-y> and accepts suggestions itself.
         #
         # next/prev/dismiss keep their defaults: <M-]>, <M-[>, <C-]>.
         accept = false;

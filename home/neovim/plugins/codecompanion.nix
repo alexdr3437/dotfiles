@@ -33,7 +33,7 @@ let
       local chat = ${if fresh then "nil" else "cc.last_chat()"}
       if not chat then
         -- stop_context_insertion, because the selection is added below with the
-        -- `@path (lines N-M)` header rather than the plugin's own wording.
+        -- `from <path> (lines N-M):` header rather than the plugin's own wording.
         chat = cc.chat({ stop_context_insertion = true })
         if not chat then
           return vim.notify("Could not create chat buffer", vim.log.levels.WARN)
@@ -243,8 +243,9 @@ in
       # Hand-rolled rather than `<cmd>CodeCompanionChat Add<CR>` purely for the
       # header on the pasted block: CodeCompanion.add hardcodes "Here is some
       # code from <abs path>:" with no config key behind it, and this is the
-      # whole of that function otherwise. The header here matches the
-      # `@path (lines N-M)` shape `#{this}` gives <leader>ca.
+      # whole of that function otherwise. The header here is
+      # `from <path> (lines N-M):`, close to the `@path (lines N-M)` shape
+      # `#{this}` gives <leader>ca.
       #
       # utils.context.get reads the live `v`/`.` positions when called from
       # visual mode, so a function mapping gets the selection without the

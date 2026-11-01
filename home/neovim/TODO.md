@@ -1,7 +1,8 @@
 # neovim: remaining port
 
 Tracking what still has to move from the old lua/lazy config in
-`files/dotfiles/nvim/` to the nixvim config in `home/neovim/`.
+`files/dotfiles/nvim/` (removed in 3523997; see git history) to the nixvim
+config in `home/neovim/`.
 Compared 2026-09-18.
 
 ## High impact
@@ -23,7 +24,7 @@ Compared 2026-09-18.
 - [x] **todo-comments.nvim** — see `plugins/todo-comments.nix`.
 - [x] `mini.ai` (`n_lines = 500`) and `mini.surround` — default mappings, both at
       `n_lines = 500`. See `plugins/textobjects.nix`.
-- [ ] `undotree` — `<leader>u`.
+- [x] `undotree` — `<leader>u`. See `plugins/undotree.nix`.
 - [ ] `outline.nvim` — `<leader>o`, `symbol_folding.autofold_depth = false`.
 - [ ] `snipe.nvim` buffer menu — was `<leader>s`, which now collides with the
       `<leader>sf`/`<leader>sg`/`<leader>sw` session pickers. Needs a new key.
@@ -32,13 +33,14 @@ Compared 2026-09-18.
 - [ ] `render-markdown.nvim` — code blocks off, render in `n`/`c` modes.
 - [ ] `baleia.nvim` — `:BaleiaColorize`, `:BaleiaLogs`, and the `BufReadPost`
       autocmd that auto-colorizes a buffer containing ANSI escapes.
-- [ ] `vim-indent-object`.
+- [x] `vim-indent-object` — superseded by mini.ai's `i` indent object. See
+      `plugins/textobjects.nix`.
 - [ ] `vim-just` syntax — the `just` LSP is enabled but the ft plugin is not.
 - [ ] `fidget.nvim` (LSP progress).
 - [ ] Lua LSP support for the nvim config itself — old config used `neodev`;
       `lazydev` is the current equivalent.
-- [ ] Telescope extensions: `fzf-native` (sorter performance) and `ui-select`
-      (dropdown for `vim.ui.select`).
+- [ ] Telescope extension `fzf-native` (sorter performance). `ui-select` is
+      done; see `plugins/telescope.nix`.
 - [ ] `blame.nvim` — `<leader>b`. Mostly covered by gitsigns `<leader>gb`/`<leader>gB`;
       decide whether it is still wanted.
 
@@ -68,10 +70,7 @@ Compared 2026-09-18.
       adapter (Claude Pro subscription, via the logged-in `claude`), `inline`/`cmd`
       on copilot, `cli` on `claude`. No API key anywhere. `<leader>c` group.
       See `plugins/codecompanion.nix`.
-- [ ] **Never export `ANTHROPIC_API_KEY` into the session env.** An API key
-      outranks the stored subscription in Claude Code's credential precedence, so
-      a globally-set key would silently move chat off the subscription and onto
-      metered billing. Same applies to `CLAUDE_CODE_OAUTH_TOKEN`.
+- Note: no API key or OAuth token in the session env; see `plugins/codecompanion.nix`.
 - [ ] **Pin a copilot model id** for `inline`/`cmd`. The list is fetched live and
       depends on entitlements — run `ga` in the chat buffer to see it, then pin a
       mini model. `chat` needs nothing: it inherits the CLI's own default.

@@ -16,8 +16,8 @@
         formatters_by_ft = {
           lua = [ "stylua" ];
 
-          # nixd is enabled in lsp.nix but not handed a formatting command, so
-          # nix files have no LSP formatter to fall back to. Do it here instead.
+          # conform owns nix formatting. lsp.nix also gives nixd nixfmt, so
+          # vim.lsp.buf.format() works on its own.
           nix = [ "nixfmt" ];
 
           # Python is picked per project, not globally: conform walks this list
