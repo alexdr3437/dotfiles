@@ -31,7 +31,7 @@
 
   # TLP instead of power-profiles-daemon (ppd used to be driven by Plasma's powerdevil),
   # and the CPU policy lives here: balanced on wall power, power saver on battery. These are
-  # TLP's own defaults, spelled out. (The desktop has the same intent in hosts/desktop.)
+  # TLP's own defaults, spelled out. (The desktop also drops ppd but pins EPP to performance.)
   services.power-profiles-daemon.enable = false;
   services.tlp = {
     enable = true;
@@ -104,7 +104,6 @@
   nixpkgs.config.allowUnfree = true;
 
   nixpkgs.config.permittedInsecurePackages = [
-    "electron-39.8.10"
     "segger-jlink-qt4-874"
   ];
 

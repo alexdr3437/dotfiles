@@ -47,7 +47,7 @@
   swapDevices = [
     {
       device = "/var/lib/swapfile";
-      size = 36 * 1024; # 32 GB in MiB
+      size = 36 * 1024; # 36 GiB, in MiB
     }
   ];
 
@@ -78,16 +78,12 @@
   nixpkgs.config.segger-jlink.acceptLicense = true;
 
   nixpkgs.config.permittedInsecurePackages = [
-    "electron-39.8.10"
     "segger-jlink-qt4-874"
   ];
 
   # shell
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
-
-  users.groups.inputs = { };
-  users.groups.media = { };
 
   # user account
   users.users.alex = {
@@ -98,8 +94,6 @@
       "dialout"
       "wireshark"
       "plugdev"
-      "input"
-      "media"
     ];
     packages = with pkgs; [ tree ];
     shell = pkgs.zsh;

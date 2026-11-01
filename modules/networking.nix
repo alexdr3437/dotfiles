@@ -28,8 +28,6 @@
   networking.firewall.interfaces.tailscale0.allowedTCPPorts = [ 22 ];
 
   environment.systemPackages = with pkgs; [
-    blueman
-    bluez
     networkmanagerapplet
   ];
 }

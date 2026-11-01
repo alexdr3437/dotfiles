@@ -11,7 +11,7 @@ in
   # rollbacks do not cover this directory). Nothing writes into it at runtime; generated
   # files go to ~/.local/state/mango and ~/.cache/mango. See its README.md.
   # Packages (mango, waybar, swaync, gtklock, ...) come from modules/mango.nix;
-  # jq is in home/default.nix.
+  # jq is in home/terminal.nix.
   xdg.configFile."mango".source = config.lib.file.mkOutOfStoreSymlink mango;
 
   # ~/.config/mango-host → files/dotfiles/mango/hosts/<host>: monitor rules

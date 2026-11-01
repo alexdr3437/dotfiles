@@ -4,9 +4,9 @@ let
   # ("on idle" in Web Control, off here): on Linux that reads logind's seat IdleHint over
   # sd-bus, which swayidle sets after `hint_min` minutes (idle.sh in ~/.config/mango).
   # nixpkgs builds the client without libsystemd, which compiles that check out, so the
-  # library is added back to keep the toggle working. The patch makes a boolean option
-  # such as `--on-idle=true` land as a boolean (upstream inserts it as a number and then
-  # drops it with "wrong type").
+  # library is added back to keep the toggle working. The patch only matters if a boolean
+  # option such as `--on-idle=true` is passed here again: upstream inserts it as a number
+  # and then drops it with "wrong type". Web Control's toggle does not go through it.
   #
   # Command-line options only seed a fresh state directory: the client saves its group
   # config in /var/lib/foldingathome on any Web Control change and that copy wins from
@@ -27,8 +27,7 @@ in
   #
   # One-time setup in Web Control (https://app.foldingathome.org, it talks to
   # 127.0.0.1:7396): enable the GPU, set the machine to Fold, and optionally link an
-  # account / set a username. Those choices are stored in /var/lib/foldingathome and
-  # override the defaults below from then on.
+  # account / set a username (saved in the state directory, see the note at the top).
   services.foldingathome = {
     enable = true;
     package = fahclient;

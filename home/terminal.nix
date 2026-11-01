@@ -64,13 +64,6 @@ in
         "${config.xdg.configHome}/ghostty/shaders/ripple_cursor.glsl"
       ];
     };
-    # extraConfig = ''
-    #   	  [terminal]
-    #   	  shell = "zsh"
-    #   	  scrollback_buffer_size = 100000
-    #   	  show_startup_tips = false
-    #   	  theme = "everforest-dark"
-    #   	'';
   };
 
   xdg.configFile."ghostty/shaders".source = ../files/dotfiles/ghostty/shaders;

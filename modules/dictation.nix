@@ -25,8 +25,6 @@ let
   hex = inputs.hex.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in
 {
-  environment.systemPackages = [ hex ];
-
   home-manager.users.alex =
     { inputs, ... }:
     {
@@ -43,7 +41,7 @@ in
         # boot) re-applies this, so a model picked in the window lasts until then.
         model = "cohere_transcribe";
         installModel = true;
-        # Applied on every switch (`hex settings apply`); app rules made in the window that
+        # Applied on every switch and boot (`hex settings apply`); app rules made in the window that
         # are not declared here are replaced, since the whole list is one setting.
         # Terminal: lowercase in ghostty, a built-in string step. No model: a mode only
         # rewrites with one when its post_processing is enabled, and omitted means off. Hex

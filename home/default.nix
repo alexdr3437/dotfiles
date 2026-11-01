@@ -50,7 +50,6 @@
     gjs
     arandr
     fftw
-    linuxKernel.packages.linux_6_12.cpupower
     perf
   ];
 

@@ -24,15 +24,15 @@
     # don't follow nixpkgs, mango tracks unstable wlroots/scenefx
     mango.url = "github:mangowm/mango";
 
-    # waybar master, for the mango/* modules (not in a release yet as of 0.15.0)
+    # waybar master for the mango/* modules (see modules/mango.nix)
     waybar = {
       url = "github:Alexays/Waybar";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # hex voice dictation (modules/dictation.nix). Follows an in-tree nixpkgs so hex
-    # and the nvidia Vulkan driver do not end up with hex on the older glibc (then it
-    # finds no Vulkan adapter). unstable, not nixpkgs: hex needs a newer rustc than 26.05 has.
+    # hex voice dictation (modules/dictation.nix). Follows one of this flake's nixpkgs so
+    # hex's glibc is not older than the nvidia Vulkan driver's (it then finds no Vulkan
+    # adapter); unstable because hex needs a newer rustc than 26.05 has.
     hex = {
       url = "github:anomalyco/hex";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
@@ -49,13 +49,9 @@
       nixpkgs,
       nixpkgs-unstable,
       home-manager,
-      nixvim,
-      neovim-nightly,
       ...
     }@inputs:
     {
-      lib = import ./lib inputs;
-
       nixosConfigurations.desktop = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         specialArgs = { inherit nixpkgs-unstable; };
@@ -131,11 +127,7 @@
       packages.x86_64-linux.linode-image =
         inputs.self.nixosConfigurations.linode-image.config.system.build.linodeImage;
 
-      templates = {
-        rust = {
-          path = ./templates/rust;
-          description = "Rust template";
-        };
-      };
+      # every template in templates/flake.nix (also what `ntmp <name>` in home/zsh.nix opens)
+      templates = ((import ./templates/flake.nix).outputs { self = null; }).templates;
     };
 }
