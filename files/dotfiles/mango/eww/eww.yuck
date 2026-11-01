@@ -414,6 +414,7 @@
 ;; one window per monitor:  eww open taskbar --id taskbar-<mon> --screen <mon> --arg mon=<mon>
 ;; apps are grouped; the badge is the window count. click: cycle through the app's windows, middle-click: close one
 ;; after a divider: this monitor's minimized windows, one dimmed icon each. click: restore, middle-click: close
+;; right-click on either: the taskmenu window below
 (defwindow taskbar [mon]
   :monitor 0 :stacking "fg" :exclusive true :focusable false :namespace "eww-taskbar"
   :geometry (geometry :x "0px" :y "6px" :anchor "bottom center")
@@ -424,6 +425,7 @@
                 :tooltip "${g.title}${g.count > 1 ? '  (' + g.count + ' windows — click to cycle)' : ''}"
                 :onclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh cycle ${mon} '${g.app}'"
                 :onmiddleclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh close ${mon} '${g.app}'"
+                :onrightclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh menu ${mon} app '${g.app}'"
         (overlay
           (image :icon {g.icon} :icon-size "dnd")
           (label :class "badge" :text {g.count} :visible {g.count > 1} :halign "end" :valign "end"))))
@@ -433,4 +435,33 @@
                 :tooltip "${w.title}  (minimized — click to restore)"
                 :onclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh restore ${w.id}"
                 :onmiddleclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh kill ${w.id}"
+                :onrightclick "~/.config/mango/async.sh ~/.config/mango/taskbar.sh menu ${mon} min ${w.id}"
         (image :icon {w.icon} :icon-size "dnd")))))
+
+;; right-click menu for a taskbar icon, opened by `taskbar.sh menu` just above the pointer
+;; (x = offset from the monitor's left edge) with click-outside backdrops like the popups.
+;; taskbar.sh fills taskmenu first: an app group gets minimize / maximize / quit (all of its
+;; windows on that monitor for minimize and quit), a minimized window gets restore / quit.
+(defvar taskmenu '{"kind":"app","title":"","ids":"","count":0,"cur":0,"maxed":false}')
+(defwindow taskmenu [mon x]
+  :monitor mon :stacking "overlay" :exclusive false :focusable false :namespace "eww-taskmenu"
+  :geometry (geometry :x "${x}px" :y "6px" :width "190px" :anchor "bottom left")
+  (box :class "power-box" :orientation "v" :space-evenly false :spacing 2
+    (label :class "section" :text {taskmenu.title} :limit-width 22 :halign "start" :tooltip {taskmenu.title})
+    (box :orientation "v" :space-evenly false :spacing 2 :visible {taskmenu.kind == "app"}
+      (task-item :icon "󰖰" :label {taskmenu.count > 1 ? "Minimize all" : "Minimize"}
+                 :cmd "minimize ${taskmenu.ids}" :danger false)
+      (task-item :icon {taskmenu.maxed ? "󰘕" : "󰊓"} :label {taskmenu.maxed ? "Unmaximize" : "Maximize"}
+                 :cmd "maximize ${taskmenu.cur}" :danger false))
+    (task-item :icon "󰖯" :label "Restore" :cmd "restore ${taskmenu.cur}" :danger false :show {taskmenu.kind == "min"})
+    (task-item :icon "󰅖" :label {taskmenu.count > 1 ? "Quit all" : "Quit"}
+               :cmd "kill ${taskmenu.ids}" :danger true)))
+
+(defwidget task-item [icon label cmd danger ?show]
+  ;; same look as power-item; closes the menu (and backdrops) first, then runs taskbar.sh CMD
+  (eventbox :class "power-item" :cursor "pointer" :timeout "10s" :visible {show ?: true}
+            :onclick "~/.config/mango/async.sh sh -c '~/.config/mango/popup.sh close; ~/.config/mango/taskbar.sh ${cmd}'"
+    (box :class {danger ? "power-danger" : "power-normal"}
+         :orientation "h" :space-evenly false :spacing 12 :halign "start"
+      (label :class "power-icon" :text icon)
+      (label :text label))))
