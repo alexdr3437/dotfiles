@@ -10,15 +10,15 @@
       templates = {
         rust = {
           path = ./rust;
-          description = "Rust template";
+          description = "Rust: rustup only, toolchain from rust-toolchain.toml";
         };
         zig = {
           path = ./zig;
-          description = "Zig template";
+          description = "Zig: zig and zls";
         };
         python = {
           path = ./python;
-          description = "Python template, using uv";
+          description = "Python: uv only, Python and packages from uv";
         };
       };
     };

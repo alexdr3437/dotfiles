@@ -1,8 +1,8 @@
 {
-  description = "Basic Rust project";
+  description = "a Rust project template with rustup only, specify toolchain from rust-toolchain.toml";
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   outputs =
-    { self, nixpkgs }:
+    { nixpkgs, ... }:
     let
       forAllSystems = nixpkgs.lib.genAttrs [
         "x86_64-linux"
@@ -19,12 +19,7 @@
         in
         {
           default = pkgs.mkShell {
-            buildInputs = with pkgs; [
-              rustc
-              cargo
-              pkg-config
-              openssl
-            ];
+            packages = [ pkgs.rustup ];
           };
         }
       );
