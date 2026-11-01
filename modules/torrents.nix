@@ -4,15 +4,32 @@ let
   user = "alex";
   mediaRoot = "/srv/media";
 
-  qbittorrentWithUmask = pkgs.symlinkJoin {
-    name = "qbittorrent-with-umask";
-    paths = [ pkgs.qbittorrent ];
-    nativeBuildInputs = [ pkgs.makeWrapper ];
+  # The desktop app and the headless service share one profile, and qBittorrent runs one
+  # instance per profile: started while the service runs, the app just hands over to it and
+  # exits. So `qbittorrent` (launcher, command line, magnet links) stops the service, runs the
+  # app, which serves the same web UI on :8080 from the profile, and starts the service again
+  # when the app exits. A second launch while the app is open goes straight to it.
+  qbittorrentLauncher = pkgs.writeShellApplication {
+    name = "qbittorrent";
+    runtimeInputs = [ pkgs.systemd ];
+    text = ''
+      umask 002
+      if ! systemctl is-active --quiet qbittorrent-nox.service; then
+        exec ${pkgs.qbittorrent}/bin/qbittorrent "$@"
+      fi
+      systemctl stop qbittorrent-nox.service
+      trap 'systemctl start qbittorrent-nox.service' EXIT
+      trap 'exit 1' HUP INT TERM
+      ${pkgs.qbittorrent}/bin/qbittorrent "$@"
+    '';
+  };
 
+  qbittorrentDesktop = pkgs.symlinkJoin {
+    name = "qbittorrent-desktop";
+    paths = [ pkgs.qbittorrent ];
     postBuild = ''
       rm "$out/bin/qbittorrent"
-      makeWrapper ${pkgs.qbittorrent}/bin/qbittorrent "$out/bin/qbittorrent" \
-        --run 'umask 002'
+      ln -s ${qbittorrentLauncher}/bin/qbittorrent "$out/bin/qbittorrent"
     '';
   };
 
@@ -119,7 +136,7 @@ in
   };
 
   environment.systemPackages = [
-    qbittorrentWithUmask
+    qbittorrentDesktop
     qbtImportMovie
   ];
 
@@ -139,6 +156,18 @@ in
       Restart = "on-failure";
     };
   };
+
+  # lets the qbittorrent wrapper above stop and start the service without a password
+  security.polkit.extraConfig = ''
+    polkit.addRule(function(action, subject) {
+      if (action.id == "org.freedesktop.systemd1.manage-units" &&
+          action.lookup("unit") == "qbittorrent-nox.service" &&
+          (action.lookup("verb") == "start" || action.lookup("verb") == "stop") &&
+          subject.user == "${user}") {
+        return polkit.Result.YES;
+      }
+    });
+  '';
 
   systemd.tmpfiles.rules = [
     "d ${mediaRoot} 2775 ${user} media -"
