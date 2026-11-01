@@ -47,9 +47,9 @@ popup's "Restart bar & popups" runs.
 | eww daemon (popups, taskbar, backdrop) | autostart.sh | eww/eww.yuck, eww/eww.scss | ~/.cache/mango/eww.log |
 | swaync | autostart.sh | swaync.json, swaync.css | ~/.cache/mango/swaync.log |
 | swaybg | wallpaper.sh | random file in ~/.dotfiles/files/wallpapers | |
-| swayidle | idle.sh start | timers at the top of idle.sh, AC vs battery; on AC with `soft_lock_min` (desktop) the password-free lock screen (softlock.sh) first, the password lock after `ac_lock_min`; `idle.sh watch` restarts it when the source changes; sets logind IdleHint after `hint_min` (read by Folding@home's "on idle", which is off: it folds all the time, modules/foldingathome.nix) | |
+| swayidle | idle.sh start | timers in idle.sh and hosts/<host>/env.sh, AC vs battery (see "Lock screen"); `idle.sh watch` restarts it when the source changes; also sets logind IdleHint (see idle.sh) | |
 | monitors.sh watch | autostart.sh (after eww) | taskbar per enabled monitor, re-synced on hotplug; laptop panel off while another monitor exists (`internal_monitor` in hosts/<host>/env.sh); fold/unfold lid binds | |
-| gtklock (lock screen) | lock.sh (first `exec_once` at session start since greetd autologs in, idle.sh, power popup, Alt+m) | gtklock.css + ~/.cache/mango/lock.png | |
+| gtklock (lock screen) | lock.sh (first `exec_once` at session start since greetd autologs in, idle.sh, lid close on AC via monitors.sh fold, power popup, Alt+m; Ctrl+Alt+Delete runs `lock.sh relock`) | gtklock.css + ~/.cache/mango/lock.png | |
 | nightlight.sh daemon → wlsunset | nightlight.sh auto | sun times from weather.sh | |
 | soteria (polkit agent), nm-applet, blueman-applet | autostart.sh | | |
 | drives.sh watch | autostart.sh | udev block add → notification with "Mount and open" / "Mount" (udisksctl, then Dolphin) | |
@@ -124,13 +124,13 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | clip.sh | | | clipboard history: `watch` records every copy into cliphist, `pick` is a rofi over it (Super+v), `wipe` forgets it |
 | emoji.sh | | | rofimoji in the rofi theme, types + copies; recent picks on Super+1…0 (rofi's Alt+N defaults are mango's tag keys); Super+period |
 | drives.sh | | | removable drives: `watch` runs `added NAME` per udev add event → notify-send with action buttons; `mount NAME [open]` via udisksctl, `open` shows it in Dolphin. Nothing auto-mounts |
-| ephemeral.sh | | | `run [--stash] CMD…`: float + centre the command's first window (two mmsg streams on one fifo: all-clients for map/float/unmap, focusing-client for the global focus; events are logged to $cache_dir/ephemeral.log), then close it — or `--stash` minimize it — when another app's window takes focus, unless it was promoted: tiled (Alt+t) or `keep` (Alt+p); fullscreen is not a promotion, but nothing closes it while fullscreen. Used by drives.sh, popup.sh double-clicks and launcher.sh Shift+Enter |
+| ephemeral.sh | | | `run [--stash] CMD…`: float + centre the command's first window (three mmsg streams on one fifo: all-clients for map/float/unmap, focusing-client for the global focus, all-devices for input; events are logged to $cache_dir/ephemeral.log), then close it — or `--stash` minimize it — when another app's window is used (a key press, click or scroll; hover focus does not count), unless it was promoted: tiled (Alt+t) or `keep` (Alt+p); fullscreen is not a promotion, but nothing closes it while fullscreen. Used by drives.sh, popup.sh double-clicks and launcher.sh Shift+Enter |
 | launcher.sh | | | app launcher (Super+r): .desktop entries in rofi dmenu mode (icons, usage-sorted via $cache_dir/launcher.tsv, keywords searchable); Enter launches, Shift+Enter ephemeral --stash, Ctrl+t in ghostty. Replaces `rofi -show drun`, whose Shift+Enter is just Enter |
 | history.sh | history | custom/history | reads run.sh's log |
 | palette.sh | | | command palette: every `bind=` in config.conf plus a few unbound actions, in rofi with label · description · keys; descriptions in `describe()`; Super+Shift+p |
 | layout.sh | | | rofi dmenu of `mmsg get layouts` with a description per row, current one preselected; Super+Shift+n |
 | screenshot.sh | | | `slurp -d` region → `grim` → `satty` (annotate; Enter copies, Ctrl+S saves to `$screenshot_dir`, default ~/Pictures/Screenshots); Super+t |
-| softlock.sh | | | the password-free lock screen: `show` opens eww `softlock` (blurred wallpaper + clock, takes the keyboard so the waking key goes nowhere) on every monitor, `hide` closes it; idle.sh runs them from a swayidle timeout and its resume where `soft_lock_min` is set (desktop: 5 min, password lock at 120) |
+| softlock.sh | | | password-free idle screen: `show`/`hide` the eww `softlock` window on every monitor; run by idle.sh (see "Lock screen") |
 | idle.sh | idle | | swayidle wrapper; timers by power source (/sys Mains supply; none → AC); `on-battery` for other scripts |
 | media.sh | media | custom/media (bar-stream) | MPRIS via busctl, no playerctl |
 | monitors.sh | | | `names` (enabled monitors), `taskbars` (one eww taskbar per monitor), internal panel vs externals (`status`, `apply`, `watch`) and lid (`fold`, `unfold`). Disabled monitors stay in `all-monitors` with width 0 |
@@ -152,8 +152,8 @@ Other scripts: `popup.sh` (window toggling), `theme.sh`, `lock.sh`,
 `lock.sh` runs gtklock with `gtklock.css` over `~/.cache/mango/lock.png`,
 which `wallpaper.sh` regenerates (blurred, dimmed, 1080p) every time it picks
 a wallpaper. Only the clock shows until a key press or mouse move; the form
-goes on the monitor named by `lock_monitor` in `hosts/<host>/env.sh`
-(desktop: HDMI-A-1; empty lets gtklock pick). Falls back to plain swaylock.
+starts on the monitor named by `lock_monitor` in `hosts/<host>/env.sh`
+(desktop: HDMI-A-1; empty lets gtklock pick), then follows the keyboard (below). Falls back to plain swaylock.
 Both lockers need their PAM service from `modules/mango.nix`; a locker without
 one cannot verify the password and must be killed from a TTY.
 
@@ -169,7 +169,7 @@ lock to the next, so this never unlocks anything.
 Idle on the desktop: after `soft_lock_min` (5) the password-free lock screen
 (`softlock.sh`), which the first key, pointer move or click ends; the password
 lock only after `ac_lock_min` (120). Both are set in `hosts/desktop/env.sh`; the
-laptop sets neither and locks with the password after 5 minutes. Alt+m, the
+laptop sets neither and locks with the password after 5 minutes on AC, 2 on battery. Alt+m, the
 power popup, boot and sleep always lock with the password.
 
 ## Invariants (do not break these)
@@ -241,7 +241,7 @@ power popup, boot and sleep always lock with the password.
 ## Checking and debugging
 
 ```sh
-~/.config/mango/check.sh                     # shellcheck + eww :initial drift; run after every edit
+~/.config/mango/check.sh                     # shellcheck, host link + mango -p, eww :initial drift; run after every edit
 ~/.config/mango/autostart.sh                 # restart everything
 ~/.config/mango/theme.sh <name>              # also what regenerates $state_dir after a wipe
 eww -c ~/.config/mango/eww logs              # eww parse errors land here
@@ -261,7 +261,7 @@ in a Mango session on the laptop:
 - Lid close on battery → suspend; on wall power → lock, panel asleep; open →
   panel back if in use.
 - Unplug: `idle.sh status` says battery and `pgrep -af swayidle` shows
-  120/300 s; plug back → 300/3600 s.
+  120/300 s; plug back → 300/7200 s (lock / screens off).
 - Brightness and media keys; `wev` names a key that does nothing.
 - Battery past 20 % once for the notification, or
   `battery.sh warn 19 discharging test`.

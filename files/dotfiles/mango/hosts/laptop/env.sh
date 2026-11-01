@@ -4,5 +4,6 @@
 # shellcheck disable=SC2034  # variables are for the sourcing script
 internal_monitor=eDP-1   # monitors.sh: off while another monitor is connected
 lock_monitor=            # lock.sh: empty → gtklock picks the form's monitor itself
-# idle.sh timers (minutes) default to AC lock 5 / screens off 120, battery lock 2 / suspend 5.
-# Override here: ac_lock_min= ac_off_min= bat_lock_min= bat_suspend_min=
+# idle.sh timers (minutes) default to AC lock 5 / screens off 120, battery lock 2 / suspend 5,
+# no password-free lock screen. Override here: ac_lock_min= ac_off_min= bat_lock_min=
+# bat_suspend_min= soft_lock_min= hint_min= (defaults in idle.sh)

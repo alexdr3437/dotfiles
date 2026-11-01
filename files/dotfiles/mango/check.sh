@@ -1,7 +1,9 @@
 #!/usr/bin/env sh
 # Lint for this directory. Run it after editing anything:   ~/.config/mango/check.sh
 #   1. shellcheck (warning level) on every script
-#   2. every defpoll/deflisten `:initial` in eww/eww.yuck has the same top-level keys as the
+#   2. ~/.config/mango-host and its three files exist; config.conf and the host mango.conf
+#      parse (mango -p)
+#   3. every defpoll/deflisten `:initial` in eww/eww.yuck has the same top-level keys as the
 #      live output of its script: a field added to one but not the other breaks the popup
 #      silently while the first poll is pending
 # Exit status is non-zero if anything is off.

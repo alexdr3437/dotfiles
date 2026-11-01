@@ -11,8 +11,8 @@
 #                                         - `ephemeral.sh keep` (Alt+p): promoted as it is
 #                                         - "clicking off": a click, scroll or key press that
 #                                           goes to another app's window closes it, or with
-#                                           --stash sends it to the scratchpad (Alt+z / the
-#                                           taskbar bring it back). sloppy_focus moves the
+#                                           --stash minimizes it (the taskbar or Alt+Shift+i
+#                                           bring it back). sloppy_focus moves the
 #                                           focus on hover, so hovering another window is
 #                                           not enough; the window has to be used.
 #                                         Windows of the same process (dialogs) never count

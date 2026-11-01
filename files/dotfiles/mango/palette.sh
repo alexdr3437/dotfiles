@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Command palette (Super+Shift+p): every bind in config.conf plus a few unbound mango actions,
+# Command palette (Super+Shift+p): every bind= in config.conf's default key mode plus a few unbound mango actions,
 # in a fuzzy rofi menu. Rows show "label · description · keys"; matching also covers the raw
 # action name, so typing `togglefloating` or `float` both find "float window".
 #   palette.sh pick    → open the menu and run the choice (spawn → detached shell, else mmsg dispatch)
@@ -100,7 +100,9 @@ keys() {   # "SUPER+SHIFT,Tab" → "Super+Shift+Tab"
 
 # kind TAB command TAB label TAB description TAB keys   (binds in config order, then extras)
 commands() {
-  sed -n 's/^bind=//p' "$conf" | sed 's/[[:space:]]*#.*$//' | while IFS=, read -r mods key action rest; do
+  # plain bind= lines of the default and common key modes (the dictation mode repeats a few)
+  awk '/^key_mode=/ { m = substr($0, 10) } (m == "" || m == "default" || m == "common") && sub(/^bind=/, "")' "$conf" \
+    | sed 's/[[:space:]]*#.*$//' | while IFS=, read -r mods key action rest; do
     rest=${rest%%,}                              # `toggleglobal,` has an empty trailing arg
     k=$(keys "$mods" "$key")
     if [ "$action" = spawn ]; then

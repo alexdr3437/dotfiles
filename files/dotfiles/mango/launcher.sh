@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # App launcher (Super+r): rofi over the .desktop entries, usage-sorted, three ways to launch.
 #   launcher.sh pick  → the menu. Enter launches; Shift+Enter launches ephemeral (floating,
-#                       stashed to the scratchpad when it loses focus: ephemeral.sh --stash);
+#                       minimized once another app's window is used: ephemeral.sh --stash);
 #                       Ctrl+t launches in ghostty. Only the ephemeral launch of a terminal entry
 #                       passes --confirm-close-surface=false (its automatic close must not prompt);
 #                       the bar's double-click apps in waybar.jsonc do the same

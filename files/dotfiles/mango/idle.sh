@@ -19,7 +19,7 @@ ac_lock_min=${ac_lock_min:-5}
 ac_off_min=${ac_off_min:-120}
 bat_lock_min=${bat_lock_min:-2}
 bat_suspend_min=${bat_suspend_min:-5}
-hint_min=${hint_min:-5}  # logind IdleHint (Folding@home's "on idle", currently off)
+hint_min=${hint_min:-5}  # logind IdleHint
 soft_lock_min=${soft_lock_min:-0}  # AC: password-free lock screen after this many minutes; 0 = none
 
 available() { command -v swayidle >/dev/null && command -v wlopm >/dev/null; }

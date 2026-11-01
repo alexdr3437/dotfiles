@@ -2,7 +2,7 @@
 # Lock the screen. gtklock: clock + password box (gtklock.css, themed) over the
 # blurred wallpaper that wallpaper.sh keeps in ~/.cache/mango/lock.png.
 # Falls back to swaylock with the theme's base colour if gtklock isn't installed.
-#   lock.sh          lock (Alt+m, idle.sh, the power popup, session start)
+#   lock.sh          lock (Alt+m, idle.sh, lid close on AC, the power popup, session start)
 #   lock.sh relock   replace the running locker with a fresh one (Ctrl+Alt+Delete, which
 #                    works while locked): the way out if the password form is ever stuck.
 #                    mango keeps the session locked while no locker runs and hands the

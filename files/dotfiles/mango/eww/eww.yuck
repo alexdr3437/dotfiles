@@ -9,7 +9,7 @@
 (defpoll wifi :interval "5s"  :initial '{"enabled":false,"ssid":"","networks":[]}'   "~/.config/mango/wifi.sh status")
 (defpoll vol  :interval "2s"  :initial '{"volume":0,"muted":false,"name":"","sinks":[]}' "~/.config/mango/vol.sh status")
 (defpoll bat  :interval "30s" :initial '{"laptop":{"present":false,"percent":0,"glyph":"","detail":""},"devices":[]}' "~/.config/mango/battery.sh status")
-(defpoll idle :interval "5s" :initial '{"available":false,"active":false,"source":"ac","soft_min":0,"lock_min":5,"off_min":60,"suspend_min":5}' "~/.config/mango/idle.sh status")
+(defpoll idle :interval "5s" :initial '{"available":false,"active":false,"source":"ac","soft_min":0,"lock_min":5,"off_min":120,"suspend_min":5}' "~/.config/mango/idle.sh status")
 (defpoll weather :interval "10m" :initial '{"error":true,"city":"","updated":0,"temp":0,"feels":0,"icon":"󰼯","desc":"loading…","humidity":0,"wind":0,"sunrise":"","sunset":"","sunrise24":"","sunset24":"","hourly":[],"daily":[]}' "~/.config/mango/weather.sh status")
 (defpoll media :interval "2s" :initial '{"player":"","status":"","title":"","artist":"","art":"","length":0,"pos":0,"pct":0}' "~/.config/mango/media.sh status")
 (defpoll vpn :interval "5s" :initial '{"proton":[],"ts":{"online":false,"ip":"","exit_active":false,"exit_name":"","exit_options":[],"peers_online":0,"peers":0}}' "~/.config/mango/vpn.sh status")
@@ -37,9 +37,7 @@
     (box)))
 
 ;; ---------------------------------------------------------------- softlock
-;; the lock screen without a password (softlock.sh, shown by idle.sh on hosts with
-;; soft_lock_min): blurred wallpaper and clock over each monitor, gone at the first key or
-;; pointer move (swayidle resume) or a click. Takes the keyboard so the waking key ends here.
+;; the password-free lock screen, see softlock.sh. Takes the keyboard so the waking key ends here.
 (defwindow softlock [mon]
   :monitor mon :stacking "overlay" :exclusive false :focusable "exclusive" :namespace "eww-softlock"
   :geometry (geometry :x "0px" :y "0px" :width "100%" :height "100%" :anchor "top left")
