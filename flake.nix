@@ -38,7 +38,13 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    hw_db_interface.url = "git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";
+    # zellij-agent (home/terminal.nix): its home-manager module, package and Neovim add-on
+    zellij-agent = {
+      url = "git+ssh://git@github.com/alexdr3437/zellij-agent.git?ref=master";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
+    hw_db_interface.url ="git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";
     marc.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?dir=device-manager/tools/marc&ref=dev";
     tires-firmware.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?ref=dev&submodules=1";
     gateway-certs.url = "git+ssh://git@github.com/Mesomat-Inc/gateway-certificate-signing.git";

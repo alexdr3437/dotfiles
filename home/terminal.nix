@@ -85,6 +85,10 @@ in
     fi
   '';
 
+  # zellij-agent: select text in Neovim (<leader>i) or any pane (Super a), type or dictate a prompt.
+  # The module (flake input) sets up Neovim and Zellij's load_plugins; the keybind is spliced in below.
+  programs.zellij-agent.enable = true;
+
   programs.zellij = {
     enable = true;
     extraConfig = ''
@@ -310,6 +314,8 @@ in
         renamepane {
           bind "esc" { UndoRenamePane; SwitchToMode "pane"; }
         }
+        // zellij-agent: Super a in any mode (only the first keybinds block counts, so it goes here)
+        ${config.programs.zellij-agent.zellij.keybindsKdl}
       }
 
       default_mode "locked"

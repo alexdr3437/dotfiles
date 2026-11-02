@@ -2,6 +2,7 @@
 {
   imports = [
     inputs.nixvim.homeModules.nixvim
+    inputs.zellij-agent.homeManagerModules.default
     ./mango.nix
     ./terminal.nix
     ./neovim
