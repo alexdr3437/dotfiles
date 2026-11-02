@@ -1,12 +1,11 @@
 { lib, pkgs, ... }:
 let
-  # It folds all the time. fah-client (v8) can also fold only while the machine is idle
-  # ("on idle" in Web Control, off here): on Linux that reads logind's seat IdleHint over
-  # sd-bus, which swayidle sets after `hint_min` minutes (idle.sh in ~/.config/mango).
+  # It folds only while the machine is idle (`--on-idle=true`, "on idle" in Web Control):
+  # on Linux that reads logind's seat IdleHint over sd-bus, which swayidle sets after
+  # `hint_min` minutes without input (idle.sh in ~/.config/mango); any input pauses it.
   # nixpkgs builds the client without libsystemd, which compiles that check out, so the
-  # library is added back to keep the toggle working. The patch only matters if a boolean
-  # option such as `--on-idle=true` is passed here again: upstream inserts it as a number
-  # and then drops it with "wrong type". Web Control's toggle does not go through it.
+  # library is added back. The patch makes boolean options such as `--on-idle=true` work:
+  # upstream inserts them as a number and then drops them with "wrong type".
   #
   # Command-line options only seed a fresh state directory: the client saves its group
   # config in /var/lib/foldingathome on any Web Control change and that copy wins from
@@ -35,6 +34,8 @@ in
     extraArgs = [
       # one CPU thread feeds the GPU work unit and nothing is left for CPU-only units
       "--cpus=1"
+      # fold only while idle (see the note at the top)
+      "--on-idle=true"
       # logs go to the journal
       "--log-color=false"
     ];
