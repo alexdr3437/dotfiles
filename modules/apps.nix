@@ -55,5 +55,6 @@
     calibre
     bruno
     zotero
+    localsend
   ];
 }
