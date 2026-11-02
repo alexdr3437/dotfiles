@@ -43,7 +43,7 @@ popup's "Restart bar & popups" runs.
 
 | process | started by | config | log |
 | --- | --- | --- | --- |
-| waybar (top bar) | autostart.sh | waybar.jsonc, waybar.css | ~/.cache/mango/waybar.log |
+| waybar (top bar) | bar.sh (from autostart.sh): a supervisor loop restarts it if it exits; the soft lock stops and starts it | waybar.jsonc, waybar.css | ~/.cache/mango/waybar.log |
 | eww daemon (popups, taskbar, backdrop) | autostart.sh | eww/eww.yuck, eww/eww.scss | ~/.cache/mango/eww.log |
 | swaync | autostart.sh | swaync.json, swaync.css | ~/.cache/mango/swaync.log |
 | swaybg | wallpaper.sh | random file in ~/.dotfiles/files/wallpapers | |
@@ -118,6 +118,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 
 | script | eww var | bar module | notes |
 | --- | --- | --- | --- |
+| bar.sh | | | runs waybar under a supervisor that restarts it if it exits; `restart` (autostart.sh), `stop`/`show` (softlock.sh). Never hide the bar with SIGUSR1: the toggle is per bar, and a monitor that sleeps gets a new, visible bar, so the next toggle hides it |
 | battery.sh | bat | custom/battery | upower, plus BLE batteries taken from `bt.sh status`; `bar` fires the low-battery notification at 20 and 10 % (`warn`) |
 | bt.sh | bt | | the only script that parses bluetoothctl (BLE battery needs bluez Experimental) |
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
@@ -167,7 +168,7 @@ fresh one. mango keeps the session locked while no locker runs and hands the
 lock to the next, so this never unlocks anything.
 
 Idle on the desktop: after `soft_lock_min` (5) the password-free lock screen
-(`softlock.sh`; waybar hides while it shows), which the first key, pointer move or click ends; the password
+(`softlock.sh`; waybar is stopped while it shows), which the first key, pointer move or click ends; the password
 lock only after `ac_lock_min` (120). Both are set in `hosts/desktop/env.sh`; the
 laptop sets neither and locks with the password after 5 minutes on AC, 2 on battery. Alt+m, the
 power popup, boot and sleep always lock with the password.

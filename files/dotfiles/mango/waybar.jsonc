@@ -1,7 +1,7 @@
 // Top bar only: tags / clock / system. The bottom (grouped taskbar) is an eww window, see eww/eww.yuck.
 // Every module: left-click → eww popup (popup.sh), double-click and right-click → the same full app
 // (popup.sh's 2nd argument must match on-click-right), hover → nothing ("tooltip": false everywhere).
-// Started by autostart.sh:  waybar -c waybar.jsonc -s waybar.css
+// Started by bar.sh (from autostart.sh):  waybar -c waybar.jsonc -s waybar.css
 [
   {
     "name": "top",
