@@ -30,6 +30,14 @@ in
     {
       imports = [ inputs.hex.homeManagerModules.hex ];
 
+      # hex leaks 3 file descriptors per dictation (3.1.0 and 3.3.0): each wtype paste
+      # makes mango resend wl_keyboard keymaps (wtype's, then ours twice) and hex never
+      # closes the fds. At the default 1024 soft limit the window died after ~320
+      # dictations ("Too many open files") while the service kept running without it,
+      # so the indicator and window were gone until a restart. 65536 is ~21,000
+      # dictations. Check with: ls /proc/$(systemctl --user show -p MainPID --value hex)/fd | wc -l
+      systemd.user.services.hex.Service.LimitNOFILE = 65536;
+
       programs.hex = {
         enable = true;
         package = hex;
