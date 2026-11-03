@@ -81,6 +81,13 @@ in
     wtype
   ];
 
+  # No Inhibit portal, so video stops the idle lock. mango's module means to turn it off with
+  # `= [ ]`, but that writes an empty value, which falls back to default=gtk; the gtk backend
+  # needs org.freedesktop.ScreenSaver (absent here) and fails, yet Firefox only sees the
+  # portal accept the call and never tries Wayland idle-inhibit, which mango honours.
+  # With "none" the portal has no Inhibit interface and Firefox falls through to Wayland.
+  xdg.portal.config.mango."org.freedesktop.impl.portal.Inhibit" = pkgs.lib.mkForce [ "none" ];
+
   # xdg-open on an image: imv. The user's ~/.config/mimeapps.list still names gwenview first;
   # a missing entry is skipped and this system default is next.
   xdg.mime.defaultApplications = builtins.listToAttrs (
