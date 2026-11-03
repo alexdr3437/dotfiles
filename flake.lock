@@ -1050,11 +1050,11 @@
         "uv2nix": "uv2nix_2"
       },
       "locked": {
-        "lastModified": 1793570080,
-        "narHash": "sha256-AKnZUn+bQHoUuJoBMivOpRu3CRB/NowztV6I6WTFDPM=",
+        "lastModified": 1793627828,
+        "narHash": "sha256-lMax3Rw37Qqat1bYCbC1+1qmrJlmfopED+IrWbDoC/k=",
         "ref": "master",
-        "rev": "ee255e714f399fc9fba9ebec7c68bdc26bebf76d",
-        "revCount": 5,
+        "rev": "73708dc627bd512117c046186945314bb42e75cb",
+        "revCount": 6,
         "type": "git",
         "url": "ssh://git@github.com/alexdr3437/zellij-agent.git"
       },
