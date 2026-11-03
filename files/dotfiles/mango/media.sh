@@ -52,10 +52,13 @@ call() {
 }
 
 bar_json() {   # waybar JSON from a status JSON on stdin
-  jq -c '(if .player == "spotify" then "󰓇" elif .player == "firefox" then "󰈹" else "󰎆" end) as $pi
+  # waybar parses text as Pango markup: a bare & (e.g. "AI, & Jobs") fails to parse and
+  # waybar keeps showing the previous title, so escape after truncating
+  jq -c 'def esc: gsub("&"; "&amp;") | gsub("<"; "&lt;") | gsub(">"; "&gt;");
+    (if .player == "spotify" then "󰓇" elif .player == "firefox" then "󰈹" else "󰎆" end) as $pi
     | if .player == "" then {text: "", class: "none", tooltip: "nothing playing"}
-      else {text: ((if .status == "Playing" then $pi else "󰏤" end) + "  " + ((.title + (if .artist != "" then " · " + .artist else "" end)) | .[0:48])),
-            tooltip: "\(.title)\n\(.artist)\n\(.player) · \(.status)", class: (.status | ascii_downcase)} end'
+      else {text: ((if .status == "Playing" then $pi else "󰏤" end) + "  " + ((.title + (if .artist != "" then " · " + .artist else "" end)) | .[0:48] | esc)),
+            tooltip: ("\(.title)\n\(.artist)\n\(.player) · \(.status)" | esc), class: (.status | ascii_downcase)} end'
 }
 
 case "$1" in
