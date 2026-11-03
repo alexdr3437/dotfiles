@@ -72,6 +72,8 @@
             nixpkgs.overlays = [
               (final: prev: {
                 zed-editor = nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.zed-editor;
+                # Actual Budget server (services.actual, modules/apps.nix): stable lags several releases
+                actual-server = nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.actual-server;
               })
             ];
 
@@ -103,6 +105,8 @@
             nixpkgs.overlays = [
               (final: prev: {
                 zed-editor = nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.zed-editor;
+                # Actual Budget server (services.actual, modules/apps.nix): stable lags several releases
+                actual-server = nixpkgs-unstable.legacyPackages.${prev.stdenv.hostPlatform.system}.actual-server;
               })
             ];
 
