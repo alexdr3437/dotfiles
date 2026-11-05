@@ -86,6 +86,9 @@ in
   # needs org.freedesktop.ScreenSaver (absent here) and fails, yet Firefox only sees the
   # portal accept the call and never tries Wayland idle-inhibit, which mango honours.
   # With "none" the portal has no Inhibit interface and Firefox falls through to Wayland.
+  # The portal reads this once, at start, and only under the desktop name: XDG_CURRENT_DESKTOP=mango
+  # must be in the user manager (mango imports it; a stray mango exit blanks it, see the mango
+  # README). A rebuild does not restart user services: `systemctl --user restart xdg-desktop-portal`.
   xdg.portal.config.mango."org.freedesktop.impl.portal.Inhibit" = pkgs.lib.mkForce [ "none" ];
 
   # xdg-open on an image: imv. The user's ~/.config/mimeapps.list still names gwenview first;

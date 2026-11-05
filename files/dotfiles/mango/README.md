@@ -173,6 +173,14 @@ lock only after `ac_lock_min` (120). Both are set in `hosts/desktop/env.sh`; the
 laptop sets neither and locks with the password after 5 minutes on AC, 2 on battery. Alt+m, the
 power popup, boot and sleep always lock with the password.
 
+Video holds both idle timers off: Firefox takes a Wayland idle inhibitor, which mango
+honours while the window is visible (`idle_inhibit_ignore_visible=0`). It only reaches
+Wayland because modules/mango.nix turns the Inhibit portal off; the portal reads that
+once at start, under `XDG_CURRENT_DESKTOP=mango` from the user manager (`systemctl --user
+show-environment`), so restart `xdg-desktop-portal` after a rebuild changes it. A second
+mango (a headless test) must run without `DBUS_SESSION_BUS_ADDRESS`, or its exit blanks
+WAYLAND_DISPLAY, DISPLAY and XDG_CURRENT_DESKTOP in the live user manager.
+
 ## Invariants (do not break these)
 
 1. **Every eww click handler goes through `async.sh`.** eww blocks until
