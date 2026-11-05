@@ -14,13 +14,22 @@
     kdegraphics-thumbnailers # pdf / dvi / raw thumbnails
     breeze-icons # KDE apps' fallback icon theme; nothing else ships the names they use
     qtsvg # svg icons
+    ark # archive viewer/extractor; also Dolphin's "Extract" / "Compress" context menu
   ];
 
   # Folders open in Dolphin. System-level default (/etc/xdg/mimeapps.list): the
   # user's ~/.config/mimeapps.list is written by apps registering their URL
   # handlers at runtime, so it stays theirs; it only wins where it sets a key.
   # Without this xdg-open picked zathura's comic-book entry for inode/directory.
-  xdg.mime.defaultApplications."inode/directory" = "org.kde.dolphin.desktop";
+  # Archives open in Ark (zip natively; 7z through p7zip from home/terminal.nix).
+  xdg.mime.defaultApplications = {
+    "inode/directory" = "org.kde.dolphin.desktop";
+  } // builtins.listToAttrs (
+    map (t: { name = "application/${t}"; value = "org.kde.ark.desktop"; }) [
+      "zip" "x-7z-compressed" "x-tar" "x-compressed-tar" "x-bzip2-compressed-tar"
+      "x-xz-compressed-tar" "x-zstd-compressed-tar" "gzip" "x-rar" "vnd.rar"
+    ]
+  );
 
   # breeze style + plasma-integration platform theme: Dolphin looks like itself and
   # honours kdeglobals. Any other Qt app (qbittorrent) follows suit.
