@@ -87,6 +87,9 @@
 
   boot.kernelParams = [
     "python_backtrace=1" # Helps logs if it still crashes
+    # The BIOS leaves ASPM off on the NVMe link though the drive and its root port both
+    # support L1/L1.2; this enables it on every capable link (~1.5 W on battery)
+    "pcie_aspm.policy=powersupersave"
   ];
 
   boot.kernel.sysctl = {
