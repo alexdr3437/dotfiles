@@ -119,7 +119,7 @@ The defpoll `:initial` in eww.yuck must have the same keys as `status`
 | script | eww var | bar module | notes |
 | --- | --- | --- | --- |
 | bar.sh | | | runs waybar under a supervisor that restarts it if it exits; `restart` (autostart.sh), `stop`/`show` (softlock.sh). Never hide the bar with SIGUSR1: the toggle is per bar, and a monitor that sleeps gets a new, visible bar, so the next toggle hides it |
-| battery.sh | bat | custom/battery | upower, plus BLE batteries taken from `bt.sh status`; `bar` fires the low-battery notification at 20 and 10 % (`warn`) |
+| battery.sh | bat | custom/battery, custom/draw | upower, plus BLE batteries taken from `bt.sh status`; `bar` fires the low-battery notification at 20 and 10 % (`warn`); `bar draw` is the discharge rate in W from sysfs (empty unless discharging) |
 | bt.sh | bt | | the only script that parses bluetoothctl (BLE battery needs bluez Experimental) |
 | cal.sh | cal | | hand-built month grid; state file in $runtime_dir |
 | clip.sh | | | clipboard history: `watch` records every copy into cliphist, `pick` is a rofi over it (Super+v), `wipe` forgets it |

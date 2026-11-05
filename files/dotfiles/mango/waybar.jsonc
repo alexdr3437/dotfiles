@@ -23,6 +23,7 @@
       "custom/sys",
       "custom/net",
       "custom/battery",
+      "custom/draw",
       "custom/proton",
       "custom/tailscale",
       "pulseaudio",
@@ -83,6 +84,16 @@
       "exec": "~/.config/mango/battery.sh bar",
       "return-type": "json",
       "interval": 30,
+      "format": "{}",
+      "on-click": "~/.config/mango/popup.sh battery"
+    },
+
+    // laptop power draw in W while on battery (battery.sh bar draw); hidden on AC and on the desktop
+    "custom/draw": {
+      "tooltip": false,
+      "exec": "~/.config/mango/battery.sh bar draw",
+      "return-type": "json",
+      "interval": 5,
       "format": "{}",
       "on-click": "~/.config/mango/popup.sh battery"
     },

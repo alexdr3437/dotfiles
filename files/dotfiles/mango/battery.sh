@@ -2,6 +2,7 @@
 # Battery backend.
 #   battery.sh status → eww JSON   {laptop:{present,percent,glyph,detail}, devices:[{name,percent,glyph}]}
 #   battery.sh bar    → waybar JSON {text, tooltip, class}; also fires the low-battery warning
+#   battery.sh bar draw → waybar JSON, laptop discharge rate in W (empty when not discharging)
 #   battery.sh warn PERCENT STATE [DETAIL] → what bar calls for the laptop battery; run by hand to test
 # Sources: upower (laptop + HID devices) and bt.sh (BLE devices via bluez; needs Experimental=true).
 # Low-battery warning: one critical notification per $warn_levels threshold crossed while
@@ -76,9 +77,25 @@ bar() {
        class: (if ((.laptop.present and .laptop.percent < 20) or any(.devices[]; .percent < 20)) then "low" else "ok" end)}'
 }
 
+# bar draw: laptop discharge rate in watts, straight from sysfs (no upower: it runs every 5 s).
+# Empty text when not discharging (on AC power_now is the charge rate, not the draw) or with
+# no battery, which hides the module on the desktop. class "high" above $draw_high W.
+draw() {
+  draw_high=${draw_high:-20}
+  for b in /sys/class/power_supply/BAT*; do
+    [ "$(cat "$b/status" 2>/dev/null)" = Discharging ] || continue
+    uw=$(cat "$b/power_now" 2>/dev/null) || continue
+    [ -n "$uw" ] || continue
+    jq -cn --argjson uw "$uw" --argjson high "$draw_high" '($uw / 1000000) as $w
+      | {text: "󱐋 \(($w * 10 | round) / 10)W", tooltip: "", class: (if $w > $high then "high" else "ok" end)}'
+    return
+  done
+  echo '{"text":""}'
+}
+
 case "$1" in
   status) status ;;
-  bar) bar ;;
+  bar) if [ "$2" = draw ]; then draw; else bar; fi ;;
   warn) [ -n "$3" ] || usage "warn PERCENT STATE [DETAIL]"; warn "$2" "$3" "$4" ;;
-  *) usage "status|bar|warn PERCENT STATE [DETAIL]" ;;
+  *) usage "status|bar [draw]|warn PERCENT STATE [DETAIL]" ;;
 esac

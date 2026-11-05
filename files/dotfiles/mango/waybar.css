@@ -40,7 +40,7 @@ tooltip label {
 }
 
 #workspaces, #layout, #custom-clock, #tray, #pulseaudio, #bluetooth, #custom-network,
-#custom-notification, #custom-power, #custom-sys, #custom-net, #custom-battery, #custom-settings, #custom-history, #custom-media, #custom-weather, #custom-proton, #custom-tailscale {
+#custom-notification, #custom-power, #custom-sys, #custom-net, #custom-battery, #custom-draw, #custom-settings, #custom-history, #custom-media, #custom-weather, #custom-proton, #custom-tailscale {
   padding: 0 10px;
   margin: 3px 2px;
   border-radius: 10px;
@@ -101,7 +101,7 @@ tooltip label {
   transition: background 150ms ease;
 }
 #pulseaudio:hover, #bluetooth:hover, #custom-network:hover,
-#custom-notification:hover, #custom-power:hover, #custom-sys:hover, #custom-net:hover, #custom-battery:hover, #custom-settings:hover, #custom-media:hover, #custom-weather:hover, #custom-proton:hover, #custom-tailscale:hover {
+#custom-notification:hover, #custom-power:hover, #custom-sys:hover, #custom-net:hover, #custom-battery:hover, #custom-draw:hover, #custom-settings:hover, #custom-media:hover, #custom-weather:hover, #custom-proton:hover, #custom-tailscale:hover {
   background: @surface0;
   color: @text;
 }
@@ -113,6 +113,9 @@ tooltip label {
 
 #custom-battery { color: @green; }
 #custom-battery.low { color: @urgent; }
+
+#custom-draw { color: @yellow; font-feature-settings: "tnum"; }
+#custom-draw.high { color: @urgent; }
 
 #pulseaudio { color: @peach; }
 #pulseaudio.muted { color: @subtext0; }
