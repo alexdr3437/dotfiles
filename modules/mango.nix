@@ -47,11 +47,13 @@ in
   programs.dconf.enable = true;
 
   # battery.sh reads upower; its low-battery notification fires at 20 and 10 %.
-  # upower itself hybrid-sleeps at percentageAction (2 %) as the last resort.
+  # upower itself powers off at percentageAction (2 %) as the last resort: the laptop
+  # cannot hibernate (kernel reports /sys/power/disk [disabled], 4 GB swap for 16 GB RAM),
+  # so HybridSleep would only have fallen back to PowerOff anyway.
   # Declared here so it does not depend on the plasma module being present.
   services.upower = {
     enable = true;
-    criticalPowerAction = "HybridSleep";
+    criticalPowerAction = "PowerOff";
   };
 
   # ~/.config/mango/ → files/dotfiles/mango (linked by home/mango.nix, see its
