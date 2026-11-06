@@ -62,7 +62,13 @@ watch() {
     taskbars
   }
   sync
-  mmsg watch all-monitors 2>/dev/null | while read -r _; do sync; done
+  # Also re-check every 5 s: the panel has come back on with no all-monitors event
+  # (twice on Nov 6, cause unknown) and stayed on next to the HDMI monitor.
+  {
+    mmsg watch all-monitors 2>/dev/null &
+    w=$!
+    while kill -0 "$w" 2>/dev/null; do sleep 5; echo tick; done
+  } | while read -r _; do sync; done
 }
 
 lid_closed() { grep -qs closed /proc/acpi/button/lid/*/state; }
