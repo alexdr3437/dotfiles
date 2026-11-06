@@ -40,6 +40,18 @@
       CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
       PLATFORM_PROFILE_ON_AC = "balanced";
       PLATFORM_PROFILE_ON_BAT = "low-power";
+      # The BIOS leaves ASPM off on the NVMe link though the drive and its root port both
+      # support L1/L1.2; this enables it on every capable link (~1.5 W on battery). It has
+      # to be TLP's setting: its default ("default") resets a pcie_aspm.policy= boot option
+      # whenever TLP starts or the power source changes.
+      PCIE_ASPM_ON_AC = "powersupersave";
+      PCIE_ASPM_ON_BAT = "powersupersave";
+      # TLP's default "on" keeps every PCI device awake on wall power, the Arc A370M
+      # included (heat and fan for nothing); let them runtime-suspend like on battery.
+      RUNTIME_PM_ON_AC = "auto";
+      # Don't USB-autosuspend the AX211's bluetooth half: TLP's suggestion for unstable
+      # bluetooth, and this controller crashes (see bluetooth-watchdog below).
+      USB_EXCLUDE_BTUSB = 1;
     };
   };
 
@@ -138,9 +150,6 @@
 
   boot.kernelParams = [
     "python_backtrace=1" # Helps logs if it still crashes
-    # The BIOS leaves ASPM off on the NVMe link though the drive and its root port both
-    # support L1/L1.2; this enables it on every capable link (~1.5 W on battery)
-    "pcie_aspm.policy=powersupersave"
   ];
 
   boot.kernel.sysctl = {
