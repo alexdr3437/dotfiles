@@ -88,9 +88,9 @@
       "on-click": "~/.config/mango/popup.sh battery"
     },
 
-    // laptop power draw in W while on battery (battery.sh bar draw); hidden on AC and on the desktop
+    // power draw in W (battery.sh bar draw): the battery while discharging, else CPU package + GPU
+    // from chip sensors; hidden when neither is readable (RAPL needs the rule in modules/mango.nix)
     "custom/draw": {
-      "tooltip": false,
       "exec": "~/.config/mango/battery.sh bar draw",
       "return-type": "json",
       "interval": 5,

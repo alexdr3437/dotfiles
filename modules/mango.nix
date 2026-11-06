@@ -93,6 +93,13 @@ in
   # README). A rebuild does not restart user services: `systemctl --user restart xdg-desktop-portal`.
   xdg.portal.config.mango."org.freedesktop.impl.portal.Inhibit" = pkgs.lib.mkForce [ "none" ];
 
+  # The bar's power-draw module (battery.sh bar draw) reads the CPU package energy counter from
+  # Intel RAPL when no battery is discharging. The kernel keeps energy_uj root-only (the PLATYPUS
+  # side channel, which needs a local attacker reading it); let the `users` group read it, which is
+  # alex and nobody else that logs in. Top-level package zones only, all the script sums. Applies at
+  # boot or with `systemd-tmpfiles --create`.
+  systemd.tmpfiles.rules = [ "z /sys/devices/virtual/powercap/intel-rapl/intel-rapl:*/energy_uj 0440 root users - -" ];
+
   # xdg-open on an image: imv. The user's ~/.config/mimeapps.list still names gwenview first;
   # a missing entry is skipped and this system default is next.
   xdg.mime.defaultApplications = builtins.listToAttrs (

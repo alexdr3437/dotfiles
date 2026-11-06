@@ -9,3 +9,6 @@ lock_monitor=HDMI-A-1  # lock.sh: the password form starts on the 4K
 soft_lock_min=5
 ac_lock_min=120
 # Other overrides: ac_off_min= hint_min= (defaults in idle.sh)
+# battery.sh bar draw: "high" class above this many W. No battery here, so the number is the CPU
+# package (i7-13700K, 253 W limit) plus the GPU when its driver reports it; red means a real load.
+draw_high=150
