@@ -39,11 +39,6 @@
     xkb.layout = "us";
   };
 
-  services.actual = {
-    enable = true;
-    settings.port = 5006;
-  };
-
   environment.systemPackages = with pkgs; [
     parted
     gptfdisk

@@ -24,6 +24,13 @@
     ../../modules/foldingathome.nix
   ];
 
+  # Actual Budget server: desktop only (servers aren't duplicated on the laptop). Backed up
+  # by actual-backup.nix, reached as actual.<home domain> through home-dns.nix.
+  services.actual = {
+    enable = true;
+    settings.port = 5006;
+  };
+
   # nvidia 610.57.04 does not build on 7.3 (dmem_cgroup_register_region API change)
   boot.kernelPackages = pkgs.linuxPackages_7_2;
 
