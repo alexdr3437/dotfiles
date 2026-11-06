@@ -94,7 +94,7 @@
             [ $tries -gt 0 ] && echo "bluetooth adapter is back after $tries USB reset(s)"
             missing=0 tries=0 told=0
             line=$(journalctl -k -q -o cat --since "@$since" \
-              | grep -m1 -E 'Bluetooth: hci[0-9]+: (Opcode 0x200e failed|command 0x[0-9a-f]+ tx timeout|Reset after hardware error failed)')
+              | grep -m1 -E 'Bluetooth: hci[0-9]+: (Opcode 0x200e failed|command 0x[0-9a-f]+ tx timeout|Reset after hardware error failed)' || true) # no match is the normal case; the unit runs under set -e
             since=$now
             if [ -n "$line" ] && [ $((now - cycled)) -ge 60 ]; then
               echo "bluetooth wedged ($line), power cycling adapter"
