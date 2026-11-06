@@ -46,9 +46,10 @@
       # whenever TLP starts or the power source changes.
       PCIE_ASPM_ON_AC = "powersupersave";
       PCIE_ASPM_ON_BAT = "powersupersave";
-      # TLP's default "on" keeps every PCI device awake on wall power, the Arc A370M
-      # included (heat and fan for nothing); let them runtime-suspend like on battery.
-      RUNTIME_PM_ON_AC = "auto";
+      # Leave RUNTIME_PM_ON_AC at TLP's default ("on"). Setting it to "auto" let the
+      # AX211's WiFi function (00:14.3) and the xHCI its bluetooth sits on (00:14.0)
+      # runtime-suspend on wall power, and the first boot with it logged a "Hardware
+      # error 0x0c" every ~30 s with the Adv360 Pro reconnecting each time (Nov 2026).
       # Don't USB-autosuspend the AX211's bluetooth half: TLP's suggestion for unstable
       # bluetooth, and this controller crashes (see bluetooth-watchdog below).
       USB_EXCLUDE_BTUSB = 1;
