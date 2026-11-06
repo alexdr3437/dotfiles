@@ -55,6 +55,10 @@
     };
   };
 
+  # Docker on demand (docker.socket starts it on first use) instead of at every boot.
+  # Containers with a restart policy (e.g. forwarder) then only come up once Docker runs.
+  virtualisation.docker.enableOnBoot = false;
+
   # The lid is mango's: files/dotfiles/mango/hosts/laptop/mango.conf binds fold/unfold
   # to monitors.sh (battery → suspend, AC → lock + panel off). logind would otherwise
   # suspend on top of that.
@@ -165,10 +169,6 @@
   time.timeZone = "America/Toronto";
 
   nixpkgs.config.allowUnfree = true;
-
-  nixpkgs.config.permittedInsecurePackages = [
-    "segger-jlink-qt4-874"
-  ];
 
   # shell
   programs.zsh.enable = true;
