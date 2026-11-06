@@ -8,7 +8,7 @@
 #                          re-enable it when it is the only one left (idempotent)
 #   monitors.sh watch    → apply + taskbars whenever the set of enabled monitors changes
 #                          (started by autostart.sh after the eww daemon)
-#   monitors.sh fold     → lid closed: on battery suspend, on AC lock + sleep the panel
+#   monitors.sh fold     → lid closed: on battery suspend, on AC sleep the panel + lock
 #   monitors.sh unfold   → lid opened: wake the panel if it is the one in use
 # $internal_monitor is set in hosts/<host>/env.sh (laptop: eDP-1); unset on the desktop, where the
 # panel parts are no-ops. Dry run:  internal_monitor=HDMI-A-2 monitors.sh status
@@ -65,14 +65,21 @@ watch() {
   mmsg watch all-monitors 2>/dev/null | while read -r _; do sync; done
 }
 
+lid_closed() { grep -qs closed /proc/acpi/button/lid/*/state; }
+
 fold() {
   if "$dir/idle.sh" on-battery; then
     run systemctl suspend
-  else
-    run "$dir/lock.sh"
-    [ -n "$internal_monitor" ] && [ "$(status | jq -r .internal_on)" = true ] \
-      && run mmsg dispatch sleep_monitor,"$internal_monitor" >/dev/null
+    return
   fi
+  # Panel first, then lock: lock.sh doesn't return while the lid is shut (gtklock only
+  # reports locked once the panel draws again, 3-5 s after the lid opens). Sleeping the
+  # panel after the lock used to land after unfold had woken it: black screen on unlock.
+  [ -n "$internal_monitor" ] && lid_closed && [ "$(status | jq -r .internal_on)" = true ] \
+    && run mmsg dispatch sleep_monitor,"$internal_monitor" >/dev/null
+  run "$dir/lock.sh"
+  # lid opened while we were locking: make sure the panel is awake, as unfold would
+  lid_closed || unfold
 }
 
 unfold() {

@@ -267,8 +267,9 @@ in a Mango session on the laptop:
 
 - Plug the HDMI monitor in and out: `monitors.sh status`, the panel goes
   black and comes back, the taskbar follows.
-- Lid close on battery → suspend; on wall power → lock, panel asleep; open →
-  panel back if in use.
+- Lid close on battery → suspend; on wall power → panel asleep, lock (the lock
+  only completes once the lid is open again); open → panel back if in use, and
+  still on after unlocking (the old order slept it after unfold had woken it).
 - Unplug: `idle.sh status` says battery and `pgrep -af swayidle` shows
   120/300 s; plug back → 300/7200 s (lock / screens off).
 - Brightness and media keys; `wev` names a key that does nothing.
