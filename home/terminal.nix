@@ -3,7 +3,6 @@
   inputs,
   pkgs,
   config,
-  host,
   ...
 }:
 let
@@ -59,10 +58,7 @@ in
       keybind = [
         "ctrl+enter=unbind"
       ];
-    }
-    # From github.com/sahaj-b/cursor-shaders. Desktop only: any custom shader makes
-    # ghostty redraw every frame while focused (~6 W on the laptop's battery).
-    // pkgs.lib.optionalAttrs (host != "laptop") {
+      # From github.com/sahaj-b/cursor-shaders
       custom-shader = [
         "${config.xdg.configHome}/ghostty/shaders/cursor_warp.glsl"
         "${config.xdg.configHome}/ghostty/shaders/ripple_cursor.glsl"
