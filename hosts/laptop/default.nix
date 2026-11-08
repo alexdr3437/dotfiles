@@ -180,6 +180,7 @@
     isNormalUser = true;
     extraGroups = [
       "wheel"
+      "networkmanager" # see the desktop: Proton VPN's kill switch needs it
       "docker"
       "dialout"
       "wireshark"

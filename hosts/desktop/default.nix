@@ -97,6 +97,10 @@
     isNormalUser = true;
     extraGroups = [
       "wheel"
+      # NetworkManager actions without a polkit prompt. Proton VPN adds its kill-switch
+      # connection on every connect, which otherwise needs an admin authorization; the
+      # polkit agent loses its registration whenever a rebuild restarts polkitd.
+      "networkmanager"
       "docker"
       "dialout"
       "wireshark"
