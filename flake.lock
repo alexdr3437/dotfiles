@@ -775,7 +775,8 @@
         "nixvim": "nixvim",
         "tires-firmware": "tires-firmware",
         "waybar": "waybar",
-        "zellij-agent": "zellij-agent"
+        "zellij-agent": "zellij-agent",
+        "zellij-src": "zellij-src"
       }
     },
     "rust-overlay": {
@@ -1062,6 +1063,22 @@
         "ref": "master",
         "type": "git",
         "url": "ssh://git@github.com/alexdr3437/zellij-agent.git"
+      }
+    },
+    "zellij-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793989290,
+        "narHash": "sha256-QLLGf5GtVkodgUUVqUPxZUFavNcgw7GlNNtmvh0FK78=",
+        "owner": "zellij-org",
+        "repo": "zellij",
+        "rev": "43c8710b3a9845f60d5a567c7410fc1197fabb66",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zellij-org",
+        "repo": "zellij",
+        "type": "github"
       }
     },
     "zephyr": {

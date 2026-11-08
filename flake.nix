@@ -44,6 +44,12 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
+    # Zellij source, built in home/terminal.nix (upstream main rather than the nixpkgs release)
+    zellij-src = {
+      url = "github:zellij-org/zellij";
+      flake = false;
+    };
+
     hw_db_interface.url ="git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";
     marc.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?dir=device-manager/tools/marc&ref=dev";
     tires-firmware.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?ref=dev&submodules=1";
