@@ -3,20 +3,23 @@
 #   vpn.sh status            → eww JSON {proton:[{name,active}], ts:{online,ip,exit_active,exit_name,exit_options,peers_online,peers}}
 #   vpn.sh bar [proton|ts]   → waybar JSON for that module (no variant: one combined module)
 #   vpn.sh proton NAME       → toggle that NM connection
-#   vpn.sh ts-exit           → toggle the Tailscale exit node (uses the first peer offering one)
+#   vpn.sh ts-exit           → toggle the Tailscale exit node ($ts_exit_node if it offers one, else the first peer that does)
 #   vpn.sh ts                → tailscale up / down
 # shellcheck source=lib.sh
 . "$HOME/.config/mango/lib.sh"
+ts_exit_node=${ts_exit_node:-iot-gate-imx8plus}   # preferred exit node; override in hosts/<host>/env.sh
+# offered exit nodes, the preferred one first (eww shows .[0] as "available")
+exit_options='[.Peer[]? | select(.ExitNodeOption) | .HostName] | (map(select(. == $pref)) + map(select(. != $pref)))'
 
 status() {
   proton=$(nmcli -t -f NAME,TYPE,ACTIVE con show 2>/dev/null \
     | awk -F: '$2 == "vpn" || $2 == "wireguard" {printf "%s\t%s\n", $1, $3}' \
     | jq -R -s -c 'split("\n") | map(select(length > 0) | split("\t") | {name: .[0], active: (.[1] == "yes")})')
-  ts=$(tailscale status --json 2>/dev/null | jq -c '
+  ts=$(tailscale status --json 2>/dev/null | jq -c --arg pref "$ts_exit_node" '
     (.ExitNodeStatus.ID // null) as $e
     | {online: (.Self.Online // false), ip: ((.Self.TailscaleIPs // [""])[0]),
        exit_active: ($e != null), exit_name: ([.Peer[]? | select(.ID == $e) | .HostName] | first // ""),
-       exit_options: [.Peer[]? | select(.ExitNodeOption) | .HostName],
+       exit_options: ('"$exit_options"'),
        peers_online: ([.Peer[]? | select(.Online)] | length), peers: ((.Peer // {}) | length)}')
   [ -n "$ts" ] || ts='{"online":false,"ip":"","exit_active":false,"exit_name":"","exit_options":[],"peers_online":0,"peers":0}'
   jq -cn --argjson proton "${proton:-[]}" --argjson ts "$ts" '{proton: $proton, ts: $ts}'
@@ -56,7 +59,7 @@ case "$1" in
     if tailscale status --json | jq -e '.ExitNodeStatus != null' >/dev/null; then
       run tailscale set --exit-node= 2>/dev/null || fail "couldn't clear exit node (needs: tailscale operator = $USER)"
     else
-      node=$(tailscale status --json | jq -r '[.Peer[]? | select(.ExitNodeOption) | .HostName] | first // ""')
+      node=$(tailscale status --json | jq -r --arg pref "$ts_exit_node" "$exit_options | first // \"\"")
       if [ -n "$node" ]; then run tailscale set --exit-node="$node" 2>/dev/null || fail "couldn't set exit node $node (needs: tailscale operator = $USER)"
       else fail "no exit node offered"; fi
     fi
