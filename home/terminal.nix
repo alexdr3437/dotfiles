@@ -36,10 +36,10 @@ let
             libxkbcommon # also libxkbcommon-x11
             libGL # libglvnd: libEGL.so.1 dispatching to /run/opengl-driver
             fontconfig # system font discovery
-            xorg.libX11
-            xorg.libXcursor
-            xorg.libXi
-            xorg.libXrandr
+            libx11
+            libxcursor
+            libxi
+            libxrandr
           ]
         )
       } $out/bin/zellij
