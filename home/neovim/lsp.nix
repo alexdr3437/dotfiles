@@ -160,6 +160,15 @@
         };
       };
 
+      # OCaml. The `ocamllsp` binary comes from the project's dev shell
+      # (nixpkgs: ocamlPackages.ocaml-lsp) or opam switch (opam: ocaml-lsp-server),
+      # like every other server here. nvim-lspconfig's defaults
+      # already cover .ml/.mli, dune files, menhir and the opam filetype.
+      ocamllsp = {
+        package = null;
+        enable = true;
+      };
+
       zls = {
         package = null;
         enable = true;
