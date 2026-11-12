@@ -76,7 +76,8 @@
   # - gone: the controller crashes, the kernel's ACPI reset never brings it back and it
   #   drops off USB (usb 3-10 "device not accepting address, error -71"), so there's no
   #   hci0 to power cycle. It stayed dead for 2.5 days until a reboot (Nov 2026).
-  # Every 30 s: wedged → bluetoothctl power cycle; gone for a minute → rebind the xHCI
+  # Every 30 s: wedged (one of those errors, then 10 s later the adapter is powered but
+  # nothing is connected) → bluetoothctl power cycle; gone for a minute → rebind the xHCI
   # controller it sits on (00:14.0, shared with the webcam and USB-A ports) unless a USB
   # drive is attached there; still gone after two rebinds → notify to reboot.
   systemd.services.bluetooth-watchdog =
@@ -114,12 +115,22 @@
               | grep -m1 -E 'Bluetooth: hci[0-9]+: (Opcode 0x200e failed|command 0x[0-9a-f]+ tx timeout|Reset after hardware error failed)' || true) # no match is the normal case; the unit runs under set -e
             since=$now
             if [ -n "$line" ] && [ $((now - cycled)) -ge 60 ]; then
-              echo "bluetooth wedged ($line), power cycling adapter"
-              sleep 10 # let the kernel finish its own reset first
-              bluetoothctl power off
-              sleep 2
-              bluetoothctl power on
-              cycled=$(date +%s)
+              sleep 10 # let the kernel finish its own reset, and devices reconnect
+              # The same errors show up when bluetooth is toggled by hand (the waybar
+              # widget), and devices reconnect fine right after. Only a wedge leaves the
+              # adapter powered with nothing connected; power cycling otherwise just
+              # drops everything again. Powered off means the user turned it off.
+              if ! bluetoothctl show | grep -q 'Powered: yes'; then
+                echo "bluetooth error ($line), but the adapter is powered off; leaving it"
+              elif bluetoothctl devices Connected | grep -q '^Device '; then
+                echo "bluetooth error ($line), but devices are connected; not power cycling"
+              else
+                echo "bluetooth wedged ($line), nothing connected, power cycling adapter"
+                bluetoothctl power off
+                sleep 2
+                bluetoothctl power on
+                cycled=$(date +%s)
+              fi
             fi
             continue
           fi
