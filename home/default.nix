@@ -3,6 +3,7 @@
   imports = [
     inputs.nixvim.homeModules.nixvim
     inputs.zellij-agent.homeManagerModules.default
+    ./hermes.nix
     ./mango.nix
     ./terminal.nix
     ./neovim

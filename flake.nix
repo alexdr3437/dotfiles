@@ -50,6 +50,12 @@
       flake = false;
     };
 
+    # Hermes agent (home/hermes.nix). Tracks main; `nix flake update hermes-agent` to bump.
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent/main";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     hw_db_interface.url ="git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";
     marc.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?dir=device-manager/tools/marc&ref=dev";
     tires-firmware.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?ref=dev&submodules=1";
