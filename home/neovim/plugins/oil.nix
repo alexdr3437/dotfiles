@@ -1,8 +1,5 @@
-# oil.nvim, plus the :Dirs picker that launches it.
-#
-# :Dirs lists the immediate subdirectories of its arguments and opens the
-# chosen one in oil. With no arguments it reads the list from a .nvim/dirs.lua
-# found by walking up from the current file.
+# oil.nvim, plus :Dirs: pick a subdirectory of its arguments (default: the list in the
+# nearest .nvim/dirs.lua) and open it in oil.
 { ... }:
 {
   programs.nixvim = {
@@ -76,8 +73,7 @@
             :find()
         end
 
-        -- Resolve the roots for a bare `:Dirs` from .nvim/dirs.lua, which is
-        -- expected to return a list of directories relative to its project.
+        -- roots for a bare `:Dirs`: the list returned by .nvim/dirs.lua
         function M.roots_from_project_file()
           local project_file = vim.fs.find(".nvim/dirs.lua", {
             upward = true,

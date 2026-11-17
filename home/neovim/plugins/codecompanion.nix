@@ -1,28 +1,10 @@
-# codecompanion.nvim: chat buffer, inline edits, and a terminal wrapper around
-# agent CLIs. Three interactions, subscription-backed throughout -- and
-# deliberately no API key anywhere:
-#
-#   chat   -> claude_code or codex over ACP. Claude is the default; `ga` in the
-#             chat buffer switches between them and their models. Both use the
-#             corresponding logged-in subscription.
-#   inline -> copilot, over the auth copilot.lua already put in
-#             ~/.config/github-copilot. ACP cannot serve this: upstream supports
-#             ACP adapters for the chat interaction only, so inline needs an HTTP
-#             adapter and copilot is the one that needs no key.
-#   cli    -> `claude` itself, for work that reads the repo and writes files.
-#
-# `background` (chat titles, compaction) already defaults to copilot upstream, so
-# it is left alone rather than restated.
-#
-# The CLI half is the reason this plugin is here rather than avante: `#{this}`
-# expands a visual selection to `@path (lines N-M)` followed by the snippet, and
-# Claude Code resolves `@path` natively, so the agent opens the file for
-# surrounding context instead of reasoning from the pasted lines alone.
+# codecompanion.nvim, on subscriptions only, no API keys:
+#   chat   -> claude_code or codex over ACP (`ga` in the chat buffer switches)
+#   inline -> copilot (ACP only serves chat)
+#   cli    -> `claude` in a terminal; `#{this}` passes the selection as `@path (lines N-M)`
 { nvimPkgs, ... }:
 let
-  # Body shared by <leader>cb and <leader>cnb. `fresh` picks which chat buffer
-  # the selection lands in: false reuses `last_chat()` and only creates one when
-  # there is none, true always opens another.
+  # body of <leader>cb and <leader>cnb; `fresh` always opens a new chat
   addSelection = fresh: ''
     function()
       local cc = require("codecompanion")
@@ -32,8 +14,7 @@ let
 
       local chat = ${if fresh then "nil" else "cc.last_chat()"}
       if not chat then
-        -- stop_context_insertion, because the selection is added below with the
-        -- `from <path> (lines N-M):` header rather than the plugin's own wording.
+        -- the selection is added below, under its own `from <path> (lines N-M):` header
         chat = cc.chat({ stop_context_insertion = true })
         if not chat then
           return vim.notify("Could not create chat buffer", vim.log.levels.WARN)
@@ -56,11 +37,7 @@ let
 in
 {
   programs.nixvim = {
-    # The ACP bridges between CodeCompanion and the two agent CLIs. The Claude
-    # wrapper `--set-default`s CLAUDE_CODE_EXECUTABLE to nixpkgs' claude-code;
-    # codex-acp does the same with CODEX_PATH and nixpkgs' codex. Both pinned
-    # CLIs read the same subscription credentials as their native installers
-    # from ~/.claude and ~/.codex respectively.
+    # ACP bridges to nixpkgs' claude-code and codex, which use the logins in ~/.claude and ~/.codex
     extraPackages = [
       nvimPkgs.claude-agent-acp
       nvimPkgs.codex-acp
@@ -69,32 +46,10 @@ in
     plugins.codecompanion = {
       enable = true;
 
-      # plenary comes in through the nixpkgs package's own `dependencies`, so it
-      # does not need listing.
-      #
-      # Everything here goes through nixvim's freeform `settings`. The module
-      # still declares the pre-v19 `strategies` option, which v19 renamed to
-      # `interactions`, so none of these keys are checked at eval time -- a typo
-      # is silent in nix and shows up as a missing feature in nvim.
+      # freeform settings, unchecked at eval time: a typo shows up as a missing feature in nvim
       settings = {
-        # Load-bearing workaround, not configuration.
-        #
-        # The claude_code adapter ships `env = { CLAUDE_CODE_OAUTH_TOKEN =
-        # "CLAUDE_CODE_OAUTH_TOKEN" }`, meaning "read that variable from the
-        # environment". When it is unset, `get_env_vars` falls all the way
-        # through its prefix checks to `env_replaced[k] = v` and hands the
-        # adapter the *literal string* "CLAUDE_CODE_OAUTH_TOKEN" as a token. The
-        # adapter's auth handler only tests for non-empty, so it exports that
-        # garbage to the agent -- and an OAuth token outranks the stored
-        # subscription: with it set, `claude auth status` flips authMethod from
-        # "claude.ai" to "oauth_token" and drops subscriptionType entirely.
-        #
-        # A function is the only way out, since `extend` is a tbl_deep_extend and
-        # cannot delete a key. Returning nil leaves the key absent from the
-        # spawn env, the auth handler returns false, and -- because a false auth
-        # hook is not fatal -- CodeCompanion falls through to ACP negotiation.
-        # The bridge advertises `authMethods: []` when `claude` is already logged
-        # in, so the connection is considered authenticated with no token.
+        # Workaround: with CLAUDE_CODE_OAUTH_TOKEN unset the adapter sends the variable's name
+        # as the token, which outranks the subscription login. Returning nil drops the key.
         adapters.acp.claude_code.__raw = ''
           function()
             return require("codecompanion.adapters").extend("claude_code", {
@@ -107,11 +62,7 @@ in
           end
         '';
 
-        # The built-in Codex adapter otherwise requests ACP's `api-key` auth
-        # method. Force `chat-gpt` so codex-acp uses the login in ~/.codex (and
-        # opens the subscription login flow on first use) instead. Clearing the
-        # inherited adapter field also avoids the same unset-variable-to-literal
-        # fallback described above; no OPENAI_API_KEY is sent by CodeCompanion.
+        # `chat-gpt` auth uses the login in ~/.codex instead of an API key
         adapters.acp.codex.__raw = ''
           function()
             return require("codecompanion.adapters").extend("codex", {
@@ -128,11 +79,7 @@ in
         '';
 
         interactions = {
-          # Models are left unset: the ACP agents advertise the models available
-          # to each logged-in subscription, while copilot's list is fetched live
-          # from api.githubcopilot.com and also depends on entitlements. Pinning
-          # an id here would be a guess that fails at request time rather than at
-          # eval time. `ga` in the chat buffer switches adapter and model.
+          # models unset: each subscription advertises its own
           chat.adapter = "claude_code";
           inline.adapter = "copilot";
 
@@ -142,10 +89,7 @@ in
           cli = {
             agent = "claude_code";
 
-            # `agents` ships empty, so :CodeCompanionCLI does nothing until one
-            # is declared. A bare PATH lookup on purpose: this drives the
-            # native-installer binary in ~/.local/bin, which is the one holding
-            # the subscription login.
+            # bare PATH lookup: the binary in ~/.local/bin holds the subscription login
             agents.claude_code = {
               cmd = "claude";
               description = "Claude Code CLI";
@@ -154,8 +98,7 @@ in
           };
         };
 
-        # Join the <leader>p pickers in telescope.nix instead of falling back to
-        # the plugin's own vim.ui.select menu.
+        # join the <leader>p pickers in telescope.nix
         display.action_palette.provider = "telescope";
       };
     };
@@ -167,10 +110,7 @@ in
         options.desc = "[C]odeCompanion [c]hat toggle";
       }
 
-      # `CodeCompanionChat` without `Toggle` always builds another chat buffer,
-      # so this starts a second conversation from normal mode the way
-      # <leader>cnb does from visual mode. The previous chat stays open and
-      # <leader>cc goes back to whichever was last active.
+      # a second chat; the first stays open
       {
         mode = "n";
         key = "<leader>cnc";
@@ -178,23 +118,14 @@ in
         options.desc = "[C]odeCompanion [n]ew [c]hat";
       }
 
-      # Fullscreen toggle. The plugin has no maximize/zoom of its own, so this
-      # promotes the chat window to its own tab (`wincmd T`) and drops back by
-      # closing that tab. Going via a tab rather than `wincmd o` is what keeps
-      # the splits underneath intact -- they are still sitting in the tab the
-      # chat was promoted out of.
-      #
-      # `filetype == "codecompanion"` is the hook rather than the plugin's Lua
-      # API: the ui sets it on the chat buffer, and it does not match the CLI
-      # interaction's terminal buffer, so this never grabs the wrong window.
+      # Fullscreen toggle: move the chat window to its own tab and back, leaving the splits intact
       {
         mode = "n";
         key = "<leader>cf";
         action.__raw = ''
           function()
             local function find_chat()
-              -- Current tab first, so a chat visible here wins over one parked
-              -- in some other tab.
+              -- current tab first
               local tabs = { vim.api.nvim_get_current_tabpage() }
               for _, t in ipairs(vim.api.nvim_list_tabpages()) do
                 if t ~= tabs[1] then
@@ -220,13 +151,10 @@ in
             if #vim.api.nvim_tabpage_list_wins(tab) == 1 then
               if #vim.api.nvim_list_tabpages() > 1 then
                 vim.cmd(vim.api.nvim_tabpage_get_number(tab) .. "tabclose")
-                -- tabclose destroys the window it was in, so the chat has to be
-                -- re-opened explicitly or the way back out of fullscreen just
-                -- makes it vanish.
+                -- tabclose destroys the window, so re-open the chat
                 return vim.cmd("CodeCompanionChat Toggle")
               end
-              -- Only window in the only tab: already fullscreen, and `wincmd T`
-              -- would just fail here.
+              -- only window in the only tab: already fullscreen
               return
             end
 
@@ -237,19 +165,7 @@ in
         options.desc = "[C]odeCompanion chat [f]ullscreen toggle";
       }
 
-      # The chat-buffer twin of <leader>ca below: this one feeds the chat
-      # adapter, <leader>ca feeds the agent running in the terminal.
-      #
-      # Hand-rolled rather than `<cmd>CodeCompanionChat Add<CR>` purely for the
-      # header on the pasted block: CodeCompanion.add hardcodes "Here is some
-      # code from <abs path>:" with no config key behind it, and this is the
-      # whole of that function otherwise. The header here is
-      # `from <path> (lines N-M):`, close to the `@path (lines N-M)` shape
-      # `#{this}` gives <leader>ca.
-      #
-      # utils.context.get reads the live `v`/`.` positions when called from
-      # visual mode, so a function mapping gets the selection without the
-      # command's `range` plumbing.
+      # add the selection to the chat, under a `from <path> (lines N-M):` header
       {
         mode = "v";
         key = "<leader>cb";
@@ -257,10 +173,7 @@ in
         options.desc = "[C]odeCompanion add selection to chat [b]uffer";
       }
 
-      # Same thing into a chat of its own. `last_chat()` is skipped entirely, so
-      # this is the way to start a second conversation instead of piling another
-      # snippet onto the running one. The old chat is not closed -- <leader>cc
-      # toggles whichever was last active.
+      # the same, into a new chat
       {
         mode = "v";
         key = "<leader>cnb";
@@ -268,8 +181,7 @@ in
         options.desc = "[C]odeCompanion selection to [n]ew chat [b]uffer";
       }
 
-      # The two that do the thing this plugin was added for. In visual mode both
-      # carry the selection; in normal mode they fall back to the whole buffer.
+      # visual mode: the selection; normal mode: the whole buffer
       {
         mode = [
           "n"
@@ -285,8 +197,7 @@ in
           "v"
         ];
         key = "<leader>ca";
-        # focus = false keeps the cursor where it is, which is what makes it
-        # usable as "add this too" while reading around a codebase.
+        # focus = false keeps the cursor in place
         action.__raw = ''function() return require("codecompanion").cli("#{this}", { focus = false }) end'';
         options.desc = "[C]odeCompanion [a]dd context to CLI agent";
       }

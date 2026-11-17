@@ -1,16 +1,11 @@
-# Colorscheme switcher: every theme installed, picked with `:Telescope colorscheme`,
-# choice remembered across restarts.
-#
-# Deliberately does NOT use nixvim's `colorschemes.*` -- that emits a hardcoded
-# colorscheme call at startup which would stomp the restored choice. The restore
-# lua below owns the colorscheme instead.
+# Colorscheme switcher: `:Telescope colorscheme`, choice remembered across restarts.
+# nixvim's `colorschemes.*` is not used: it would override the restored choice at startup.
 { nvimPkgs, ... }:
 let
   # Used on first run, and as a fallback if the remembered theme is unavailable.
   defaultTheme = "tokyonight-night";
 
-  # Written to ~/.local/share/nvim/colorscheme -- the nix store config is
-  # read-only, so the choice has to persist somewhere writable.
+  # stored in ~/.local/share/nvim/colorscheme
   persistence = ''
     do
       local datadir = vim.fn.stdpath("data")
@@ -60,8 +55,7 @@ in
       monokai-pro-nvim
     ];
 
-    # Merges into the telescope config from ./telescope.nix. Lives here because
-    # it exists only for this picker.
+    # merges into the telescope config from ./telescope.nix
     plugins.telescope.settings.pickers.colorscheme.enable_preview = true;
 
     extraConfigLua = persistence;

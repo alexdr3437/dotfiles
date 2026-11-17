@@ -30,9 +30,8 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # hex voice dictation (modules/dictation.nix). Follows one of this flake's nixpkgs so
-    # hex's glibc is not older than the nvidia Vulkan driver's (it then finds no Vulkan
-    # adapter); unstable because hex needs a newer rustc than 26.05 has.
+    # hex voice dictation (modules/dictation.nix); unstable for its rustc, and so its glibc
+    # is not older than the nvidia Vulkan driver's
     hex = {
       url = "github:anomalyco/hex";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
@@ -44,19 +43,19 @@
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
 
-    # Zellij source, built in home/terminal.nix (upstream main rather than the nixpkgs release)
+    # Zellij source, built in home/terminal.nix
     zellij-src = {
       url = "github:zellij-org/zellij";
       flake = false;
     };
 
-    # Hermes agent (home/hermes.nix). Tracks main; `nix flake update hermes-agent` to bump.
+    # Hermes agent (home/hermes.nix)
     hermes-agent = {
       url = "github:NousResearch/hermes-agent/main";
       inputs.home-manager.follows = "home-manager";
     };
 
-    # receipt-ingest (modules/receipt-ingest.nix): parses the scans Syncthing drops in ~/receipts
+    # receipt-ingest (modules/receipt-ingest.nix)
     receipt-ingest = {
       url = "git+ssh://git@github.com/alexdr3437/receipt-ingest.git?ref=master";
       inputs.nixpkgs.follows = "nixpkgs-unstable";

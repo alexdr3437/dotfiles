@@ -8,8 +8,7 @@ let
   cfg = config.services.hermes-agent;
   upstream = inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
-  # Nix supplies the dependencies. Do not reuse receipts/binaries left by
-  # `hermes setup` in ~/.hermes/tools: they belong to a different installer.
+  # nix supplies the tools; ignore what `hermes setup` leaves in ~/.hermes/tools
   runtime = upstream.overrideAttrs (old: {
     postInstall = (old.postInstall or "") + ''
       mkdir -p "$out/tools"
@@ -27,8 +26,7 @@ let
     };
   };
 
-  # Upstream's `hermes desktop` tries to build a source checkout. Nix ships
-  # the already-built Electron application as a separate derivation instead.
+  # `hermes desktop` runs the prebuilt Electron app instead of building a checkout
   cli = pkgs.symlinkJoin {
     name = "hermes-nix";
     paths = [ runtime ];
@@ -67,7 +65,7 @@ in
     backend.mode = "none";
 
     settings = {
-      # Schema version of the pinned Hermes input. Review when updating it.
+      # schema version of the pinned input; review on update
       _config_version = 49;
       agent = {
         max_turns = 150;
@@ -110,12 +108,9 @@ in
       };
     };
 
-    # Replace rather than merge on activation: Nix is the configuration's
-    # source of truth, including removal of settings. This remains writable
-    # for Hermes, but runtime edits are reset by the next rebuild.
+    # replace, not merge: runtime edits are reset by the next rebuild
     configFile = (pkgs.formats.yaml { }).generate "hermes-config.yaml" cfg.settings;
 
-    # OAuth tokens stay in ~/.hermes/auth.json and can refresh normally.
-    # Never put credentials in settings, authFile, or the world-readable store.
+    # credentials stay in ~/.hermes/auth.json, never in the store
   };
 }

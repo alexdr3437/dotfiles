@@ -6,8 +6,7 @@
       enable = true;
 
       settings = {
-        # Spelled out so the gutter and the mini.map marks agree on what each
-        # kind of change looks like.
+        # same marks as mini.map
         signs = {
           add.text = "│";
           change.text = "│";
@@ -24,10 +23,7 @@
           delay = 1000;
         };
 
-        # NOTE: `show_deleted` does NOT belong here. gitsigns marks it deprecated
-        # in its config schema, so passing it through setup() prints
-        # "show_deleted is now deprecated; ignoring" and drops it on the floor.
-        # The runtime flag is still honoured, so <leader>gD flips it directly.
+        # `show_deleted` is deprecated in setup(); <leader>gD flips the runtime flag instead
       };
     };
 
@@ -49,15 +45,11 @@
           return res.stdout or ""
         end
 
-        -- Every added or modified line in the working tree, as {path, lnum, text}.
-        -- Paths are relative to `dir` thanks to --relative, which also scopes the
-        -- diff to that subtree -- matching how <leader>pf/<leader>pg are scoped.
+        -- every added or modified line under `dir`, as {path, lnum, text}
         local function collect(dir)
           local entries = {}
 
-          -- -U0 means no context lines, so every + line is a real change.
-          -- Before the first commit there is no HEAD, so fall back to diffing
-          -- against git's empty tree -- anything already staged still counts.
+          -- -U0: every + line is a real change. No HEAD yet: diff against the empty tree.
           local EMPTY_TREE = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
           local diff = git(dir, { "diff", "HEAD", "-U0", "--relative", "--no-color" })
             or git(dir, { "diff", EMPTY_TREE, "-U0", "--relative", "--no-color" })
@@ -102,8 +94,7 @@
 
         M.collect = collect
 
-        -- Files git reports as changed. Telescope's own picker, so it keeps the
-        -- diff preview and staging mappings.
+        -- changed files, through telescope's own picker
         function M.changed_files(dir)
           require("telescope.builtin").git_status({ cwd = dir })
         end
@@ -145,20 +136,13 @@
         return M
       end)()
 
-      -- The sticky whole-buffer diff overlay behind <leader>gD and <Esc>.
-      --
-      -- Owns its own on/off flag rather than reading gitsigns' config table:
-      -- that table is internal, and nothing else in this config touches these
-      -- three settings, so there is nothing for the flag to drift against.
+      -- the sticky whole-buffer diff overlay behind <leader>gD and <Esc>, with its own on/off flag
       _M.gitdiff = (function()
         local M = {}
 
         local on = false
 
-        -- preview_hunk_inline() is three effects, so the sticky version is three
-        -- flags: show_deleted for removed lines, linehl for the full-line wash
-        -- over added/changed ones, word_diff for the intra-line regions. The
-        -- toggles only set flags; refresh() is what redraws.
+        -- removed lines, full-line wash, intra-line regions; refresh() redraws
         local function apply(value)
           local gs = require("gitsigns")
           gs.toggle_deleted(value)
@@ -172,9 +156,7 @@
           apply(not on)
         end
 
-        -- Only touches gitsigns when the overlay is actually up. <Esc> is pressed
-        -- constantly, and an unconditional refresh() on every press would be
-        -- flicker for nothing.
+        -- refresh only when the overlay is up: <Esc> is pressed constantly
         function M.clear()
           if on then
             apply(false)
@@ -199,16 +181,8 @@
         options.desc = "[G]it changed [L]ines";
       }
 
-      # Hunk navigation. Note [ = next and ] = previous, matching [d/]d and [q/]q.
-      #
-      # target = "all" is load-bearing. gitsigns defaults to "unstaged", so with
-      # a staged working tree every one of these answers "No hunks" -- which is
-      # wrong for this config, where <leader>gf/<leader>gl already diff against
-      # HEAD and make no distinction between staged and not.
-      #
-      # The <leader>gd preview clears as soon as the cursor moves, so these do
-      # not carry it along; <leader>gD keeps every hunk's deleted lines up
-      # while walking.
+      # Hunk navigation ([ = next, ] = previous). target = "all": the default, "unstaged",
+      # misses staged hunks.
       {
         mode = "n";
         key = "[c";
@@ -222,20 +196,14 @@
         options.desc = "Go to previous git [C]hange";
       }
 
-      # Removed lines have nowhere to sit in the working tree, so they are hidden
-      # until asked for. Two ways to ask, because they answer different questions.
-      #
-      # <leader>gd is zed's editor::ToggleSelectedDiffHunks: the hunk under the
-      # cursor only, cleared again on CursorMoved/InsertEnter/BufLeave.
+      # <leader>gd: show the removed lines of the hunk under the cursor, until it moves
       {
         mode = "n";
         key = "<leader>gd";
         action.__raw = ''function() require("gitsigns").preview_hunk_inline() end'';
         options.desc = "[G]it [D]eleted lines (hunk)";
       }
-      # <leader>gD is the sticky one: the same picture as <leader>gd but for every
-      # hunk in the buffer, until toggled off -- by pressing it again, or by <Esc>
-      # along with the search highlight (see keymaps.nix).
+      # <leader>gD: the same for every hunk, until toggled off or <Esc>
       {
         mode = "n";
         key = "<leader>gD";
@@ -249,8 +217,7 @@
         options.desc = "[G]it [P]review hunk";
       }
 
-      # Staging and resetting. The visual variants take the selected range, which
-      # is how you stage or reset part of a hunk.
+      # Staging and resetting; the visual variants take the selected range
       {
         mode = "n";
         key = "<leader>gs";

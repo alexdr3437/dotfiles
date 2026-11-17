@@ -1,5 +1,4 @@
-# The project templates: `nix flake init -t ~/.dotfiles#<name>` (the root flake exposes this
-# list), or `ntmp <name>` (home/zsh.nix) for a dev shell from one.
+# Project templates: `nix flake init -t ~/.dotfiles#<name>`, or `ntmp <name>` (home/zsh.nix).
 
 {
   description = "A collection of flake templates";

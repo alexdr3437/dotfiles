@@ -4,9 +4,7 @@
     plugins.telescope = {
       enable = true;
 
-      # The <leader>p/<leader>s scope pickers all pass hidden, and the <leader>s
-      # ones also skip .gitignore, so without these they would happily search
-      # .git/ and node_modules/.
+      # the scope pickers search hidden files, so exclude these
       settings.defaults.file_ignore_patterns = [
         "%.*build/"
         "%.*git/"
@@ -17,17 +15,8 @@
         "%.*node_modules/"
       ];
 
-      # vim.ui.select -- which is what gra / g. use to list code actions -- is
-      # handed to telescope instead of the built-in command-line prompt.
-      #
-      # get_cursor draws the list right at the cursor, the way the cmp menu sits
-      # under the word being completed, and <C-y> confirms, so accepting an
-      # action uses the same key as accepting a completion (completion.nix).
-      # <CR> still confirms too, and arrows / <C-n> / <C-p> move the selection --
-      # telescope maps those by default.
-      #
-      # This is global: every vim.ui.select prompt goes through it, not just
-      # code actions.
+      # vim.ui.select (code actions etc.) goes through telescope, at the cursor; <C-y>
+      # confirms, as in completion.nix
       extensions.ui-select = {
         enable = true;
         settings = [
@@ -74,8 +63,7 @@
       };
     };
 
-    # Helpers behind the cwd-sensitive pickers. Kept on nixvim's `_M` table
-    # rather than globals so nothing leaks into the global namespace.
+    # helpers for the cwd-sensitive pickers, on nixvim's `_M` table
     extraConfigLua = ''
       _M.telescope = (function()
         local M = {}
@@ -90,8 +78,7 @@
           return path:match("^(.*)/[^/]+$")
         end
 
-        -- Walk up from the current file until a directory named `target_dir`
-        -- turns up; fall back to the process cwd.
+        -- nearest ancestor directory named `target_dir`, else the process cwd
         local function find_dir(target_dir)
           local function dir_exists(path)
             local stat = vim.uv.fs_stat(path)
@@ -114,14 +101,8 @@
           return vim.uv.cwd()
         end
 
-        -- Scope helpers.
-        --
-        -- Project pickers honour .gitignore; session pickers deliberately do
-        -- not, so they can reach build output, vendored deps and the like.
-        --
-        -- find_files reads `no_ignore`, but live_grep/grep_string do NOT --
-        -- they only ever look at `hidden` and `additional_args` -- so ripgrep
-        -- has to be handed the flag directly.
+        -- Project pickers honour .gitignore, session pickers do not. live_grep/grep_string
+        -- ignore `no_ignore`, so ripgrep gets the flag directly.
         local function find_opts(dir, all_files)
           return {
             cwd = dir,

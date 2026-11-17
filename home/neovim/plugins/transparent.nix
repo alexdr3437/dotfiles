@@ -5,11 +5,7 @@
   programs.nixvim = {
     plugins.transparent.enable = true;
 
-    # Without this the plugin reads its on/off state from a runtime cache file
-    # (~/.local/share/nvim/transparent_cache), which is absent on a fresh
-    # machine -- transparency would start OFF until you ran :TransparentEnable.
-    # Declaring it here keeps it on by default. :TransparentToggle still works
-    # for the current session; this global wins again at next startup.
+    # on by default; otherwise the state comes from a cache file a fresh machine lacks
     globals.transparent_enabled = true;
   };
 }

@@ -18,14 +18,10 @@
 
   services.printing.enable = true;
 
-  # wireshark through its module, not just the package: this creates the wireshark group (the
-  # hosts put alex in it) and the dumpcap capture wrapper. Without it the group did not exist.
+  # the module creates the wireshark group and the dumpcap wrapper
   programs.wireshark.enable = true;
 
-  # sniffnet (home/default.nix) captures with libpcap itself, so unlike wireshark (dumpcap) it
-  # needs the capabilities on its own binary: "Attempt to create packet socket failed -
-  # CAP_NET_RAW may be required" otherwise. /run/wrappers/bin is ahead of the user profile on
-  # PATH, so a plain `sniffnet` (the bar's network widget) gets this wrapper. wireshark group only.
+  # sniffnet captures itself, so its own binary needs the capabilities; wireshark group only
   security.wrappers.sniffnet = {
     owner = "root";
     group = "wireshark";
@@ -52,7 +48,6 @@
     zotero
   ];
 
-  # localsend through its module, not just the package: this opens 53317 TCP/UDP in the firewall,
-  # without which other devices on the LAN can neither discover this machine nor send to it.
+  # the module opens 53317 in the firewall
   programs.localsend.enable = true;
 }

@@ -1,8 +1,4 @@
-# copilot.lua: inline ghost-text suggestions.
-#
-# Needs a one-off `:Copilot auth` per machine -- the token lands in
-# ~/.config/github-copilot, outside the nix store. `node` comes in through the
-# module's own declared dependencies, so it does not need listing here.
+# copilot.lua: inline ghost-text suggestions. Needs a one-off `:Copilot auth` per machine.
 { ... }:
 {
   programs.nixvim.plugins.copilot-lua = {
@@ -18,9 +14,7 @@
       hide_during_completion = true;
 
       keymap = {
-        # completion.nix owns <C-y> and accepts suggestions itself.
-        #
-        # next/prev/dismiss keep their defaults: <M-]>, <M-[>, <C-]>.
+        # completion.nix owns <C-y>; next/prev/dismiss keep their defaults
         accept = false;
       };
     };

@@ -1,9 +1,7 @@
 # Base keymaps: the ones that need no plugin. Plugin keymaps live with their plugin.
 { ... }:
 let
-  # vim.diagnostic.goto_next/goto_prev are deprecated (removal targeted at 0.13,
-  # which is what the nightly already is). jump() with on_jump reproduces what
-  # goto_next did: move, then open a float for the diagnostic under the cursor.
+  # goto_next/goto_prev are deprecated: jump, then float the diagnostic under the cursor
   diagnosticJump = count: ''
     function()
       vim.diagnostic.jump({
@@ -17,12 +15,7 @@ let
 in
 {
   programs.nixvim.keymaps = [
-    # Clear transient highlighting. Search highlight, plus the sticky git diff
-    # overlay from <leader>gD -- both are "I turned this on to look at something
-    # and now I am done" state, and <Esc> is already the reflex for that.
-    #
-    # Guarded rather than assumed: this file is the no-plugin baseline, so it has
-    # to keep working if git.nix is not in the imports.
+    # clear the search highlight and, if gitsigns is loaded, the <leader>gD diff overlay
     {
       mode = "n";
       key = "<Esc>";
@@ -37,17 +30,7 @@ in
       options.desc = "Clear search highlight and git diff overlay";
     }
 
-    # K: the diagnostic on this line if there is one, hover otherwise.
-    #
-    # Mapped globally on purpose, not in lsp.nix's LspAttach keymaps. nvim
-    # installs its own K -> vim.lsp.buf.hover() when a server attaches, but only
-    # while K is still unmapped (lsp.lua checks maparg first). Claiming it here
-    # makes that check fail, so nvim stands down and there is no race over which
-    # LspAttach handler registered last.
-    #
-    # Layered rather than replacing hover outright: open_float returns nil when
-    # the cursor line carries no diagnostic, and that nil is the signal to fall
-    # through. Delete the first branch to make K show diagnostics unconditionally.
+    # K: the line's diagnostic if there is one, else hover. Global, so nvim's own LSP K stands down.
     {
       mode = "n";
       key = "K";
@@ -63,8 +46,7 @@ in
             return
           end
 
-          -- No diagnostic and no hover-capable server: plain K, i.e. whatever
-          -- 'keywordprg' points at.
+          -- neither: plain K ('keywordprg')
           vim.cmd("normal! K")
         end
       '';

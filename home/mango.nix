@@ -11,26 +11,13 @@ in
   # popups + taskbar daemon (eww.yuck); the rest of the stack is in modules/mango.nix
   home.packages = [ pkgs.eww ];
 
-  # ~/.config/mango → files/dotfiles/mango as a live symlink into the checkout, not a
-  # store copy, so bar / popup / script edits apply without a rebuild (the trade-off:
-  # rollbacks do not cover this directory). Nothing writes into it at runtime; generated
-  # files go to ~/.local/state/mango and ~/.cache/mango. See its README.md.
-  # Packages (mango, waybar, swaync, gtklock, ...) come from modules/mango.nix;
-  # jq is in home/terminal.nix.
+  # live symlink into the checkout: edits apply without a rebuild, and rollbacks do not cover it
   xdg.configFile."mango".source = config.lib.file.mkOutOfStoreSymlink mango;
 
-  # ~/.config/mango-host → files/dotfiles/mango/hosts/<host>: monitor rules
-  # (mango.conf, sourced by config.conf), script variables (env.sh, sourced by
-  # lib.sh) and waybar overrides (waybar.jsonc, included by waybar.jsonc). It
-  # cannot live inside ~/.config/mango because that is the repo checkout itself.
-  # `host` comes from home-manager.extraSpecialArgs in flake.nix.
+  # per-host monitor rules, script variables and waybar overrides; `host` comes from flake.nix
   xdg.configFile."mango-host".source = config.lib.file.mkOutOfStoreSymlink "${mango}/hosts/${host}";
 
-  # GTK look for the mango session (rofi icons, the eww taskbar, swaync, gtklock,
-  # any GTK app). Plasma's kde-gtk-config used to write ~/.config/gtk-*/settings.ini
-  # with breeze icons, breeze cursors and Noto Sans; these replace them now that
-  # Plasma is gone. Noto Sans comes from modules/fonts.nix. The cursor also goes to
-  # mango itself: cursor_theme in config.conf, XCURSOR_* for everything else.
+  # GTK theme, icons, cursor and font; mango's own cursor is cursor_theme in config.conf
   gtk = {
     enable = true;
     iconTheme = {
@@ -49,12 +36,8 @@ in
     size = 24;
   };
 
-  # Apps that start with the session. Plasma used to run ~/.config/autostart;
-  # mango activates graphical-session.target instead (with WAYLAND_DISPLAY in the
-  # user manager), so these are user units: PartOf stops them with the session
-  # and starts them again with the next one. `systemctl --user status <name>`.
-  # Bitwarden in the background is what lets the browser extensions unlock
-  # through the desktop app; --autostart is its own "start minimized" flag.
+  # apps started with the session, as user units. Bitwarden in the background lets the
+  # browser extensions unlock through it.
   systemd.user.services =
     let
       sessionApp = description: exec: {
@@ -76,9 +59,7 @@ in
       proton-vpn = sessionApp "Proton VPN" "${pkgs.proton-vpn}/bin/protonvpn-app";
     };
 
-  # "Screenshot" in the rofi app launcher: the same pipeline as Super+t
-  # (screenshot.sh: slurp → grim → satty). satty's own entry is NoDisplay and
-  # needs an image, so it never shows up on its own.
+  # "Screenshot" launcher entry for screenshot.sh (satty's own entry is NoDisplay)
   xdg.desktopEntries.screenshot = {
     name = "Screenshot";
     genericName = "Region screenshot with annotation";

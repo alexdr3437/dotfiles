@@ -4,11 +4,7 @@ let
   user = "alex";
   mediaRoot = "/srv/media";
 
-  # The desktop app and the headless service share one profile, and qBittorrent runs one
-  # instance per profile: started while the service runs, the app just hands over to it and
-  # exits. So `qbittorrent` (launcher, command line, magnet links) stops the service, runs the
-  # app, which serves the same web UI on :8080 from the profile, and starts the service again
-  # when the app exits. A second launch while the app is open goes straight to it.
+  # qBittorrent runs one instance per profile, so this wrapper stops the service while the app runs
   qbittorrentLauncher = pkgs.writeShellApplication {
     name = "qbittorrent";
     runtimeInputs = [ pkgs.systemd ];
@@ -140,9 +136,7 @@ in
     qbtImportMovie
   ];
 
-  # Headless qBittorrent from boot, sharing the GUI's profile in ~alex (web UI
-  # on :8080, https://torrent.home). It is bound to proton0 in its own settings,
-  # so it stays offline until Proton connects.
+  # headless qBittorrent from boot, same profile (web UI on :8080, https://torrent.home); bound to proton0
   systemd.services.qbittorrent-nox = {
     description = "qBittorrent (headless)";
     wantedBy = [ "multi-user.target" ];
@@ -157,7 +151,7 @@ in
     };
   };
 
-  # lets the qbittorrent wrapper above stop and start the service without a password
+  # the wrapper may stop and start the service without a password
   security.polkit.extraConfig = ''
     polkit.addRule(function(action, subject) {
       if (action.id == "org.freedesktop.systemd1.manage-units" &&

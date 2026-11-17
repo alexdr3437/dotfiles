@@ -29,9 +29,7 @@
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  # TLP instead of power-profiles-daemon (ppd used to be driven by Plasma's powerdevil),
-  # and the CPU policy lives here: balanced on wall power, power saver on battery. These are
-  # TLP's own defaults, spelled out. (The desktop also drops ppd but pins EPP to performance.)
+  # TLP instead of power-profiles-daemon: balanced on AC, power saver on battery
   services.power-profiles-daemon.enable = false;
   services.tlp = {
     enable = true;
@@ -40,46 +38,29 @@
       CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
       PLATFORM_PROFILE_ON_AC = "balanced";
       PLATFORM_PROFILE_ON_BAT = "low-power";
-      # The BIOS leaves ASPM off on the NVMe link though the drive and its root port both
-      # support L1/L1.2; this enables it on every capable link (~1.5 W on battery). It has
-      # to be TLP's setting: its default ("default") resets a pcie_aspm.policy= boot option
-      # whenever TLP starts or the power source changes.
+      # ASPM on every capable link (the BIOS leaves it off on the NVMe, ~1.5 W); a boot
+      # option would be reset by TLP
       PCIE_ASPM_ON_AC = "powersupersave";
       PCIE_ASPM_ON_BAT = "powersupersave";
-      # RUNTIME_PM_ON_AC stays at TLP's default ("on"): the savings aren't wanted.
-      # Don't USB-autosuspend the AX211's bluetooth half: TLP's suggestion for unstable
-      # bluetooth, and this controller crashes (see bluetooth-watchdog below).
+      # no USB autosuspend for the AX211's bluetooth half, it crashes (bluetooth-watchdog below)
       USB_EXCLUDE_BTUSB = 1;
     };
   };
 
-  # Docker on demand (docker.socket starts it on first use) instead of at every boot.
-  # Containers with a restart policy (e.g. forwarder) then only come up once Docker runs.
+  # Docker on demand (docker.socket), not at every boot
   virtualisation.docker.enableOnBoot = false;
 
-  # The lid is mango's: files/dotfiles/mango/hosts/laptop/mango.conf binds fold/unfold
-  # to monitors.sh (battery → suspend, AC → lock + panel off). logind would otherwise
-  # suspend on top of that.
+  # mango handles the lid (hosts/laptop/mango.conf, monitors.sh); logind must not suspend too
   services.logind.settings.Login = {
     HandleLidSwitch = "ignore";
     HandleLidSwitchDocked = "ignore";
     HandleLidSwitchExternalPower = "ignore";
   };
 
-  # The Intel AX211 bluetooth controller throws "Hardware error 0x0c" on BLE reconnects
-  # (an Adv360 Pro reconnect loop logged ~12k of them in one boot). If the keyboard keeps
-  # dropping with these, remove every device in bluetoothctl, then re-pair and trust them:
-  # that stopped a crash every ~30 s on Nov 6 2026 where no config change did.
-  # Two ways it breaks:
-  # - wedged: an LE command fails ("Opcode 0x200e failed: -16", "tx timeout") and the
-  #   kernel never reconnects anything until the adapter is power cycled;
-  # - gone: the controller crashes, the kernel's ACPI reset never brings it back and it
-  #   drops off USB (usb 3-10 "device not accepting address, error -71"), so there's no
-  #   hci0 to power cycle. It stayed dead for 2.5 days until a reboot (Nov 2026).
-  # Every 30 s: wedged (one of those errors, then 10 s later the adapter is powered but
-  # nothing is connected) → bluetoothctl power cycle; gone for a minute → rebind the xHCI
-  # controller it sits on (00:14.0, shared with the webcam and USB-A ports) unless a USB
-  # drive is attached there; still gone after two rebinds → notify to reboot.
+  # The AX211 bluetooth controller crashes on BLE reconnects ("Hardware error 0x0c").
+  # Every 30 s: wedged (LE command error, powered, nothing connected) → power cycle;
+  # gone from USB for a minute → rebind its xHCI controller (00:14.0); after two rebinds → notify.
+  # If a device keeps dropping: remove, re-pair and trust it in bluetoothctl.
   systemd.services.bluetooth-watchdog =
     let
       xhci = "0000:00:14.0";
@@ -116,10 +97,7 @@
             since=$now
             if [ -n "$line" ] && [ $((now - cycled)) -ge 60 ]; then
               sleep 10 # let the kernel finish its own reset, and devices reconnect
-              # The same errors show up when bluetooth is toggled by hand (the waybar
-              # widget), and devices reconnect fine right after. Only a wedge leaves the
-              # adapter powered with nothing connected; power cycling otherwise just
-              # drops everything again. Powered off means the user turned it off.
+              # only a wedge leaves the adapter powered with nothing connected
               if ! bluetoothctl show | grep -q 'Powered: yes'; then
                 echo "bluetooth error ($line), but the adapter is powered off; leaving it"
               elif bluetoothctl devices Connected | grep -q '^Device '; then
@@ -174,7 +152,7 @@
   };
 
   hardware.enableAllFirmware = true;
-  hardware.cpu.intel.updateMicrocode = true; # Assuming you have an Intel CPU
+  hardware.cpu.intel.updateMicrocode = true;
 
   networking.hostName = "nixos-laptop";
 

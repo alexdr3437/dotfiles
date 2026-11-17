@@ -26,8 +26,7 @@
     ../../modules/receipt-ingest.nix
   ];
 
-  # Actual Budget server: desktop only (servers aren't duplicated on the laptop). Backed up
-  # by actual-backup.nix, reached as actual.<home domain> through home-dns.nix.
+  # Actual Budget server: backed up by actual-backup.nix, served through home-dns.nix
   services.actual = {
     enable = true;
     settings.port = 5006;
@@ -60,14 +59,8 @@
     }
   ];
 
-  # CPU energy/performance preference, pinned here rather than by power-profiles-daemon.
-  # Plasma's powerdevil (~/.config/powerdevilrc) had set ppd to "power-saver", ppd remembers
-  # the last profile across reboots and nothing in the mango session ever changes it, so the
-  # desktop ran with EPP "power" for months: a fork cost ~10 ms and every popup ~0.5 s.
-  # With ppd gone intel_pstate keeps whatever EPP it is given; tmpfiles writes it at boot and
-  # on every switch. performance: the CPU ramps on the slightest load and holds its clocks;
-  # idle states still work, so it costs a few watts at idle. (balance_performance is ppd's
-  # "balanced", measured at ~2x the fork cost and popup latency of performance.)
+  # EPP pinned to performance, with no power-profiles-daemon: balance_performance doubles
+  # fork cost and popup latency
   services.power-profiles-daemon.enable = false;
   systemd.tmpfiles.rules = [
     "w /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference - - - - performance"
@@ -99,9 +92,7 @@
     isNormalUser = true;
     extraGroups = [
       "wheel"
-      # NetworkManager actions without a polkit prompt. Proton VPN adds its kill-switch
-      # connection on every connect, which otherwise needs an admin authorization; the
-      # polkit agent loses its registration whenever a rebuild restarts polkitd.
+      # NetworkManager without a polkit prompt: Proton VPN's kill switch adds a connection on every connect
       "networkmanager"
       "docker"
       "dialout"

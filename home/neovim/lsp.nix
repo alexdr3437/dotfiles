@@ -1,26 +1,13 @@
-# Language servers, plus the LSP keymaps that nvim does not provide by default.
-#
-# Each server's `config` is the table handed to `vim.lsp.config()`, merged over
-# whatever nvim-lspconfig already ships for that server -- so only the bits that
-# differ from its defaults are spelled out. `cmd` and `filetypes` are omitted
-# wherever the default is already right.
-#
-# Capabilities are NOT set here: plugins/completion.nix sets them once, globally,
-# on the `*` pseudo-server.
-#
-# No server binaries are installed here (`package = null` on each): they must
-# come from the project dev shell (direnv/flake) so versions match the toolchain.
+# Language servers, plus the LSP keymaps nvim lacks. Each `config` is merged over
+# nvim-lspconfig's defaults. Binaries come from the project dev shell (`package = null`);
+# capabilities are set in plugins/completion.nix.
 { ... }:
 {
   programs.nixvim = {
     plugins.lspconfig.enable = true;
 
     lsp.servers = {
-      # Rust.
-      #
-      # checkOnSave is off deliberately: cargo check on every write is what makes
-      # rust-analyzer expensive in a big workspace. :LspMem (see lspmem.nix) is
-      # there to keep an eye on the rest.
+      # Rust. checkOnSave off: cargo check on every write is expensive in a big workspace.
       rust_analyzer = {
         package = null;
         enable = true;
@@ -38,13 +25,7 @@
         };
       };
 
-      # C / C++.
-      #
-      # NOTE: the two --tweaks flags are carried over from the lua config, but
-      # they look ineffective -- clangd's --tweaks takes the names of code
-      # tweaks, not compiler flags, and silently ignores anything it does not
-      # recognise. If the intent was to lift the error limit, that belongs in a
-      # .clangd file as `CompileFlags: Add: [-ferror-limit=0]`.
+      # C / C++. NOTE: --tweaks takes clangd tweak names, so the two flags below are likely ignored.
       clangd = {
         package = null;
         enable = true;
@@ -76,8 +57,7 @@
         };
       };
 
-      # Lua. The runtime-file library is what makes `vim.*` resolve when editing
-      # this config's own lua, which is the job neodev used to do.
+      # Lua. The runtime-file library makes `vim.*` resolve in this config's own lua.
       lua_ls = {
         package = null;
         enable = true;
@@ -94,11 +74,7 @@
         };
       };
 
-      # Nix.
-      #
-      # In practice conform owns nix formatting (plugins/format.nix lists nixfmt
-      # for the `nix` filetype and so never falls back to the LSP). This is kept
-      # so that vim.lsp.buf.format() still does the right thing on its own.
+      # Nix. conform formats on save; the formatter here is for vim.lsp.buf.format().
       nixd = {
         package = null;
         enable = true;
@@ -124,9 +100,7 @@
       ruff = {
         package = null;
         enable = true;
-        # Both servers attach to python buffers and both answer hover. Ruff's
-        # answer is the less useful one, so it stands down and K always comes
-        # from basedpyright.
+        # hover comes from basedpyright, not ruff
         config.on_attach.__raw = ''
           function(client, _)
             client.server_capabilities.hoverProvider = false
@@ -134,16 +108,7 @@
         '';
       };
 
-      # TypeScript.
-      #
-      # NOTE: `javascript` is deliberately absent, matching the lua config --
-      # add it here if you want ts_ls on plain .js too. (The lua config also
-      # listed `typescript.tsx`, which is not a real neovim filetype and never
-      # matched; `typescriptreact` is the one that does.)
-      #
-      # Formatting is declined here so prettier/eslint can own it.
-      # plugins/format.nix also refuses LSP formatting on save for
-      # typescriptreact (not typescript; this on_attach covers that).
+      # TypeScript (not plain javascript). Formatting is left to prettier/eslint.
       ts_ls = {
         package = null;
         enable = true;
@@ -160,10 +125,7 @@
         };
       };
 
-      # OCaml. The `ocamllsp` binary comes from the project's dev shell
-      # (nixpkgs: ocamlPackages.ocaml-lsp) or opam switch (opam: ocaml-lsp-server),
-      # like every other server here. nvim-lspconfig's defaults
-      # already cover .ml/.mli, dune files, menhir and the opam filetype.
+      # OCaml.
       ocamllsp = {
         package = null;
         enable = true;
@@ -179,9 +141,7 @@
         ];
       };
 
-      # Devicetree. `single_file_support` from the lua config is dropped: it was
-      # an nvim-lspconfig concept, and vim.lsp.config already starts a server
-      # with a nil root when no marker is found.
+      # Devicetree.
       dts_lsp = {
         package = null;
         enable = true;
@@ -201,20 +161,8 @@
       };
     };
 
-    # Registered on LspAttach, so they are buffer-local to buffers with a server.
-    #
-    # Deliberately short: nvim >= 0.11 already ships grr (references), gri
-    # (implementation), grt (type definition), grn (rename), gra (code action),
-    # gO (document symbols) and K (hover, set on attach). Mapped here are the two
-    # it has no equivalent for, plus g. -- a nearer-to-hand alias for gra, which
-    # is the one default worth reaching for often. grr is re-bound to the
-    # telescope picker, so references land in the same UI as gd instead of the
-    # quickfix list.
-    #
-    # Note gd is NOT an nvim default -- unmapped it stays vim's built-in "goto
-    # local declaration", which searches backwards in the file and lands on the
-    # import. Do not add a bare `gr`: it would shadow every gr* default above
-    # behind 'timeoutlen'.
+    # Buffer-local, on LspAttach: what nvim's defaults (grn, gra, gri, grt, gO, K) lack, g. as
+    # an alias for gra, and grr through telescope. No bare `gr`: it would shadow the gr* defaults.
     lsp.keymaps = [
       {
         mode = "n";

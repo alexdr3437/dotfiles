@@ -1,9 +1,4 @@
-# :LspMem -- which language servers this nvim spawned, and what they cost.
-#
-# nvim exposes no public API for a server's pid (it sits on private transport
-# fields), but every stdio server is a direct child of the nvim process, so
-# /proc has everything needed. Pure lua: no shelling out, so it does not care
-# what is on the wrapped PATH.
+# :LspMem -- memory used by the language servers this nvim spawned, read from /proc.
 { ... }:
 {
   programs.nixvim.extraConfigLua = ''
@@ -64,8 +59,7 @@
       function M.report()
         local procs = child_processes()
 
-        -- Label each process with the LSP client it backs, matched on the
-        -- client's configured command.
+        -- label each process with its LSP client, matched on the command
         local clients = {}
         for _, c in ipairs(vim.lsp.get_clients()) do
           local cmd = type(c.config.cmd) == "table" and c.config.cmd[1] or nil

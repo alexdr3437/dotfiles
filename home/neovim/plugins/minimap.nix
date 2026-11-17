@@ -1,8 +1,4 @@
-# mini.map: a scaled-down render of the whole buffer, pinned right, with the
-# git hunks / diagnostics / search hits of that buffer marked on it.
-#
-# Deliberately the split `mini.map` package, not the whole mini.nvim bundle,
-# matching the split mini-ai/mini-surround/mini-extra in textobjects.nix.
+# mini.map: a minimap pinned right, marking git hunks, diagnostics and search hits.
 { ... }:
 {
   programs.nixvim = {
@@ -11,13 +7,11 @@
 
       settings = {
         window = {
-          # Not focusable the normal way; <leader>gM (toggle_focus) is the way in,
-          # so <C-l> and friends keep meaning "the window I actually want".
+          # focus only through <leader>gM
           focusable = false;
           side = "right";
           width = 10;
-          # Opaque. Any winblend washes the git marks out against the buffer
-          # showing through, which is the opposite of what they are for.
+          # opaque, so the git marks stay readable
           winblend = 0;
           # A line that is several source lines tall gets a count, not just a mark.
           show_integration_count = true;
@@ -25,20 +19,13 @@
         };
 
         symbols = {
-          # Solid blocks at 3x2 resolution: every map cell covers 3 source lines
-          # and 2 columns, which is what makes it read as an outline of the code
-          # rather than a scrollbar.
+          # solid blocks: each cell covers 3 source lines and 2 columns
           encode.__raw = ''require("mini.map").gen_encode_symbols.block("3x2")'';
           scroll_line = "█";
           scroll_view = "┃";
         };
 
-        # `_M` exists from the top of init.lua but `_M.minimap` is only assigned
-        # further down, in extraConfigLua -- so this has to be a closure, not a
-        # direct reference, or it would capture nil at setup time.
-        #
-        # gen_integration.gitsigns() is deliberately NOT used here; see
-        # _M.minimap.git_marks below for why.
+        # a closure: `_M.minimap` is only assigned later, in extraConfigLua
         integrations.__raw = ''
           {
             function() return _M.minimap.git_marks() end,
@@ -54,10 +41,7 @@
       _M.minimap = (function()
         local M = {}
 
-        -- The map renders whatever buffer is current, and an outline of an oil
-        -- listing or a help page is noise. A directory counts as "not a file"
-        -- too: `nvim .` lands on one before oil takes over, and its name is a
-        -- perfectly ordinary non-empty path with an empty buftype.
+        -- real files only: no oil listings, help pages or directories
         local function is_file_buffer()
           if vim.bo.buftype ~= "" then
             return false
@@ -69,8 +53,7 @@
           return vim.fn.isdirectory(name) == 0
         end
 
-        -- Auto-open fires once. After that the map belongs to the user: a later
-        -- BufWinEnter must not resurrect one they closed on purpose.
+        -- auto-open fires once, so a map closed on purpose stays closed
         local opened = false
 
         function M.auto_open()
@@ -90,21 +73,8 @@
           require("mini.map").toggle_focus()
         end
 
-        -- Highlights ---------------------------------------------------------
-        --
-        -- The map is a picture, and the two things on it have opposite jobs: the
-        -- encoded code outline is context and should recede, the git marks are
-        -- the whole point and should not. mini.map paints both with `hl_group`
-        -- over the glyphs, so this is all foreground colour.
-        --
-        -- Marks take their colour from whatever the current colorscheme already
-        -- uses for git/diff, so this survives <leader>th. They are signal, not
-        -- content, so that colour goes on the cell's *background* (bolded) and
-        -- reads as a solid bar the way zed's scrollbar does. Tinting the glyphs
-        -- instead is not enough: gutter colours are picked to be unobtrusive in
-        -- a one-column gutter, and several themes put them a shade away from
-        -- Comment -- tokyonight's change is #6183bb against a #565f89 outline,
-        -- which is invisible at this size.
+        -- Highlights: the outline recedes; git marks are solid bars in the colorscheme's
+        -- git colours (gutter colours are too faint as glyph tints)
         local git_hl = {
           add = { name = "MiniMapGitAdd", from = { "GitSignsAdd", "Added", "DiffAdd" } },
           change = { name = "MiniMapGitChange", from = { "GitSignsChange", "Changed", "DiffChange" } },
@@ -122,13 +92,10 @@
         end
 
         function M.set_highlights()
-          -- Set without `default`, so these win over mini.map's own links
-          -- (MiniMapNormal -> NormalFloat, which is as bright as the buffer).
+          -- no `default`, so these win over mini.map's own links
           vim.api.nvim_set_hl(0, "MiniMapNormal", { link = "Comment" })
 
-          -- Glyph colour on top of a mark bar. transparent.nvim clears Normal's
-          -- background, so there is often nothing to read here and the bar needs
-          -- a sane contrasting colour of its own.
+          -- glyph colour on a mark bar (transparent.nvim clears Normal's background)
           local ok, normal = pcall(vim.api.nvim_get_hl, 0, { name = "Normal", link = false })
           local base = (ok and normal.bg) or (vim.o.background == "dark" and 0x101010 or 0xf0f0f0)
 
@@ -142,17 +109,8 @@
           end
         end
 
-        -- Git marks ----------------------------------------------------------
-        --
-        -- mini.map's own gitsigns integration calls gitsigns.get_hunks(), which
-        -- reports *unstaged* hunks only -- stage a change and it drops off the
-        -- map while staying in the sign column. gitsigns has no public way to
-        -- ask for staged hunks (nav_hunk's `target` is the only thing that
-        -- takes them, and it is not exposed here).
-        --
-        -- So read the signs gitsigns actually placed. Both namespaces are
-        -- scanned, staged and unstaged, which makes the map agree with the
-        -- gutter by construction and needs nothing but public API.
+        -- Git marks: read the signs gitsigns placed, staged and unstaged; mini.map's own
+        -- integration only sees unstaged hunks
         function M.git_marks()
           local buf = MiniMap.current.buf_data.source
           if not buf or not vim.api.nvim_buf_is_valid(buf) then
@@ -168,8 +126,7 @@
                 local group = extmark[4] and extmark[4].sign_hl_group
                 if group then
                   -- GitSigns[Staged]{Add,Change,Delete,Topdelete,Changedelete,Untracked}.
-                  -- Order matters: "changedelete" holds both words, "topdelete"
-                  -- holds "delete", and untracked is new code, so it reads as an add.
+                  -- Order matters: the names contain each other. Untracked counts as an add.
                   local g = group:lower()
                   local kind = (g:find("untracked") and "add")
                     or (g:find("change") and "change")
@@ -193,8 +150,7 @@
 
     autoCmd = [
       {
-        # VimEnter covers `nvim file`; BufWinEnter covers starting in a directory
-        # (oil) and opening a file after.
+        # VimEnter: `nvim file`; BufWinEnter: starting in a directory (oil)
         event = [
           "VimEnter"
           "BufWinEnter"
@@ -204,8 +160,7 @@
         callback.__raw = "function() _M.minimap.auto_open() end";
       }
       {
-        # A colorscheme change wipes every highlight, and themes.nix restores a
-        # saved one at startup, so both events have to re-apply these.
+        # a colorscheme change wipes these highlights
         event = [
           "VimEnter"
           "ColorScheme"
@@ -215,9 +170,7 @@
         callback.__raw = "function() _M.minimap.set_highlights() end";
       }
       {
-        # gen_integration.gitsigns() installs this itself; since git_marks
-        # replaces it, the refresh has to be wired up by hand. Without it the
-        # map does not repaint when gitsigns attaches or a hunk changes.
+        # repaint when gitsigns attaches or a hunk changes
         event = [ "User" ];
         pattern = "GitSignsUpdate";
         group = "minimap";

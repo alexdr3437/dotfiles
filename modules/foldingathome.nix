@@ -1,15 +1,7 @@
 { lib, pkgs, ... }:
 let
-  # It folds only while the machine is idle (`--on-idle=true`, "on idle" in Web Control):
-  # on Linux that reads logind's seat IdleHint over sd-bus, which swayidle sets after
-  # `hint_min` minutes without input (idle.sh in ~/.config/mango); any input pauses it.
-  # nixpkgs builds the client without libsystemd, which compiles that check out, so the
-  # library is added back. The patch makes boolean options such as `--on-idle=true` work:
-  # upstream inserts them as a number and then drops them with "wrong type".
-  #
-  # Command-line options only seed a fresh state directory: the client saves its group
-  # config in /var/lib/foldingathome on any Web Control change and that copy wins from
-  # then on. Change a setting there (or over ws://127.0.0.1:7396/api/websocket), not here.
+  # libsystemd for the idle check (logind IdleHint, set by swayidle); the patch makes
+  # --on-idle=true parse. Options only seed a fresh state dir: later changes go through Web Control.
   fahclient = pkgs.fahclient.override {
     stdenv = pkgs.stdenvAdapters.overrideMkDerivationArgs (old: {
       buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.systemdLibs ];
@@ -20,34 +12,23 @@ let
   stateDir = "/var/lib/foldingathome";
 in
 {
-  # Folding@home on the RTX 4060 (the desktop runs on the iGPU). GPU folding is
-  # OpenCL/CUDA inside the client's FHS sandbox; /run/opengl-driver is bind-mounted
-  # into it so the nvidia libraries are found without extra wiring.
-  #
-  # One-time setup in Web Control (https://app.foldingathome.org, it talks to
-  # 127.0.0.1:7396): enable the GPU, set the machine to Fold, and optionally link an
-  # account / set a username (saved in the state directory, see the note at the top).
+  # Folds on the RTX 4060. One-time setup in Web Control (https://app.foldingathome.org):
+  # enable the GPU and set the machine to Fold.
   services.foldingathome = {
     enable = true;
     package = fahclient;
     # team: nixpkgs defaults to the NixOS team (236565); user: null = Anonymous.
     extraArgs = [
-      # one CPU thread feeds the GPU work unit and nothing is left for CPU-only units
+      # one thread to feed the GPU, no CPU-only units
       "--cpus=1"
-      # fold only while idle (see the note at the top)
       "--on-idle=true"
       # logs go to the journal
       "--log-color=false"
     ];
   };
 
-  # The client downloads the folding cores (FahCore_xx) into its state directory and
-  # executes them from there. systemd 260 exposes a StateDirectory= of a non-root
-  # service through an idmapped mount with noexec (DynamicUser or not), so every core
-  # fails to start with exit code 255. Hand the service a plain directory instead:
-  # tmpfiles creates it (Z also chowns what the StateDirectory era left owned by
-  # nobody) and the unit runs as a static system user, as upstream's unit does, with
-  # upstream's hardening in place of what DynamicUser implied.
+  # systemd 260 mounts a non-root StateDirectory noexec, so the downloaded cores cannot run.
+  # Use a plain directory and a static user instead, with upstream's hardening.
   users.users.${user} = {
     isSystemUser = true;
     group = user;
@@ -66,8 +47,7 @@ in
     NoNewPrivileges = true;
   };
 
-  # keep_awake (on by default) asks logind to inhibit sleep while folding; without this
-  # rule polkit refuses it for a system user and the client logs an exception per WU.
+  # let the client inhibit sleep while folding (keep_awake)
   security.polkit.extraConfig = ''
     polkit.addRule(function(action, subject) {
       if (action.id == "org.freedesktop.login1.inhibit-block-sleep" &&

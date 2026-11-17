@@ -1,10 +1,7 @@
 { lib, ... }:
 
-# Short names like https://jellyfin.home for every tailnet device.
-#
-# dnsmasq answers *.home with this machine's Tailscale IP; Tailscale split DNS (admin console: nameserver
-# 100.95.167.47, restricted to domain "home") sends those queries here. Caddy then routes each name to its
-# service, using its own local CA.
+# https://<name>.home for every tailnet device. Tailscale split DNS (admin console: nameserver
+# 100.95.167.47 for domain "home") sends *.home to dnsmasq here; Caddy routes each name.
 
 let
   tailscaleIp = "100.95.167.47";

@@ -8,9 +8,7 @@
 let
   unstablePackages = nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
 
-  # Zellij built from upstream main (flake input zellij-src) instead of the nixpkgs release:
-  # nixpkgs's recipe with the source and lockfile swapped. `nix flake update zellij-src` moves it.
-  # Config: files/dotfiles/zellij/config.kdl, linked below.
+  # Zellij from upstream main (input zellij-src): nixpkgs's recipe, source and lockfile swapped
   zellij-compiled = unstablePackages.zellij-unwrapped.overrideAttrs (old: {
     version =
       (builtins.fromTOML (builtins.readFile "${inputs.zellij-src}/Cargo.toml")).workspace.package.version;
@@ -19,10 +17,7 @@ let
       lockFile = "${inputs.zellij-src}/Cargo.lock";
     };
   });
-  # The desktop app (`zellij terminal`, also what the runner entry and the session manager's
-  # "open in a window" run) dlopens Wayland, EGL, xkbcommon and fontconfig at runtime. They are in
-  # no global lib dir on NixOS, so it died silently; put them on the binary's RUNPATH. A separate
-  # step over the compiled output, so the 15-minute compile is not redone for it.
+  # `zellij terminal` dlopens these at runtime; put on RUNPATH in a separate step, so no recompile
   zellij =
     unstablePackages.runCommand "zellij-${zellij-compiled.version}"
       {
@@ -127,18 +122,12 @@ in
     fi
   '';
 
-  # ~/.config/zellij/config.kdl → files/dotfiles/zellij/config.kdl as a live symlink into the
-  # checkout (like ~/.config/mango), so config edits need no rebuild. programs.zellij is off:
-  # the config is plain KDL, not generated.
+  # live symlink into the checkout, so config edits need no rebuild
   xdg.configFile."zellij/config.kdl".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.dotfiles/files/dotfiles/zellij/config.kdl";
 
-  # zellij-agent: select text in Neovim (<leader>i) or any pane, type or dictate a prompt.
-  # The module (flake input) installs the package, the plugin and the Neovim add-on. With
-  # programs.zellij off it adds nothing to the Zellij config: load_plugins and the keybind
-  # (programs.zellij-agent.zellij.keybindsKdl) go in files/dotfiles/zellij/config.kdl by hand.
+  # zellij-agent: prompt an agent about selected text. Its plugin and keybind are in config.kdl by hand.
   programs.zellij-agent.enable = true;
-  # Stable path to the current zellij-agent build, so the Super a bind in config.kdl can pass it
-  # as the plugin's payload without a store path that goes stale on every update.
+  # stable path to the current build, for the Super a bind in config.kdl
   xdg.dataFile."zellij-agent/package".source = config.programs.zellij-agent.package;
 }

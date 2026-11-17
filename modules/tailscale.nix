@@ -25,12 +25,8 @@
     '';
   };
 
-  # Proton's own encrypted packets must reach its server directly, ahead of
-  # Tailscale's catch-all rule (5270), so an exit node can be selected without
-  # breaking the tunnel. The fwmark changes per connection, so read it on up.
-  #
-  # Traffic sourced from Proton's tunnel address (qBittorrent binds to proton0)
-  # also gets pinned to Proton's table (5201), so it ignores the exit node.
+  # Proton's own packets, and traffic from its tunnel address (qBittorrent), bypass a
+  # Tailscale exit node. The fwmark changes per connection, so read it on up.
   networking.networkmanager.dispatcherScripts = [
     {
       type = "basic";
