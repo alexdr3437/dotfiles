@@ -1,16 +1,11 @@
 # conform.nvim: format on save, plus <leader>f to format on demand.
-#
-# Formatter binaries come from `autoInstall`, which reads formatters_by_ft and
-# puts the matching nixpkgs package on the wrapped PATH -- so ruff/stylua/yapf/
-# nixfmt never have to be repeated in home.packages, and never leak onto the
-# login shell's PATH either.
 { ... }:
 {
   programs.nixvim = {
     plugins.conform-nvim = {
       enable = true;
 
-      autoInstall.enable = true;
+      autoInstall.enable = false;
 
       settings = {
         formatters_by_ft = {
