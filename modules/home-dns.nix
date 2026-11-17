@@ -15,6 +15,7 @@ let
     actual = "localhost:5006";
     sonarr = "localhost:8989";
     torrent = "localhost:8080";
+    tread = "localhost:8000";
     ha = "${homeAssistant}:8123";
   };
 in
