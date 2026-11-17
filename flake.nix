@@ -56,6 +56,12 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    # receipt-ingest (modules/receipt-ingest.nix): parses the scans Syncthing drops in ~/receipts
+    receipt-ingest = {
+      url = "git+ssh://git@github.com/alexdr3437/receipt-ingest.git?ref=master";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
+
     hw_db_interface.url ="git+ssh://git@github.com/Mesomat-Inc/hw_db_interface.git?ref=main";
     marc.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?dir=device-manager/tools/marc&ref=dev";
     tires-firmware.url = "git+ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git?ref=dev&submodules=1";

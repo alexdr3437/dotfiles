@@ -23,6 +23,7 @@
     ../../modules/logitech.nix
     ../../modules/foldingathome.nix
     ../../modules/syncthing.nix
+    ../../modules/receipt-ingest.nix
   ];
 
   # Actual Budget server: desktop only (servers aren't duplicated on the laptop). Backed up
