@@ -902,11 +902,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794877610,
-        "narHash": "sha256-835LJx2mGG5CvdudOXzE8l3zTyRT5bki0cWfCIpaQn4=",
+        "lastModified": 1794879802,
+        "narHash": "sha256-64NFwoGNCUGVpLbICGaaGgdm9PgDFysF4rKz1cfcL50=",
         "ref": "master",
-        "rev": "5d32dd36a458648b6ca2e68c4e7e3564fb550743",
-        "revCount": 7,
+        "rev": "5c1feaefeca6f3506d1c3b4ab543520978270643",
+        "revCount": 9,
         "type": "git",
         "url": "ssh://git@github.com/alexdr3437/receipt-ingest.git"
       },
