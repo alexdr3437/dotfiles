@@ -24,11 +24,25 @@
   # Archives open in Ark (zip natively; 7z through p7zip from home/terminal.nix).
   xdg.mime.defaultApplications = {
     "inode/directory" = "org.kde.dolphin.desktop";
-  } // builtins.listToAttrs (
-    map (t: { name = "application/${t}"; value = "org.kde.ark.desktop"; }) [
-      "zip" "x-7z-compressed" "x-tar" "x-compressed-tar" "x-bzip2-compressed-tar"
-      "x-xz-compressed-tar" "x-zstd-compressed-tar" "gzip" "x-rar" "vnd.rar"
-    ]
+  }
+  // builtins.listToAttrs (
+    map
+      (t: {
+        name = "application/${t}";
+        value = "org.kde.ark.desktop";
+      })
+      [
+        "zip"
+        "x-7z-compressed"
+        "x-tar"
+        "x-compressed-tar"
+        "x-bzip2-compressed-tar"
+        "x-xz-compressed-tar"
+        "x-zstd-compressed-tar"
+        "gzip"
+        "x-rar"
+        "vnd.rar"
+      ]
   );
 
   # breeze style + plasma-integration platform theme: Dolphin looks like itself and

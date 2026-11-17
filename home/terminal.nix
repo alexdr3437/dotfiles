@@ -12,38 +12,42 @@ let
   # nixpkgs's recipe with the source and lockfile swapped. `nix flake update zellij-src` moves it.
   # Config: files/dotfiles/zellij/config.kdl, linked below.
   zellij-compiled = unstablePackages.zellij-unwrapped.overrideAttrs (old: {
-    version = (builtins.fromTOML (builtins.readFile "${inputs.zellij-src}/Cargo.toml")).workspace.package.version;
+    version =
+      (builtins.fromTOML (builtins.readFile "${inputs.zellij-src}/Cargo.toml")).workspace.package.version;
     src = inputs.zellij-src;
-    cargoDeps = unstablePackages.rustPlatform.importCargoLock { lockFile = "${inputs.zellij-src}/Cargo.lock"; };
+    cargoDeps = unstablePackages.rustPlatform.importCargoLock {
+      lockFile = "${inputs.zellij-src}/Cargo.lock";
+    };
   });
   # The desktop app (`zellij terminal`, also what the runner entry and the session manager's
   # "open in a window" run) dlopens Wayland, EGL, xkbcommon and fontconfig at runtime. They are in
   # no global lib dir on NixOS, so it died silently; put them on the binary's RUNPATH. A separate
   # step over the compiled output, so the 15-minute compile is not redone for it.
-  zellij = unstablePackages.runCommand "zellij-${zellij-compiled.version}"
-    {
-      inherit (zellij-compiled) version meta;
-      nativeBuildInputs = [ unstablePackages.patchelf ];
-    }
-    ''
-      cp -r ${zellij-compiled} $out
-      chmod -R u+w $out
-      patchelf --add-rpath ${
-        unstablePackages.lib.makeLibraryPath (
-          with unstablePackages;
-          [
-            wayland # libwayland-client, libwayland-egl, libwayland-cursor
-            libxkbcommon # also libxkbcommon-x11
-            libGL # libglvnd: libEGL.so.1 dispatching to /run/opengl-driver
-            fontconfig # system font discovery
-            libx11
-            libxcursor
-            libxi
-            libxrandr
-          ]
-        )
-      } $out/bin/zellij
-    '';
+  zellij =
+    unstablePackages.runCommand "zellij-${zellij-compiled.version}"
+      {
+        inherit (zellij-compiled) version meta;
+        nativeBuildInputs = [ unstablePackages.patchelf ];
+      }
+      ''
+        cp -r ${zellij-compiled} $out
+        chmod -R u+w $out
+        patchelf --add-rpath ${
+          unstablePackages.lib.makeLibraryPath (
+            with unstablePackages;
+            [
+              wayland # libwayland-client, libwayland-egl, libwayland-cursor
+              libxkbcommon # also libxkbcommon-x11
+              libGL # libglvnd: libEGL.so.1 dispatching to /run/opengl-driver
+              fontconfig # system font discovery
+              libx11
+              libxcursor
+              libxi
+              libxrandr
+            ]
+          )
+        } $out/bin/zellij
+      '';
 in
 {
   home.packages = with pkgs; [
