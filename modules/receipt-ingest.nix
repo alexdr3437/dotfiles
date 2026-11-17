@@ -26,6 +26,8 @@ in
       User = "alex";
       Group = "users";
       ExecStart = "${package}/bin/receipt-ingest-service";
+      # oneshot units have no start timeout by default; a hung run would block later ones
+      TimeoutStartSec = "30min";
       # NOUS_API_KEY=...; root-only (mode 600), created by hand
       EnvironmentFile = "/etc/receipt-ingest/env";
     };
