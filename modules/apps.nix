@@ -50,6 +50,9 @@
     calibre
     bruno
     zotero
-    localsend
   ];
+
+  # localsend through its module, not just the package: this opens 53317 TCP/UDP in the firewall,
+  # without which other devices on the LAN can neither discover this machine nor send to it.
+  programs.localsend.enable = true;
 }
