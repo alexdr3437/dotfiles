@@ -14,31 +14,12 @@
           # lsp.nix also gives nixd nixfmt, for vim.lsp.buf.format()
           nix = [ "nixfmt" ];
 
-          # first available wins: ruff, except in a project with a .style.yapf
-          python = {
-            __unkeyed-1 = "ruff_format";
-            __unkeyed-2 = "yapf";
-            stop_after_first = true;
-          };
-        };
-
-        formatters = {
-          # set `line-length` per project under [tool.ruff]. Do not enable `preview`
-          # formatting: it breaks polars chains.
-          ruff_format.condition.__raw = ''
-            function(_, ctx)
-              return vim.fs.root(ctx.dirname, { ".style.yapf" }) == nil
-            end
-          '';
-
-          # yapf reads stdin, so run it from the directory holding .style.yapf or it is not found
-          yapf.cwd.__raw = ''
-            require("conform.util").root_file({
-              ".style.yapf",
-              "setup.cfg",
-              "pyproject.toml",
-            })
-          '';
+          # runs in order. No ruff `preview` formatting: it breaks polars chains
+          python = [
+            "ruff_fix"
+            "ruff_format"
+            "ruff_organize_imports"
+          ];
         };
 
         # failures are still in :ConformInfo
@@ -56,7 +37,7 @@
             }
 
             return {
-              -- generous: yapf starts a python interpreter every time
+              -- generous: three ruff passes on python
               timeout_ms = 2000,
               lsp_format = no_lsp_format[vim.bo[bufnr].filetype] and "never" or "fallback",
             }
