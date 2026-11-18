@@ -31,11 +31,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792673919,
-        "narHash": "sha256-r6faMx71bwb21LuEIEmOfz3z7AycyBoEYTjdondKrs0=",
+        "lastModified": 1793739566,
+        "narHash": "sha256-zR48FUqN13rMi1ZJfKbIpAYmR1Zt0dt4I6DMefDZCPU=",
         "ref": "refs/heads/main",
-        "rev": "5681390772ad7e6fb3a6b3a48a36d4fc163a43a2",
-        "revCount": 45,
+        "rev": "9edf5ec4eb9307c8d0ae50a264454c18d6137f68",
+        "revCount": 54,
         "type": "git",
         "url": "ssh://git@github.com/Mesomat-inc/cmsis_cli.git"
       },
@@ -115,11 +115,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1782949081,
-        "narHash": "sha256-vp6Y/Grm98ESt6ceOkWiHWyZRDV3J1RID4w+6NWK9yA=",
+        "lastModified": 1790898470,
+        "narHash": "sha256-zTwuwezD0w3hpga6a6P8emidzAZFyWqlNeRBlpWOOl8=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "17c9d6cdfc60c64f4ee8d306f9bc0b4ccb51481e",
+        "rev": "024633cd702b10285db5cb19b40ad48d2399ba60",
         "type": "github"
       },
       "original": {
@@ -154,11 +154,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790898470,
-        "narHash": "sha256-zTwuwezD0w3hpga6a6P8emidzAZFyWqlNeRBlpWOOl8=",
+        "lastModified": 1793576659,
+        "narHash": "sha256-V1h85lUaJBQoHFrB2vpXZOE0Ju1MYSnIpsehoVZYlDo=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "024633cd702b10285db5cb19b40ad48d2399ba60",
+        "rev": "ea2630b7470978622c7689a1ff75d2b389175399",
         "type": "github"
       },
       "original": {
@@ -175,11 +175,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790898470,
-        "narHash": "sha256-zTwuwezD0w3hpga6a6P8emidzAZFyWqlNeRBlpWOOl8=",
+        "lastModified": 1793576659,
+        "narHash": "sha256-V1h85lUaJBQoHFrB2vpXZOE0Ju1MYSnIpsehoVZYlDo=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "024633cd702b10285db5cb19b40ad48d2399ba60",
+        "rev": "ea2630b7470978622c7689a1ff75d2b389175399",
         "type": "github"
       },
       "original": {
@@ -297,17 +297,16 @@
           "home-manager"
         ],
         "nixpkgs": "nixpkgs_3",
-        "npm-lockfile-fix": "npm-lockfile-fix",
         "pyproject-build-systems": "pyproject-build-systems",
         "pyproject-nix": "pyproject-nix",
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1791221581,
-        "narHash": "sha256-vwIF9UY5p0szncnRX2tURW93d+OlomLu4FeEOT9aCrg=",
+        "lastModified": 1795027120,
+        "narHash": "sha256-TnpUvN461ey9fhZvhLgDtwl/eZ1o/X1OwtHBzco5hFM=",
         "owner": "NousResearch",
         "repo": "hermes-agent",
-        "rev": "3729602dc9c1657055325bb232755ae9228cf3d0",
+        "rev": "6161a344098f0402238ca6fdccdbe3bb81b6289b",
         "type": "github"
       },
       "original": {
@@ -325,11 +324,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793725429,
-        "narHash": "sha256-b5sYPsNPTeCoJJXk9KYXZMTd+uXpAthQ9EdxB+34HVQ=",
+        "lastModified": 1795025862,
+        "narHash": "sha256-PsSDhYLLYezwyiO7ct/jLSlsvTi6eikCzJDAoJ9OyvY=",
         "owner": "anomalyco",
         "repo": "hex",
-        "rev": "5edf7376365a6a71ae21c59871a1e255f952233b",
+        "rev": "52811a7f9b34d8b66c98b734e35b04fb923847f6",
         "type": "github"
       },
       "original": {
@@ -387,11 +386,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792818383,
-        "narHash": "sha256-199i7ubVSXTMl+0AAlL7cVCXSjcI+jWByMcimYjeMX0=",
+        "lastModified": 1794943722,
+        "narHash": "sha256-Qkh6uNyMsic61gfyOO8VXnC+HEBdti6Xe2kKiMf66O0=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "24f2190587513b9c2f73db112a17844ae912d965",
+        "rev": "5643e73425b85ac359ba2aaf83deae8ce1cd7968",
         "type": "github"
       },
       "original": {
@@ -427,11 +426,11 @@
         "scenefx": "scenefx"
       },
       "locked": {
-        "lastModified": 1793285666,
-        "narHash": "sha256-0MRMHabwVDRG52oLuAFnlPXKtSnuuTDy4ws2mXq1fjg=",
+        "lastModified": 1794993074,
+        "narHash": "sha256-7hqlVEp3REaIYOyoK4JTCxbUd+CUU85ExS4rcpvAE8w=",
         "owner": "mangowm",
         "repo": "mango",
-        "rev": "76fd7ea207e287db504e28dd5cc44d690b417711",
+        "rev": "8b87008eab36e88030243f008d161a7c90c9988a",
         "type": "github"
       },
       "original": {
@@ -449,11 +448,11 @@
       },
       "locked": {
         "dir": "device-manager/tools/marc",
-        "lastModified": 1793304021,
-        "narHash": "sha256-ioedCN8GNstAsAH2Q0/UOEUhkGFEJWNCG8nuILoGNNA=",
+        "lastModified": 1794606023,
+        "narHash": "sha256-lri48FxTay033AI1yYGCnFpVcdWSK/fTmOk6CcvHbJs=",
         "ref": "dev",
-        "rev": "805002ae924c20b746d92a9e2106282202fcf597",
-        "revCount": 1180,
+        "rev": "94586685f26a9d576e189e627a89b9aba8164bdb",
+        "revCount": 1318,
         "type": "git",
         "url": "ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git"
       },
@@ -473,11 +472,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793232177,
-        "narHash": "sha256-vGVJU5XzYKbvoNP/7z9AgoTn7/IKv1VvWn1p3VKJ9Ug=",
+        "lastModified": 1794960214,
+        "narHash": "sha256-pQ2K75vIgX3coVOS+FFxy3k13S9z+lU/npU0ARbSM98=",
         "owner": "nix-community",
         "repo": "neovim-nightly-overlay",
-        "rev": "ba23f158ca2b55e9606647bbca3b3ee633479624",
+        "rev": "3bb67f7aa4c19739205455f33700bce996fffebb",
         "type": "github"
       },
       "original": {
@@ -489,11 +488,11 @@
     "neovim-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1793195863,
-        "narHash": "sha256-iW7HeTulMQ+vwt5BiWJbv5I2QtVlSpyY4+vcCL0hZoY=",
+        "lastModified": 1794958037,
+        "narHash": "sha256-HfpsdOH/f+vPzoOJvu1tPEAQFALL6oJuySnErMUIuYI=",
         "owner": "neovim",
         "repo": "neovim",
-        "rev": "63497867b60a738c0454a3b9e25b9726a2eb02e0",
+        "rev": "1f75241c47e11cf65686d6759e28f2d6b0884d94",
         "type": "github"
       },
       "original": {
@@ -557,11 +556,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1793110635,
-        "narHash": "sha256-dhoW6VgFWlaodSY5jrBn+CF2FLmaUvDVgM7+C7T2+NM=",
+        "lastModified": 1794890597,
+        "narHash": "sha256-lME2lHoDHAaSHP3/okgiVoJ0icVEvsQH8LeU3We7tcc=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "31ecbaca1bdefa45dffc409f0250bd8039ea0010",
+        "rev": "04906337b6d53e8bb0eaf0470ae9f070a4d4eb55",
         "type": "github"
       },
       "original": {
@@ -586,11 +585,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1785318670,
-        "narHash": "sha256-dN6Ou5x/+23FZLEpYP3IffO+NyJFzUlGumt1uu3MMaY=",
+        "lastModified": 1792502884,
+        "narHash": "sha256-IoNisKcGbUjdd45qCqywGMCYmZ5EnkxezvLII0FWwNA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0954f7ee2f6bb3dc7d4e3d0d8bcb8fd4bde4cfc5",
+        "rev": "02c087f3fe673c9e317f206a627cb6b910336dbe",
         "type": "github"
       },
       "original": {
@@ -650,11 +649,11 @@
     },
     "nixpkgs_7": {
       "locked": {
-        "lastModified": 1793183032,
-        "narHash": "sha256-56mFMf8heLNfYhcgbrh4GpN5x+G9JOfTFXZC3n6w0qM=",
+        "lastModified": 1794872590,
+        "narHash": "sha256-E+XLAfnC7+bdr4qlEgRv6cdGmiqTU5oeFNKCha7epqQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "08d3a97586f6b6343b3b5e799980773629432610",
+        "rev": "f68407657ad294471eb4b2e65d193df26edf729f",
         "type": "github"
       },
       "original": {
@@ -689,37 +688,16 @@
         "systems": "systems_4"
       },
       "locked": {
-        "lastModified": 1792203519,
-        "narHash": "sha256-yJ072hxngo/srNdLTp4BlFeo0hedwnKicI3TGlSXLFE=",
+        "lastModified": 1794943345,
+        "narHash": "sha256-1d33ym1V/UxX9pcNbrpG0/P8riFHE8VuVAc3T8WN52I=",
         "owner": "nix-community",
         "repo": "nixvim",
-        "rev": "453dc9c5037e6d1bec81d2a51ddacd58a2f44e9c",
+        "rev": "b67578f451bd779e79ec42f8153a403421a4b266",
         "type": "github"
       },
       "original": {
         "owner": "nix-community",
         "repo": "nixvim",
-        "type": "github"
-      }
-    },
-    "npm-lockfile-fix": {
-      "inputs": {
-        "nixpkgs": [
-          "hermes-agent",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1775903712,
-        "narHash": "sha256-2GV79U6iVH4gKAPWYrxUReB0S41ty/Y3dBLquU8AlaA=",
-        "owner": "jeslie0",
-        "repo": "npm-lockfile-fix",
-        "rev": "c6093acb0c0548e0f9b8b3d82918823721930fe8",
-        "type": "github"
-      },
-      "original": {
-        "owner": "jeslie0",
-        "repo": "npm-lockfile-fix",
         "type": "github"
       }
     },
@@ -739,11 +717,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785115949,
-        "narHash": "sha256-8AM37BfyGaL2v/SZyg4PupRxJ01Y4htvM+WrTjWrPpo=",
+        "lastModified": 1792499785,
+        "narHash": "sha256-mGOkvueuMGSRiD75ccxFzfEvSlIU9ztjFluHMKOtogY=",
         "owner": "pyproject-nix",
         "repo": "build-system-pkgs",
-        "rev": "62c0d86027edb1c4f39a5facc09876348144f7c9",
+        "rev": "a17819c85163988e063806ffc4f6d2716bc8ead8",
         "type": "github"
       },
       "original": {
@@ -818,11 +796,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784591072,
-        "narHash": "sha256-zP/WaDxrRu8GANZM61+V2LT/7ycEEdoyLWn7M6WzU7M=",
+        "lastModified": 1791657700,
+        "narHash": "sha256-vcCAvhtA7hG+/gOge29hYHy7I/dLkIsr5nLx4sFEQic=",
         "owner": "pyproject-nix",
         "repo": "pyproject.nix",
-        "rev": "e3b599ca2e7fcf93d4edf65d7f19bbf6491724f3",
+        "rev": "ddc400a6883b042646d0940e65971bb7f7e96107",
         "type": "github"
       },
       "original": {
@@ -1086,14 +1064,15 @@
         "decoder": "decoder",
         "nixpkgs": "nixpkgs_8",
         "rust-overlay": "rust-overlay",
+        "west2nix": "west2nix",
         "zephyr-nix": "zephyr-nix"
       },
       "locked": {
-        "lastModified": 1793304021,
-        "narHash": "sha256-CKTZcYTaeC195gt+aq+ne/F6N5RgmYNe81rmVzluSk0=",
+        "lastModified": 1794606023,
+        "narHash": "sha256-lri48FxTay033AI1yYGCnFpVcdWSK/fTmOk6CcvHbJs=",
         "ref": "dev",
-        "rev": "805002ae924c20b746d92a9e2106282202fcf597",
-        "revCount": 1180,
+        "rev": "94586685f26a9d576e189e627a89b9aba8164bdb",
+        "revCount": 1318,
         "submodules": true,
         "type": "git",
         "url": "ssh://git@github.com/Mesomat-Inc/tires-firmware-rs.git"
@@ -1139,11 +1118,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785277507,
-        "narHash": "sha256-9Tq3UDX2hD/aveW/HvkBlAmEwJTOlY5HQXJM+L5BGmE=",
+        "lastModified": 1792666911,
+        "narHash": "sha256-UWo7wDPi00YXOI1Io7g4vGKuCSPJ863kHJVDzsgqtoM=",
         "owner": "pyproject-nix",
         "repo": "uv2nix",
-        "rev": "5a836d395cbf5fc22670eb98dd4aa4fc4d406977",
+        "rev": "0fdaa03ea3c3c16dbb1fe4d69108f07227a4b42d",
         "type": "github"
       },
       "original": {
@@ -1210,16 +1189,41 @@
         ]
       },
       "locked": {
-        "lastModified": 1793198875,
-        "narHash": "sha256-CZR26099bnlOWgLpMOPwdpmocSAGetbepjkP661qml4=",
+        "lastModified": 1794988633,
+        "narHash": "sha256-wSW8BGSv+cM7ojPMThybFQzCBzG2IUmqYAXt/E0beb4=",
         "owner": "Alexays",
         "repo": "Waybar",
-        "rev": "f6f73c81818b0a6753c1efb68e0fae2149eac028",
+        "rev": "11c771ef072c6c5f7114b4c4ab57147c9ed5aa18",
         "type": "github"
       },
       "original": {
         "owner": "Alexays",
         "repo": "Waybar",
+        "type": "github"
+      }
+    },
+    "west2nix": {
+      "inputs": {
+        "nixpkgs": [
+          "tires-firmware",
+          "nixpkgs"
+        ],
+        "zephyr-nix": [
+          "tires-firmware",
+          "zephyr-nix"
+        ]
+      },
+      "locked": {
+        "lastModified": 1753935156,
+        "narHash": "sha256-D6iH0d67AmlB7k3QIjUvNo7NafzWy03HOHV5o4w251s=",
+        "owner": "adisbladis",
+        "repo": "west2nix",
+        "rev": "f84670d66f881d9340b7d7626fbfe499438c134b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "adisbladis",
+        "repo": "west2nix",
         "type": "github"
       }
     },
@@ -1251,11 +1255,11 @@
     "zellij-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1793989290,
-        "narHash": "sha256-QLLGf5GtVkodgUUVqUPxZUFavNcgw7GlNNtmvh0FK78=",
+        "lastModified": 1795021453,
+        "narHash": "sha256-xl0BAdAp6vPBPA/y7zC1eui4ZKBRyfOfLuCC2q+uSwk=",
         "owner": "zellij-org",
         "repo": "zellij",
-        "rev": "43c8710b3a9845f60d5a567c7410fc1197fabb66",
+        "rev": "8b3847baf1595df09103b54b762314e5674164cc",
         "type": "github"
       },
       "original": {
